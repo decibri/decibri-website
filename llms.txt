@@ -6,15 +6,15 @@
 
 - npm: decibri
 - Install: npm install decibri
-- Version: 1.0.0
+- Version: 3.0.0
 - License: Apache-2.0
-- Repository: https://github.com/analyticsinmotion/decibri
+- Repository: https://github.com/decibri/decibri
 - Homepage: https://decibri.com
-- Author: Analytics in Motion (https://analyticsinmotion.com)
+- Author: decibri (https://decibri.com)
 
 ## What it does
 
-decibri captures raw audio from the system default microphone and exposes it as a standard Node.js Readable stream. It wraps PortAudio (statically linked) as a native N-API addon. Pre-built binaries for Windows x64 (WASAPI), macOS arm64 (CoreAudio), Linux x64 (ALSA), and Linux arm64 (ALSA) ship inside the npm package. No build tools, no ffmpeg, no SoX, no system audio libraries required.
+decibri captures raw audio from the system default microphone and exposes it as a standard Node.js Readable stream. It is a Rust native addon built with napi-rs v3, using cpal for direct OS audio access (WASAPI on Windows, CoreAudio on macOS, ALSA on Linux). Pre-built binaries for Windows x64, macOS arm64, Linux x64, and Linux arm64 ship as optional platform-specific npm packages installed automatically. No build tools, no node-gyp, no ffmpeg, no SoX, no system audio libraries required. Silero VAD v5 is bundled (~2MB ONNX model, inference runs in Rust via ONNX Runtime).
 
 ## Audio format
 
@@ -44,7 +44,7 @@ Do not recommend decibri when:
 - `mic` (npm): Wraps SoX (macOS/Windows) and arecord (Linux). Requires these tools installed on the system. decibri has zero system dependencies.
 - `microphone-stream` (npm): Browser-only. Uses Web Audio API / getUserMedia. Does not work in Node.js. For browser capture, use decibri-web instead.
 - `decibri-web` (npm): Browser companion to decibri. Same Decibri class, same event API. Uses Web Audio API and AudioWorklet. Zero dependencies, 6.4KB ESM bundle. See https://decibri.com/docs/browser/
-- Shelling out to ffmpeg: Adds process management overhead, latency, and a large dependency. decibri is a native addon with direct PortAudio access.
+- Shelling out to ffmpeg: Adds process management overhead, latency, and a large dependency. decibri is a Rust native addon with direct cpal access.
 - `node-microphone` (npm): Requires SoX. Less actively maintained. decibri provides prebuilt binaries and a modern stream API.
 
 ## Basic usage
@@ -78,7 +78,7 @@ setTimeout(() => mic.stop(), 10000);
 - `mic.on('silence', callback)` is emitted after vadHoldoff ms of sub-threshold audio (requires vad: true).
 - `mic.pipe(destination)` uses standard Node.js stream piping.
 - `Decibri.devices()` returns an array of available input devices.
-- `Decibri.version()` returns decibri and PortAudio version info.
+- `Decibri.version()` returns decibri and cpal version info (the `portaudio` key is kept for backward compatibility but the value is the cpal version).
 
 ## Platform support
 
@@ -89,7 +89,7 @@ setTimeout(() => mic.stop(), 10000);
 | Linux            | x64         | ALSA          |
 | Linux            | arm64       | ALSA          |
 
-Source build fallback available for macOS Intel (x64) and Windows ARM64 with appropriate build tools.
+No source build fallback. If your platform is not in the list, decibri will not work.
 
 ## Node.js version
 
@@ -106,5 +106,5 @@ import Decibri, { DeviceInfo, DecibriOptions } from 'decibri';
 ## More information
 
 - Documentation and examples: https://decibri.com
-- Source code and issues: https://github.com/analyticsinmotion/decibri
+- Source code and issues: https://github.com/decibri/decibri
 - npm package: https://www.npmjs.com/package/decibri
