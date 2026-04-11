@@ -126,11 +126,24 @@
               <td><code>300</code></td>
               <td>Milliseconds of sub-threshold audio before <code>'silence'</code> is emitted</td>
             </tr>
+            <tr>
+              <td><code>vadMode</code></td>
+              <td><code>'energy' | 'silero'</code></td>
+              <td><code>'energy'</code></td>
+              <td>VAD engine. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v5 ONNX model for ML-based detection</td>
+            </tr>
+            <tr>
+              <td><code>modelPath</code></td>
+              <td><code>string</code></td>
+              <td>(bundled)</td>
+              <td>Path to a custom Silero VAD ONNX model. Only used when <code>vadMode</code> is <code>'silero'</code>. When omitted, uses the model bundled with the package</td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted.</p>
+      <p>When <code>vadMode</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0–1.0). If you explicitly set <code>vadThreshold</code>, your value is used regardless of mode.</p>
 
       <h2>Methods</h2>
 
@@ -240,6 +253,171 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
 mic.on('data', (chunk) => {
   const samples = new Float32Array(chunk.buffer, chunk.byteOffset, chunk.length / 4);
 });</code></pre>
+
+      <h2>DecibriOutput</h2>
+
+      <h3><code>new DecibriOutput(options?)</code></h3>
+      <p>Creates a Node.js Writable stream for speaker playback. Extends <code>Writable</code> from the <code>stream</code> module.</p>
+      <pre><code class="language-javascript">const Decibri = require('decibri');
+const { DecibriOutput } = Decibri;
+
+const speaker = new DecibriOutput(options?);</code></pre>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code></td>
+              <td><code>number</code></td>
+              <td><code>16000</code></td>
+              <td>Samples per second (1,000 to 384,000 Hz)</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>number</code></td>
+              <td><code>1</code></td>
+              <td>Number of output channels (1 to 32)</td>
+            </tr>
+            <tr>
+              <td><code>format</code></td>
+              <td><code>'int16' | 'float32'</code></td>
+              <td><code>'int16'</code></td>
+              <td>Encoding of incoming PCM data</td>
+            </tr>
+            <tr>
+              <td><code>device</code></td>
+              <td><code>number | string</code></td>
+              <td>system default</td>
+              <td>Output device index or name substring</td>
+            </tr>
+            <tr>
+              <td><code>highWaterMark</code></td>
+              <td><code>number</code></td>
+              <td><code>16384</code></td>
+              <td>Writable stream buffer size in bytes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Standard Node.js <code>WritableOptions</code> are also accepted.</p>
+
+      <h3>Methods</h3>
+
+      <h3><code>speaker.write(chunk)</code></h3>
+      <p>Writes PCM data for playback. Returns <code>boolean</code>. If <code>false</code>, the buffer is full; wait for the <code>'drain'</code> event before writing more.</p>
+
+      <h3><code>speaker.end([chunk])</code></h3>
+      <p>Graceful stop. Plays all remaining buffered audio, then emits <code>'finish'</code>. Optionally accepts a final chunk to write before ending.</p>
+
+      <h3><code>speaker.stop()</code></h3>
+      <p>Immediate stop. Discards remaining buffered audio and releases resources. Does not emit <code>'finish'</code>. Safe to call multiple times.</p>
+
+      <h3>Static methods</h3>
+
+      <h3><code>DecibriOutput.devices()</code></h3>
+      <p>Returns an array of available audio output devices on the system.</p>
+      <pre><code class="language-javascript">const { DecibriOutput } = require('decibri');
+
+const devices = DecibriOutput.devices();
+console.log(devices);
+// [
+//   { index: 0, name: 'Speakers', maxOutputChannels: 2,
+//     defaultSampleRate: 48000, isDefault: true },
+//   ...
+// ]</code></pre>
+
+      <p>Each device object contains:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>index</code></td>
+              <td><code>number</code></td>
+              <td>Device index, used as <code>options.device</code></td>
+            </tr>
+            <tr>
+              <td><code>name</code></td>
+              <td><code>string</code></td>
+              <td>Human-readable device name reported by the OS</td>
+            </tr>
+            <tr>
+              <td><code>maxOutputChannels</code></td>
+              <td><code>number</code></td>
+              <td>Maximum number of output channels supported</td>
+            </tr>
+            <tr>
+              <td><code>defaultSampleRate</code></td>
+              <td><code>number</code></td>
+              <td>Preferred sample rate for this device</td>
+            </tr>
+            <tr>
+              <td><code>isDefault</code></td>
+              <td><code>boolean</code></td>
+              <td>Whether this is the system default output device</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>DecibriOutput.version()</code></h3>
+      <p>Returns version information. Same as <code>Decibri.version()</code>.</p>
+
+      <h3>Properties</h3>
+
+      <h3><code>speaker.isPlaying</code></h3>
+      <p><code>boolean</code> (read-only). Returns <code>true</code> while audio is being output to the speaker.</p>
+
+      <h3>Events</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Payload</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>'drain'</code></td>
+              <td>(none)</td>
+              <td>Writable buffer has space, safe to write again.</td>
+            </tr>
+            <tr>
+              <td><code>'finish'</code></td>
+              <td>(none)</td>
+              <td>All data flushed after <code>end()</code>. Every buffered sample has been played.</td>
+            </tr>
+            <tr>
+              <td><code>'error'</code></td>
+              <td><code>Error</code></td>
+              <td>Speaker errors.</td>
+            </tr>
+            <tr>
+              <td><code>'close'</code></td>
+              <td>(none)</td>
+              <td>Stream closed, all resources released.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <footer class="doc-footer">
         <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>

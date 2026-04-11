@@ -117,7 +117,40 @@ const mic2 = new Decibri({ device: 'USB', sampleRate: 16000, channels: 1 });</co
 
 mic.on('speech', () => console.log('Speech detected'));
 mic.on('silence', () => console.log('Silence detected'));</code></pre>
-      <p>For more accurate detection in noisy environments, see the <a href="integrations/sherpa-onnx-vad">Sherpa-ONNX Silero VAD integration</a>.</p>
+      <p>For more accurate detection in noisy environments, use the built-in Silero VAD (see below).</p>
+
+      <h2>Silero voice activity detection</h2>
+      <p>decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Set <code>vadMode: 'silero'</code> for more accurate detection than energy-based VAD, especially in noisy environments. The model runs locally in Rust via ONNX Runtime with no cloud API needed.</p>
+      <pre><code class="language-javascript">const mic = new Decibri({
+  sampleRate: 16000,
+  channels: 1,
+  vad: true,
+  vadMode: 'silero',
+});
+
+mic.on('speech', () => console.log('Speech detected'));
+mic.on('silence', () => console.log('Silence detected'));</code></pre>
+      <p>When <code>vadMode</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0–1.0). You can override this by setting <code>vadThreshold</code> explicitly.</p>
+      <p>The bundled model is auto-resolved from the package. If you need a custom model, pass <code>modelPath</code> pointing to your <code>.onnx</code> file.</p>
+
+      <h2>Audio output</h2>
+      <p><code>DecibriOutput</code> is a standard Node.js Writable stream for speaker playback. It uses the same native audio backend as capture.</p>
+      <pre><code class="language-javascript">const Decibri = require('decibri');
+const { DecibriOutput } = Decibri;
+
+const speaker = new DecibriOutput({ sampleRate: 16000, channels: 1 });
+speaker.write(pcmBuffer);
+speaker.end(); // plays all remaining audio, then emits 'finish'</code></pre>
+      <p>The <code>sampleRate</code>, <code>channels</code>, and <code>format</code> options must match the audio data you are writing. Use <code>speaker.stop()</code> to immediately stop playback and discard remaining audio, or <code>speaker.end()</code> to drain the buffer and play everything.</p>
+
+      <h2>Full duplex</h2>
+      <p>Capture and playback simultaneously using standard Node.js pipe:</p>
+      <pre><code class="language-javascript">const Decibri = require('decibri');
+const { DecibriOutput } = Decibri;
+
+const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+const speaker = new DecibriOutput({ sampleRate: 16000, channels: 1 });
+mic.pipe(speaker); // hear yourself in real time</code></pre>
 
       <h2>Platform support</h2>
       <p>Pre-built binaries ship inside the npm package. No build tools, no compilation, no post-install downloads.</p>
