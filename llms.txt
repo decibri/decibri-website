@@ -1,6 +1,6 @@
 # decibri
 
-> Cross-platform, low-latency microphone audio capture for Node.js.
+> Cross-platform audio capture, output, and voice activity detection for Node.js and browsers.
 
 ## Package
 

@@ -16,7 +16,7 @@
   <title>decibri | Cross-platform audio capture and output for Node.js</title>
   <meta name="description" content="Cross-platform audio capture and output for Node.js and browsers. No ffmpeg. No SoX. No setup. Just a real-time audio stream.">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="microphone, Node.js, audio capture, streaming, PCM, cross-platform, voice AI, real-time audio, speech-to-text, wake word, voice agent, whisper, cpal, rust, native addon, deepgram, assemblyai, openai, sherpa-onnx, aws transcribe, google speech-to-text, azure speech-to-text, real-time transcription, cloud transcription, local transcription">
+  <meta name="keywords" content="microphone, Node.js, audio capture, audio output, speaker playback, DecibriOutput, streaming, PCM, cross-platform, voice AI, real-time audio, speech-to-text, wake word, voice agent, whisper, cpal, rust, napi-rs, native addon, silero vad, voice activity detection, browser audio capture, AudioWorklet, full duplex audio, deepgram, assemblyai, openai, sherpa-onnx, aws transcribe, google speech-to-text, azure speech-to-text, real-time transcription, cloud transcription, local transcription">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://decibri.com">
   <link rel="alternate" type="text/plain" href="https://decibri.com/llms.txt" title="LLM-readable package description">
@@ -30,8 +30,8 @@
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="decibri | Cross-platform microphone streaming for Node.js">
-  <meta name="twitter:description" content="Cross-platform, low-latency Node.js microphone capture. No ffmpeg. No SoX. No setup.">
+  <meta name="twitter:title" content="decibri | Cross-platform audio capture and output for Node.js">
+  <meta name="twitter:description" content="Cross-platform audio capture and output for Node.js and browsers. No ffmpeg. No SoX. No setup.">
   <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
   <meta name="twitter:site" content="@decibriai">
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
     "@type": "SoftwareSourceCode",
     "name": "decibri",
     "alternateName": "decibri",
-    "description": "Cross-platform, low-latency microphone audio capture for Node.js. Rust native addon using cpal for direct OS audio access via napi-rs. No ffmpeg, no SoX, no build tools required. Outputs 16-bit PCM via a standard Node.js Readable stream for real-time voice AI, speech-to-text, wake word detection, and streaming audio pipelines.",
+    "description": "Cross-platform audio capture and output for Node.js and browsers. Rust native addon using cpal for direct OS audio access via napi-rs. Includes DecibriOutput for speaker playback and bundled Silero VAD v5 for ML-based voice activity detection. No ffmpeg, no SoX, no build tools required. Browser support via conditional exports and AudioWorklet.",
     "url": "https://decibri.com",
     "codeRepository": "https://github.com/decibri/decibri",
     "programmingLanguage": ["Rust", "JavaScript", "TypeScript"],
@@ -1482,8 +1482,8 @@
   <!-- ── Hero ── -->
   <div class="container">
     <section class="hero">
-      <h1>Cross-platform, low-latency <span class="gradient-text">microphone streaming</span> for Node.js</h1>
-      <p class="subtitle">No ffmpeg. No SoX. No setup. Capture audio from the system microphone and pipe it anywhere: speech engines, WebSockets, or files.</p>
+      <h1>Cross-platform <span class="gradient-text">audio capture and output</span> for Node.js</h1>
+      <p class="subtitle">No ffmpeg. No SoX. No setup. Capture microphone audio, play to speakers, or pipe it anywhere: speech engines, WebSockets, or files. Works in browsers too.</p>
 
       <div class="cta-group">
         <a href="https://decibri.com/docs/" class="btn-primary">
