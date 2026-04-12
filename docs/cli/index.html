@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>CLI Getting Started | decibri docs</title>
+  <meta name="description" content="Install decibri-cli, record your first WAV file, and play it back. Cross-platform audio capture and playback from the command line.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="CLI Getting Started | decibri docs">
+  <meta property="og:description" content="Install decibri-cli, record your first WAV file, and play it back. Cross-platform audio capture and playback from the command line.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/cli/">
+  <link rel="canonical" href="https://decibri.com/docs/cli/">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri-cli" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/cli/">CLI</a>
+        <span class="sep">/</span>
+        <span class="current">Getting Started</span>
+      </div>
+
+      <h1>CLI Getting Started</h1>
+      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. It's a single statically-linked binary with zero runtime dependencies, built on the same Rust audio backend as the decibri Node.js and browser packages. This guide gets you from zero to recording and playing back audio in under five minutes.</p>
+
+      <h2>Install</h2>
+      <p>Three ways to install. Pick whichever fits your workflow best.</p>
+
+      <h3>npm (recommended)</h3>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install -g decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Downloads the platform-specific binary from GitHub Releases, verifies its SHA256, and adds it to your PATH. No Node.js runtime is required after installation, because npm is used only as a delivery channel.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> The npm install method does not require Node.js to be installed at runtime. The downloaded binary runs independently once it's on your PATH.
+      </div>
+
+      <h3>Cargo</h3>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('cargo install decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">cargo install decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Builds from source. Requires Rust stable. On Linux, you'll also need the ALSA development headers: <code>sudo apt install libasound2-dev</code> on Debian/Ubuntu, or <code>sudo dnf install alsa-lib-devel</code> on Fedora.</p>
+
+      <h3>Direct download</h3>
+      <p>Pre-built archives for every supported platform are available on the <a href="https://github.com/decibri/decibri-cli/releases" target="_blank" rel="noopener noreferrer">releases page</a>, along with <code>SHA256SUMS</code> and SLSA provenance attestations for supply-chain verification.</p>
+
+      <h2>Your first commands</h2>
+
+      <h3>Check the version</h3>
+      <pre><code class="language-bash">decibri version</code></pre>
+      <p>Prints the CLI version, the decibri library version it was built against, the audio backend for your platform, the Rust target triple, and the Rust compiler version:</p>
+      <pre><code class="language-bash">decibri-cli 0.1.0
+decibri 3.0.0
+Audio backend: WASAPI
+Platform: x86_64-pc-windows-msvc
+Rust: 1.82.0</code></pre>
+
+      <p>For machine-readable output, add <code>--json</code>:</p>
+      <pre><code class="language-bash">decibri version --json</code></pre>
+      <pre><code class="language-javascript">{
+  "decibri_cli": "0.1.0",
+  "decibri": "3.0.0",
+  "audio_backend": "WASAPI",
+  "target": "x86_64-pc-windows-msvc",
+  "rust_version": "1.82.0"
+}</code></pre>
+
+      <div class="callout">
+        <strong>Stable schema:</strong> The <code>version --json</code> schema is stable from v0.1.0 and will only change across major version bumps. JSON schemas for other commands are unstable until v1.0.0.
+      </div>
+
+      <h3>List audio devices</h3>
+      <pre><code class="language-bash">decibri devices</code></pre>
+      <p>Prints a human-readable table of all input and output devices on the system. Use <code>--input</code> or <code>--output</code> to filter, and <code>--json</code> for machine-readable output.</p>
+      <pre><code class="language-bash">decibri devices --input
+decibri devices --output
+decibri devices --input --json</code></pre>
+
+      <h3>Record a WAV file</h3>
+      <pre><code class="language-bash">decibri capture -o recording.wav -d 10</code></pre>
+      <p>Records 10 seconds of audio from your default input device to <code>recording.wav</code>. The default format is 16-bit PCM at 16 kHz mono, which is the format expected by most speech recognition engines. Press Ctrl+C at any time to stop early; decibri-cli writes a valid (truncated) WAV file, never a corrupted one.</p>
+
+      <div class="callout">
+        <strong>Always 16-bit PCM WAV.</strong> <code>decibri capture</code> always writes 16-bit PCM WAV in v0.1.0. Change the sample rate with <code>-r</code> and channel count with <code>-c</code>, but the encoding is fixed.
+      </div>
+
+      <h3>Play a WAV file</h3>
+      <pre><code class="language-bash">decibri play recording.wav</code></pre>
+      <p>Plays the file through your default output device. Supports 16-bit PCM integer and 32-bit float WAV inputs. Other WAV formats (24-bit, 8-bit, non-PCM codecs) produce a clear error rather than garbled output. Ctrl+C stops playback cleanly with exit code 0.</p>
+
+      <h2>Common workflows</h2>
+
+      <h3>Record from a specific microphone</h3>
+      <pre><code class="language-bash">decibri devices --input
+decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
+      <p><code>--device</code> accepts either a case-insensitive name substring or a numeric device index from the <code>devices</code> listing. Name substrings are usually the more stable choice across runs.</p>
+
+      <h3>Higher-quality stereo recording</h3>
+      <pre><code class="language-bash">decibri capture -o song.wav -d 60 -r 44100 -c 2</code></pre>
+      <p>CD-quality 44.1 kHz stereo, 60 seconds. The encoding remains 16-bit PCM WAV, since v0.1.0 does not output 24-bit or float formats.</p>
+
+      <h3>Round-trip check</h3>
+      <pre><code class="language-bash">decibri capture -o test.wav -d 5 &amp;&amp; decibri play test.wav</code></pre>
+      <p>Useful for verifying that input and output devices both work end-to-end. A simple audio loopback test for CI or new machine setup.</p>
+
+      <h3>CI-friendly recording</h3>
+      <pre><code class="language-bash">decibri capture -o /tmp/ci-test.wav -d 2 --quiet --json</code></pre>
+      <p><code>--quiet</code> suppresses progress bars and status messages. Combined with <code>--json</code>, this is the pattern for shell scripts and CI pipelines. Exit code 0 on success, with a JSON summary on stdout describing the output file.</p>
+
+      <h2>Exit codes</h2>
+      <p>All commands use the same stable exit code contract:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>0</code></td>
+              <td>Success.</td>
+            </tr>
+            <tr>
+              <td><code>1</code></td>
+              <td>Generic error. Audio subsystem failure, unsupported WAV format, or corrupt input file.</td>
+            </tr>
+            <tr>
+              <td><code>2</code></td>
+              <td>Invalid arguments, caught by the argument parser.</td>
+            </tr>
+            <tr>
+              <td><code>3</code></td>
+              <td>Device not found. The <code>--device</code> value did not match any available device.</td>
+            </tr>
+            <tr>
+              <td><code>4</code></td>
+              <td>IO error. File not found, permission denied, disk full, or device lost during capture.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Platform support</h2>
+      <p>Pre-built binaries ship for every supported platform via npm, crates.io, and GitHub Releases. There is no source-build fallback. If your platform is not in the list, decibri-cli will not work.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Target triple</th>
+              <th>Audio backend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Windows 11</td>
+              <td><code>x86_64-pc-windows-msvc</code></td>
+              <td>WASAPI</td>
+            </tr>
+            <tr>
+              <td>macOS (Intel + Apple Silicon)</td>
+              <td><code>universal2</code></td>
+              <td>CoreAudio</td>
+            </tr>
+            <tr>
+              <td>Linux</td>
+              <td><code>x86_64-unknown-linux-gnu</code></td>
+              <td>ALSA</td>
+            </tr>
+            <tr>
+              <td>Linux</td>
+              <td><code>aarch64-unknown-linux-gnu</code></td>
+              <td>ALSA</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Next steps</h2>
+      <div class="cards-grid">
+        <a href="api-reference" class="doc-card">
+          <h3>API Reference</h3>
+          <p>Full command, flag, exit code, and JSON schema reference</p>
+        </a>
+        <a href="/docs/node/" class="doc-card">
+          <h3>decibri library (Node.js)</h3>
+          <p>Use the same audio backend from Node.js code</p>
+        </a>
+        <a href="https://github.com/decibri/decibri-cli" class="doc-card">
+          <h3>GitHub</h3>
+          <p>Source, issues, and releases</p>
+        </a>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri-cli" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri-cli" target="_blank" rel="noopener noreferrer">npm</a> &middot; <a href="https://crates.io/crates/decibri-cli" target="_blank" rel="noopener noreferrer">crates.io</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="../nav.js"></script>
+</body>
+</html>

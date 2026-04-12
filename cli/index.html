@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    // Prevent flash of wrong theme
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>decibri-cli | Cross-platform audio CLI for capture, playback, and devices</title>
+  <meta name="description" content="Capture, play, and enumerate audio devices from the command line. One static binary, zero runtime dependencies, cross-platform. Scriptable JSON output and stable exit codes.">
+  <meta name="robots" content="index, follow">
+  <meta name="keywords" content="audio cli, wav recorder cli, cross-platform audio capture, sox alternative, scriptable audio, command line microphone, rust audio cli, microphone, audio capture, PCM, cross-platform, voice AI, real-time audio, cpal, rust">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="canonical" href="https://decibri.com/cli">
+  <link rel="alternate" type="text/plain" href="https://decibri.com/llms.txt" title="LLM-readable package description">
+  <meta property="og:title" content="decibri-cli | Cross-platform audio CLI for capture, playback, and devices">
+  <meta property="og:description" content="Capture, play, and enumerate audio devices from the command line. One static binary, zero runtime dependencies, cross-platform. Scriptable JSON output and stable exit codes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://decibri.com/cli">
+  <meta property="og:site_name" content="decibri">
+  <meta property="og:image" content="https://decibri.com/decibri-social-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="decibri-cli | Cross-platform audio CLI for capture, playback, and devices">
+  <meta name="twitter:description" content="Capture, play, and enumerate audio devices from the command line. One static binary, zero runtime dependencies, cross-platform.">
+  <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
+  <meta name="twitter:site" content="@decibriai">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "decibri-cli",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, macOS, Linux",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "url": "https://decibri.com/cli",
+    "downloadUrl": "https://www.npmjs.com/package/decibri-cli",
+    "softwareVersion": "0.1.0",
+    "author": { "@type": "Organization", "name": "decibri", "url": "https://decibri.com" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "decibri-cli",
+    "description": "Cross-platform command-line tool for audio capture, playback, and device enumeration. One static binary, zero runtime dependencies. Built on the decibri Rust library.",
+    "url": "https://decibri.com/cli",
+    "codeRepository": "https://github.com/decibri/decibri-cli",
+    "programmingLanguage": ["Rust"],
+    "operatingSystem": ["Windows", "macOS", "Linux"],
+    "license": "https://opensource.org/licenses/Apache-2.0",
+    "version": "0.1.0",
+    "author": { "@type": "Organization", "name": "decibri", "url": "https://decibri.com" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to record a WAV file from the command line",
+    "step": [
+      { "@type": "HowToStep", "name": "Install", "text": "npm install -g decibri-cli" },
+      { "@type": "HowToStep", "name": "List devices", "text": "decibri devices" },
+      { "@type": "HowToStep", "name": "Capture", "text": "decibri capture -o speech.wav -d 10" },
+      { "@type": "HowToStep", "name": "Play back", "text": "decibri play speech.wav" }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Do I need Node.js installed to use decibri-cli?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. npm install -g decibri-cli uses npm purely as a delivery channel. The package downloads a platform-specific binary, verifies its SHA256, and adds it to your PATH. Once installed, the binary runs directly with no Node.js runtime involved. You can also use cargo install decibri-cli or download the binary directly from GitHub Releases."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why only 16-bit PCM WAV?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It's the format every ASR engine, wake-word detector, and speech-processing pipeline expects. 16-bit PCM at 16 kHz mono is the default because it's the lingua franca of voice tooling. You can pass -r 44100 -c 2 for CD-quality stereo, but the encoding is always 16-bit PCM WAV in v0.1.0."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it support FLAC, MP3, or other formats?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Not in v0.1.0. The focus is small, focused, and predictable. If you need format conversion, pipe the WAV output through ffmpeg or sox."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this a SoX replacement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. SoX is a full audio processing toolkit with effects, filters, and format conversion. decibri-cli does four things: capture, play, enumerate devices, and report version. If your use case is \"record and play WAVs from a script on any OS\", decibri-cli fits. If you need to apply reverb or convert between codecs, use SoX or ffmpeg."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "I'm seeing a SmartScreen or Gatekeeper warning. Is this safe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "v0.1.x binaries are unsigned (code signing is on the v1.0 roadmap). Every release ships with SHA256 checksums and SLSA provenance attestations generated by GitHub Actions, so you can verify a download with gh attestation verify <archive> --owner decibri. On macOS, direct downloads may need xattr -d com.apple.quarantine /path/to/decibri. The npm install path avoids the SmartScreen prompt because the binary is fetched at install time."
+        }
+      }
+    ]
+  }
+  </script>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #12121a;
+      --bg-code: #0d0d15;
+      --surface: #1a1a26;
+      --border: #252536;
+      --border-glow: #3b3b5c;
+      --text-primary: #e8e8f0;
+      --text-secondary: #9494b0;
+      --text-muted: #7a7a96;
+      --accent: #5ea3f8;
+      --accent-glow: rgba(94, 163, 248, 0.15);
+      --accent-glow-strong: rgba(94, 163, 248, 0.25);
+      --red: #ff6b6b;
+      --red-dim: rgba(255, 107, 107, 0.12);
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8f8fb;
+      --bg-elevated: #ffffff;
+      --bg-code: #f0f0f6;
+      --surface: #eaeaf0;
+      --border: #d4d4de;
+      --border-glow: #b0b0c4;
+      --text-primary: #1a1a2e;
+      --text-secondary: #52526e;
+      --text-muted: #6e6e86;
+      --accent: #1d5bbf;
+      --accent-glow: rgba(29, 91, 191, 0.10);
+      --accent-glow-strong: rgba(29, 91, 191, 0.18);
+      --red: #d94444;
+      --red-dim: rgba(217, 68, 68, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    [data-theme="light"] body::before { opacity: 0.4; }
+
+    /* ── Container ── */
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    [data-theme="light"] nav {
+      background: rgba(248, 248, 251, 0.85);
+    }
+
+    nav .nav-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-logo::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 3px;
+      vertical-align: -7px;
+      flex-shrink: 0;
+      background-color: var(--accent);
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-links .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 7px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    [data-theme="light"] .nav-links .nav-cta {
+      color: #1a1a2e;
+    }
+
+    .nav-links .nav-cta:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 0 100px;
+      position: relative;
+    }
+
+    /* Ambient glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5.5vw, 56px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -2.5px;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    /* ── Code Block ── */
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 36px 0;
+      position: relative;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .code-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .code-dots span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+
+    .code-dots span:first-child { background: #ff5f57; }
+    .code-dots span:nth-child(2) { background: #febc2e; }
+    .code-dots span:nth-child(3) { background: #28c840; }
+
+    .code-lang {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .code-body {
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .code-body pre {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
+
+    .code-body .kw { color: #c792ea; }
+    .code-body .fn { color: #82aaff; }
+    .code-body .str { color: #c3e88d; }
+    .code-body .cm { color: #546e7a; font-style: italic; }
+    .code-body .const { color: #89ddff; }
+    .code-body .obj { color: #f0c674; }
+    .code-body .param { color: #e8e8f0; }
+
+    /* ── CTA Buttons ── */
+    .cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .hero .cta-group {
+      margin-top: 36px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-primary:hover {
+      background: #7bb8ff;
+      box-shadow: 0 0 30px var(--accent-glow-strong);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-glow);
+      background: var(--surface);
+    }
+
+    .btn-secondary svg, .btn-primary svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Hero Labels ── */
+    .hero-label {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 36px;
+      margin-bottom: 12px;
+    }
+
+    .hero-label + .code-block {
+      margin-top: 0;
+    }
+
+    /* ── Install Pill ── */
+    .install-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .install-pill:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .install-pill .dollar { color: var(--accent); user-select: none; }
+    .install-pill .cmd { color: var(--text-primary); }
+
+    .install-pill .copy-icon {
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .install-pill:hover .copy-icon { color: var(--accent); }
+
+    .install-pill .tooltip {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      padding: 5px 10px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .install-pill .tooltip.show { opacity: 1; }
+
+    /* ── Sections ── */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    section h2 {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+
+    section h2 .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    section p.section-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── Problem Section ── */
+    .problem-grid {
+      display: grid;
+      gap: 12px;
+      margin: 40px 0 28px;
+    }
+
+    .problem-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--red-dim);
+      border: 1px solid rgba(255, 107, 107, 0.12);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .problem-item .x-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: var(--red);
+      opacity: 0.8;
+    }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .feature-card {
+      padding: 28px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.25s;
+      position: relative;
+      border-left: 3px solid var(--border);
+    }
+
+    .feature-card.local { border-left-color: #34d399; }
+    .feature-card.cloud { border-left-color: var(--accent); }
+
+    .feature-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+    }
+
+    .feature-card.local:hover { border-left-color: #34d399; }
+    .feature-card.cloud:hover { border-left-color: var(--accent); }
+
+    .feature-pill {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .feature-pill.local {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .feature-pill.cloud {
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(94, 163, 248, 0.2);
+    }
+
+    [data-theme="light"] .feature-pill.local {
+      color: #059669;
+      background: rgba(5, 150, 105, 0.08);
+      border-color: rgba(5, 150, 105, 0.2);
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-glow);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .feature-card.local .feature-icon {
+      background: rgba(52, 211, 153, 0.1);
+      color: #34d399;
+    }
+
+    [data-theme="light"] .feature-card.local .feature-icon {
+      background: rgba(5, 150, 105, 0.08);
+      color: #059669;
+    }
+
+    .feature-icon svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .feature-icon .logo-dark { display: block; }
+    .feature-icon .logo-light { display: none; }
+    [data-theme="light"] .feature-icon .logo-dark { display: none; }
+    [data-theme="light"] .feature-icon .logo-light { display: block; }
+
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    .feature-card h3 code {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      color: var(--accent);
+    }
+
+    .feature-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── Use Cases ── */
+    .use-cases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .use-case {
+      padding: 20px 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .use-case .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ── Example Block ── */
+    .example-heading {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-top: 44px;
+      margin-bottom: 10px;
+    }
+
+    .example-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── Integrations ── */
+    .integrations-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    .integration-tag {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      padding: 10px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Platform Support ── */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .platform-card {
+      padding: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .platform-card .platform-icon {
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .platform-card .platform-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .platform-card .platform-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .platform-card .platform-arch {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── When to use / Comparison ── */
+    .when-to-use {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-top: 20px;
+    }
+
+    .when-to-use code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-primary);
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 640px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+
+    .compare-card {
+      padding: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .compare-card h3 {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .compare-card .alt-name { color: var(--text-muted); }
+    .compare-card .mic-name { color: var(--accent); }
+
+    .compare-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .compare-card ul li {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      padding: 5px 0;
+      padding-left: 22px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .compare-card ul li::before {
+      position: absolute;
+      left: 0;
+      top: 7px;
+    }
+
+    .compare-card.alt ul li::before {
+      content: '×';
+      color: var(--red);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .compare-card.ours ul li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* ── FAQ Accordion ── */
+    .faq-list {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-q {
+      margin: 0;
+    }
+
+    .faq-q button {
+      all: unset;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      padding: 20px 0;
+      cursor: pointer;
+      color: inherit;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .faq-q button:hover {
+      color: var(--accent);
+    }
+
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform 0.3s ease, color 0.2s;
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    .faq-a-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+
+    .faq-item.open .faq-a-wrap {
+      grid-template-rows: 1fr;
+    }
+
+    .faq-a-inner {
+      overflow: hidden;
+    }
+
+    .faq-a {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+      padding-bottom: 20px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ── Final CTA ── */
+    .final-cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .final-cta h2 .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .final-cta p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .final-cta .cta-group {
+      justify-content: center;
+    }
+
+    /* ── Skip-to-content ── */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 4px;
+      z-index: 10000;
+      font-family: var(--font-display);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--accent); }
+
+    /* ── Light theme: code syntax ── */
+    [data-theme="light"] .code-body .kw { color: #8839ef; }
+    [data-theme="light"] .code-body .fn { color: #1e66f5; }
+    [data-theme="light"] .code-body .str { color: #40a02b; }
+    [data-theme="light"] .code-body .cm { color: #9ca0b0; font-style: italic; }
+    [data-theme="light"] .code-body .const { color: #d20f39; }
+    [data-theme="light"] .code-body .obj { color: #df8e1d; }
+    [data-theme="light"] .code-body .param { color: #1a1a2e; }
+    [data-theme="light"] .hero::before { opacity: 0.3; }
+    [data-theme="light"] .btn-primary { color: #fff; }
+
+    /* ── Theme Toggle ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .theme-toggle .icon-sun { display: none; }
+    .theme-toggle .icon-moon { display: block; }
+    [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+    /* ── Mobile nav ── */
+    .mobile-nav {
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mobile-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .mobile-nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .mobile-nav-btn svg { width: 16px; height: 16px; }
+
+    .mobile-nav-btn .icon-sun { display: none; }
+    .mobile-nav-btn .icon-moon { display: block; }
+    [data-theme="light"] .mobile-nav-btn .icon-sun { display: block; }
+    [data-theme="light"] .mobile-nav-btn .icon-moon { display: none; }
+
+    .mobile-nav .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .mobile-nav .nav-cta:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .mobile-nav .nav-cta svg { width: 16px; height: 16px; }
+
+    .mobile-menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 150;
+    }
+
+    .mobile-menu-overlay.open { display: block; }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--bg-elevated);
+      border-left: 1px solid var(--border);
+      z-index: 151;
+      padding: 28px 24px;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .mobile-menu.open { transform: translateX(0); }
+
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:first-child { padding-top: 0; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; }
+      .hero { padding: 130px 0 70px; }
+      .nav-links { display: none; }
+      .mobile-nav { display: flex; }
+      .cta-group { flex-direction: column; align-items: flex-start; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+      .install-pill { width: 100%; justify-content: center; }
+      .final-cta .cta-group { align-items: center; }
+    }
+
+    /* ── Fade-in animation (only when JS is active) ── */
+    .js-loaded .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .js-loaded .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- ── Nav ── -->
+  <header>
+  <nav>
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">deci<span>bri</span></a>
+      <div class="nav-links">
+        <a href="#why">Why</a>
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#platforms">Platforms</a>
+        <a href="/cli/">CLI</a>
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/decibri/decibri-cli" class="nav-cta" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span class="nav-cta-label">GitHub</span></a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri-cli" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  </header>
+
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu">
+    <a href="#why" onclick="toggleMobileMenu()">Why</a>
+    <a href="#features" onclick="toggleMobileMenu()">Features</a>
+    <a href="#compare" onclick="toggleMobileMenu()">Compare</a>
+    <a href="#platforms" onclick="toggleMobileMenu()">Platforms</a>
+    <a href="/cli/" onclick="toggleMobileMenu()">CLI</a>
+    <a href="/docs/">Docs</a>
+  </div>
+
+  <main id="main">
+
+  <!-- ── Hero ── -->
+  <div class="container">
+    <section class="hero">
+      <div class="section-label">decibri-cli</div>
+      <h1><span class="gradient-text">One binary.</span> Every shell.</h1>
+      <p class="subtitle">Capture microphone audio, play WAV files, and list devices from the command line. One static binary, zero runtime dependencies, cross-platform across Windows, macOS, and Linux.</p>
+
+      <div class="cta-group">
+        <a href="#install" class="btn-primary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Get started
+        </a>
+        <a href="https://github.com/decibri/decibri-cli" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          View on GitHub
+        </a>
+        <a href="https://www.npmjs.com/package/decibri-cli" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          View on npm
+        </a>
+      </div>
+
+      <p class="hero-label">Install with one command:</p>
+      <div class="install-pill" data-install="npm install -g decibri-cli" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install -g decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span class="tooltip">Copied!</span>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Why ── -->
+  <div class="container">
+    <section id="why" class="fade-in">
+      <div class="section-label">Why decibri-cli</div>
+      <h2>An audio CLI that works everywhere your scripts do.</h2>
+      <p class="section-desc">Scripting audio I/O has always meant reaching for fragmented, unmaintained, or heavyweight tooling. decibri-cli is a focused alternative: one statically-linked binary with zero runtime dependencies, installed in seconds via npm, cargo, or a direct download.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>No system tools required.</h3>
+          <p>No SoX, no ffmpeg, no arecord. Install and run. Nothing else to configure.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Works where you already work.</h3>
+          <p>Windows 11, macOS (Intel + Apple Silicon), and Linux (x64 + arm64) from the same commands.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <h3>Built to be scripted.</h3>
+          <p>Machine-readable --json output and stable exit codes for CI, pipelines, and automated diagnostics.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Features ── -->
+  <div class="container">
+    <section id="features" class="fade-in">
+      <div class="section-label">Core Features</div>
+      <h2>Four commands. <span class="gradient-text">One binary.</span></h2>
+      <p class="section-desc">Everything decibri-cli does in v0.1.0. A tool built for capture, playback, and device enumeration rather than a full SoX replacement.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h3><code>decibri capture</code></h3>
+          <p>Record 16-bit PCM WAV from any input device. ASR-ready defaults (16 kHz mono). Ctrl+C produces a valid truncated file, never corruption.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </div>
+          <h3><code>decibri play</code></h3>
+          <p>Play 16-bit PCM or 32-bit float WAV through any output device. Clean Ctrl+C stop, stable exit codes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </div>
+          <h3><code>decibri devices</code></h3>
+          <p>Enumerate inputs and outputs with sample rates and channel counts. Select by name substring or numeric index.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3><code>decibri version</code></h3>
+          <p>Report version, audio backend (WASAPI / CoreAudio / ALSA), target triple, and Rust version. Stable JSON schema from v0.1.0.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Install ── -->
+  <div class="container">
+    <section id="install" class="fade-in">
+      <div class="section-label">Install</div>
+      <h2>Pick whichever fits your workflow.</h2>
+
+      <p class="hero-label">npm (recommended):</p>
+      <div class="install-pill" data-install="npm install -g decibri-cli" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install -g decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span class="tooltip">Copied!</span>
+      </div>
+      <p class="example-desc" style="margin-top: 12px;">Recommended. Downloads the platform binary, verifies the SHA256, adds it to your PATH. No Node.js runtime required after installation.</p>
+
+      <p class="hero-label">cargo (from source):</p>
+      <div class="install-pill" data-install="cargo install decibri-cli" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">cargo install decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span class="tooltip">Copied!</span>
+      </div>
+      <p class="example-desc" style="margin-top: 12px;">Builds from source. Requires Rust stable. Linux needs libasound2-dev.</p>
+
+      <p class="hero-label">Direct download:</p>
+      <div class="cta-group">
+        <a href="https://github.com/decibri/decibri-cli/releases" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download from GitHub Releases
+        </a>
+      </div>
+      <p class="example-desc" style="margin-top: 12px;">Pre-built archives with SHA256SUMS and SLSA provenance attestations for every supported platform.</p>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Demo ── -->
+  <div class="container">
+    <section id="demo" class="fade-in">
+      <div class="section-label">Demo</div>
+      <h2>Record, then play it back.</h2>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">bash</span>
+        </div>
+        <div class="code-body">
+<pre><span class="const">$</span> <span class="fn">decibri</span> <span class="fn">devices</span> <span class="str">--input</span>
+  <span class="cm">#  Name                             Channels  Sample rate  Default</span>
+  <span class="const">0</span>  MacBook Pro Microphone              <span class="const">1</span>        <span class="const">48000</span>        <span class="kw">yes</span>
+  <span class="const">1</span>  Blue Yeti                           <span class="const">2</span>        <span class="const">48000</span>
+
+<span class="const">$</span> <span class="fn">decibri</span> <span class="fn">capture</span> <span class="str">-o</span> <span class="str">speech.wav</span> <span class="str">-d</span> <span class="const">5</span> <span class="str">--device</span> <span class="str">"Yeti"</span>
+  <span class="cm">Recording 5.0s from "Blue Yeti"… done.</span>
+  <span class="cm">→ speech.wav (160044 bytes, 16-bit PCM, 16000 Hz, mono)</span>
+
+<span class="const">$</span> <span class="fn">decibri</span> <span class="fn">play</span> <span class="str">speech.wav</span>
+  <span class="cm">Playing speech.wav (5.0s)… done.</span></pre>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-lang">json</span>
+        </div>
+        <div class="code-body">
+<pre>{
+  <span class="param">"command"</span>: <span class="str">"capture"</span>,
+  <span class="param">"output"</span>: <span class="str">"clip.wav"</span>,
+  <span class="param">"duration"</span>: <span class="const">2.0</span>,
+  <span class="param">"sample_rate"</span>: <span class="const">16000</span>,
+  <span class="param">"channels"</span>: <span class="const">1</span>,
+  <span class="param">"format"</span>: <span class="str">"int16"</span>,
+  <span class="param">"bytes_written"</span>: <span class="const">64044</span>,
+  <span class="param">"interrupted"</span>: <span class="kw">false</span>
+}</pre>
+        </div>
+      </div>
+
+      <p class="example-desc">Only the version --json schema is stable in v0.1.x. Other JSON outputs may change before v1.0.0.</p>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Compare ── -->
+  <div class="container">
+    <section id="compare" class="fade-in">
+      <div class="section-label">Compared to</div>
+      <h2>Built for <span class="gradient-text">exactly this job</span>.</h2>
+      <p class="section-desc">Purpose-built for audio capture, playback, and device enumeration. Here's how it stacks up against the tools you might reach for today.</p>
+      <div class="compare-grid">
+        <div class="compare-card alt">
+          <h3><span class="alt-name">Other tools</span></h3>
+          <ul>
+            <li>SoX has no modern Windows build and ships infrequent releases</li>
+            <li>ffmpeg weighs 70 MB+, and audio I/O is a rounding error inside a full media toolkit</li>
+            <li>arecord and aplay are Linux only and not portable across operating systems</li>
+            <li>Platform-specific scripts force your CI to branch per OS</li>
+          </ul>
+        </div>
+        <div class="compare-card ours">
+          <h3><span class="mic-name">decibri-cli</span></h3>
+          <ul>
+            <li>~800 KB static binary, Apache-2.0</li>
+            <li>Single install across Windows, macOS, Linux (x64 + arm64)</li>
+            <li>Focused on capture, play, devices, and version. Nothing else.</li>
+            <li>JSON output and stable exit codes for scripts and CI</li>
+            <li>SLSA provenance attestations via Sigstore</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Platforms ── -->
+  <div class="container">
+    <section id="platforms" class="fade-in">
+      <div class="section-label">Pre-built binaries</div>
+      <h2>Ship your script, <span class="gradient-text">not your build pipeline.</span></h2>
+      <p class="section-desc">One binary per target, checksummed and attested via Sigstore. Distributed through npm, crates.io, and GitHub Releases.</p>
+      <div class="platform-grid">
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.6L24 0v11.4H10.949M0 12.6h9.75v9.45L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg></div>
+          <div class="platform-name">Windows 11</div>
+          <div class="platform-arch">x86_64-pc-windows-msvc</div>
+          <div class="platform-arch">WASAPI</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
+          <div class="platform-name">macOS</div>
+          <div class="platform-arch">universal2 (Intel + Apple Silicon)</div>
+          <div class="platform-arch">CoreAudio</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg></div>
+          <div class="platform-name">Linux</div>
+          <div class="platform-arch">x86_64-unknown-linux-gnu</div>
+          <div class="platform-arch">ALSA</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg></div>
+          <div class="platform-name">Linux</div>
+          <div class="platform-arch">aarch64-unknown-linux-gnu</div>
+          <div class="platform-arch">ALSA</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Ecosystem ── -->
+  <div class="container">
+    <section id="ecosystem" class="fade-in">
+      <div class="section-label">How it fits</div>
+      <h2>Built on the decibri library.</h2>
+      <p class="section-desc">decibri-cli is a thin shell over the decibri Rust crate, which is the same library that powers the decibri Node.js package and browser runtime. If you've used decibri from Node or the browser, the CLI uses the exact same audio backend (cpal) underneath. Capture a WAV on the command line, then load it in a Node script with decibri. Same audio format, same device semantics, same cross-platform coverage.</p>
+      <div class="cta-group" style="margin-top: 32px;">
+        <a href="/" class="btn-secondary">decibri (library)</a>
+        <a href="/docs/node/" class="btn-secondary">Node.js docs</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── FAQ ── -->
+  <div class="container">
+    <section id="faq" class="fade-in">
+      <div class="section-label">FAQ</div>
+      <h2>Frequently asked.</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Do I need Node.js installed to use decibri-cli?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">No. <code>npm install -g decibri-cli</code> uses npm purely as a delivery channel. The package downloads a platform-specific binary, verifies its SHA256, and adds it to your PATH. Once installed, the binary runs directly with no Node.js runtime involved. You can also use <code>cargo install decibri-cli</code> or download the binary directly from GitHub Releases.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Why only 16-bit PCM WAV?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">It's the format every ASR engine, wake-word detector, and speech-processing pipeline expects. 16-bit PCM at 16 kHz mono is the default because it's the lingua franca of voice tooling. You can pass <code>-r 44100 -c 2</code> for CD-quality stereo, but the encoding is always 16-bit PCM WAV in v0.1.0.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does it support FLAC, MP3, or other formats?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Not in v0.1.0. The focus is small, focused, and predictable. If you need format conversion, pipe the WAV output through ffmpeg or sox.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Is this a SoX replacement?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">No. SoX is a full audio processing toolkit with effects, filters, and format conversion. decibri-cli does four things: capture, play, enumerate devices, and report version. If your use case is "record and play WAVs from a script on any OS", decibri-cli fits. If you need to apply reverb or convert between codecs, use SoX or ffmpeg.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">I'm seeing a SmartScreen or Gatekeeper warning. Is this safe?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">v0.1.x binaries are unsigned (code signing is on the v1.0 roadmap). Every release ships with SHA256 checksums and SLSA provenance attestations generated by GitHub Actions, so you can verify a download with <code>gh attestation verify &lt;archive&gt; --owner decibri</code>. On macOS, direct downloads may need <code>xattr -d com.apple.quarantine /path/to/decibri</code>. The npm install path avoids the SmartScreen prompt because the binary is fetched at install time.</p></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Final CTA ── -->
+  <div class="container">
+    <section class="final-cta fade-in">
+      <h2>Capture audio from the command line <span class="gradient-text">in 30 seconds.</span></h2>
+      <p>One install. Four commands. Every platform.</p>
+      <div class="cta-group">
+        <a href="#install" class="btn-primary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Get started
+        </a>
+        <a href="https://github.com/decibri/decibri-cli" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.npmjs.com/package/decibri-cli" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          npm
+        </a>
+      </div>
+      <div class="install-pill" data-install="npm install -g decibri-cli" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command" style="margin-top: 20px;">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install -g decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span class="tooltip">Copied!</span>
+      </div>
+    </section>
+  </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p>Apache-2.0 &copy; <a href="https://decibri.com">decibri</a> · <a href="https://github.com/decibri/decibri-cli" target="_blank" rel="noopener noreferrer">GitHub</a> · <a href="https://www.npmjs.com/package/decibri-cli" target="_blank" rel="noopener noreferrer">npm</a> · <a href="https://crates.io/crates/decibri-cli" target="_blank" rel="noopener noreferrer">crates.io</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Enable fade-in animations (content stays visible without JS)
+    document.documentElement.classList.add('js-loaded');
+
+    // Theme toggle with persistence
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('decibri-theme', next);
+    }
+
+    // Mobile menu
+    function toggleMobileMenu() {
+      document.querySelector('.mobile-menu').classList.toggle('open');
+      document.querySelector('.mobile-menu-overlay').classList.toggle('open');
+    }
+
+    // FAQ accordion
+    function toggleFaq(el) {
+      const item = el.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('button[aria-expanded]')?.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        item.classList.add('open');
+        el.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Copy to clipboard. Reads command from data-install on the clicked pill.
+    function copyInstall(el) {
+      const text = el.getAttribute('data-install');
+      navigator.clipboard.writeText(text).then(() => {
+        const tip = el.querySelector('.tooltip');
+        if (tip) {
+          tip.classList.add('show');
+          setTimeout(() => tip.classList.remove('show'), 1500);
+        }
+      });
+    }
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
