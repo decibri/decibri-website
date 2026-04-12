@@ -92,6 +92,11 @@
     +     link('/docs/browser/', 'Getting Started')
     +     link('/docs/browser/api-reference', 'API Reference')
     +   '</div>'
+    +   '<div class="sidebar-section">'
+    +     '<div class="sidebar-section-title">CLI</div>'
+    +     link('/docs/cli/', 'Getting Started')
+    +     link('/docs/cli/api-reference', 'API Reference')
+    +   '</div>'
     + '</nav>'
     + '<div class="sidebar-back">'
     +   '<a href="/">'
@@ -152,6 +157,9 @@
     + '<div class="mobile-menu-section">Browser</div>'
     + '<a href="/docs/browser/" onclick="toggleMobileMenu()">Getting Started</a>'
     + '<a href="/docs/browser/api-reference" onclick="toggleMobileMenu()">API Reference</a>'
+    + '<div class="mobile-menu-section">CLI</div>'
+    + '<a href="/docs/cli/" onclick="toggleMobileMenu()">Getting Started</a>'
+    + '<a href="/docs/cli/api-reference" onclick="toggleMobileMenu()">API Reference</a>'
     + '<div class="mobile-menu-divider"></div>'
     + '<a href="/">Back to decibri.com</a>';
 
