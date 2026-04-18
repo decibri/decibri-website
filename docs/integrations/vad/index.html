@@ -68,7 +68,7 @@
         <li><strong>RMS energy detector (default).</strong> Fast, minimal CPU, works well for clean audio. Enable with <code>{ vad: true }</code>. Defaults to <code>vadMode: 'energy'</code>.</li>
         <li><strong>Silero v5 neural model (bundled).</strong> Significantly more accurate in noisy environments, background music, or multi-speaker scenarios. Enable with <code>{ vad: true, vadMode: 'silero' }</code>.</li>
       </ol>
-      <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2 MB) ships inside the decibri npm package. No separate download, no <code>sherpa-onnx</code> dependency.</p>
+      <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri npm package. No separate download, no <code>sherpa-onnx</code> dependency.</p>
 
       <h2>Quick example</h2>
       <div class="code-tabs" data-tab-group="code">
@@ -94,7 +94,7 @@ micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
       <div class="cards-grid">
         <a href="/docs/integrations/vad/silero" class="doc-card">
           <h3>Silero VAD</h3>
-          <p>Full walkthrough of the bundled neural VAD: when to use it, configuration options, and a demoted &ldquo;Alternative approach&rdquo; covering direct sherpa-onnx access for advanced use cases.</p>
+          <p>Full walkthrough of the bundled neural VAD, including configuration options and notes on using sherpa-onnx separately if you need its VAD API directly.</p>
         </a>
       </div>
 

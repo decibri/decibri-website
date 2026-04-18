@@ -80,7 +80,7 @@
       <p class="lead">Decibri ships Silero VAD v5 bundled. Set <code>vadMode: 'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required.</p>
 
       <h2>What this does</h2>
-      <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2 MB ONNX model ships with the decibri npm package.</p>
+      <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships with the decibri npm package.</p>
       <p>Decibri offers two VAD implementations out of the box: an <strong>RMS energy detector</strong> (the default, <code>vadMode: 'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>vadMode: 'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with much higher accuracy.</p>
 
       <div class="callout">
@@ -247,8 +247,8 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
         </div>
       </div>
 
-      <h2>Alternative approach: via sherpa-onnx</h2>
-      <p>If you need direct access to the sherpa-onnx VAD API (for sample-level speech-segment timestamps, explicit <code>isSpeechDetected()</code> polling, or segment draining with <code>front()</code> / <code>pop()</code>), you can run Silero through sherpa-onnx instead of the bundled decibri path. This was the recommended pattern before decibri v3 bundled Silero natively. Prefer the decibri-native approach above unless you specifically need the sherpa-onnx API surface.</p>
+      <h2>Alternative approach: sherpa-onnx as a standalone library</h2>
+      <p>For sample-level speech-segment timestamps, explicit <code>isSpeechDetected()</code> polling, or segment draining with <code>front()</code> / <code>pop()</code>, you can use <code>sherpa-onnx</code> as a standalone library alongside decibri. In this pattern decibri provides only the microphone audio; sherpa-onnx handles the VAD entirely on its own API surface. It is not a decibri mode or option; the two packages run side by side. This was the recommended pattern before decibri v3 bundled Silero natively. Prefer the decibri-native approach above unless you specifically need the sherpa-onnx API.</p>
 
       <h3>Install packages</h3>
       <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri sherpa-onnx')" role="button" tabindex="0" aria-label="Copy install command">
@@ -267,7 +267,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
           <pre><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx</code></pre>
         </div>
       </div>
-      <p>This is a single ~2 MB file. Note that this is a separate copy of the Silero model from the one decibri bundles; it is here so sherpa-onnx can find it at the path you configure.</p>
+      <p>This is a single ~2.3 MB file. Note that this is a separate copy of the Silero model from the one decibri bundles; it is here so sherpa-onnx can find it at the path you configure.</p>
 
       <h3>Full sherpa-onnx example</h3>
       <p>Configure the sherpa-onnx VAD with the model path and detection parameters, then feed audio in 512-sample windows and drain completed speech segments.</p>
