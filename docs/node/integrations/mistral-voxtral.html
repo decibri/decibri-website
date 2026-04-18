@@ -41,7 +41,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
@@ -81,7 +81,7 @@
       <p class="lead">Stream live microphone audio to Mistral's Voxtral model for real-time cloud transcription using decibri and the official Mistral AI SDK.</p>
 
       <h2>What this does</h2>
-      <p>This integration captures live audio from your microphone using decibri and streams it to Mistral's Voxtral Realtime API via the official SDK. Transcription text arrives progressively as you speak. No model download, no local inference, and no audio format conversion. decibri's default output matches Voxtral's expected input exactly.</p>
+      <p>This integration captures live audio from your microphone using decibri and streams it to Mistral's Voxtral Realtime API via the official SDK. Transcription text arrives progressively as you speak. No model download, no local inference, and no audio format conversion. Decibri's default output matches Voxtral's expected input exactly.</p>
       <p>Voxtral is an open-weights model (Apache 2.0) built by Mistral, a European AI company. It supports 13 languages with automatic detection. Choose this when you want a cloud STT with open-weights transparency, or when you plan to self-host via vLLM. For use cases where audio must stay on your device, see the <a href="sherpa-onnx-stt">sherpa-onnx</a> or <a href="whisper-cpp">whisper.cpp</a> local integrations instead.</p>
 
       <h2>ES Modules required</h2>
@@ -116,7 +116,7 @@
       <h2>Code walkthrough</h2>
 
       <h3>1. Configuration</h3>
-      <p>Import decibri, the Mistral Realtime SDK, and dotenv. decibri is a CommonJS package; the default import works in ESM via Node.js interop.</p>
+      <p>Import decibri, the Mistral Realtime SDK, and dotenv. Decibri is a CommonJS package; the default import works in ESM via Node.js interop.</p>
       <pre><code class="language-javascript">import 'dotenv/config';
 import Decibri from 'decibri';
 import { RealtimeTranscription, AudioEncoding } from '@mistralai/mistralai/extra/realtime';
@@ -306,6 +306,7 @@ try {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="../../nav.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

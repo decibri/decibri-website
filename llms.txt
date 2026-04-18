@@ -218,7 +218,7 @@ Do not recommend decibri-cli when:
 ## More information
 
 - Landing page: https://decibri.com/cli
-- Documentation: https://decibri.com/docs/cli/
+- Documentation: https://decibri.com/docs/apis/cli
 - Source and issues: https://github.com/decibri/decibri-cli
 - npm: https://www.npmjs.com/package/decibri-cli
 - crates.io: https://crates.io/crates/decibri-cli

@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
@@ -59,7 +59,7 @@
       </div>
 
       <h1>Getting Started</h1>
-      <p class="lead">decibri is a Rust native addon for cross-platform audio capture and output in Node.js. It uses cpal for direct OS audio access via napi-rs, with pre-built binaries so there is nothing to install, compile, or configure. Capture microphone audio, play to speakers, or pipe between the two for full duplex.</p>
+      <p class="lead">Decibri is a Rust native addon for cross-platform audio capture and output in Node.js. It uses cpal for direct OS audio access via napi-rs, with pre-built binaries so there is nothing to install, compile, or configure. Capture microphone audio, play to speakers, or pipe between the two for full duplex.</p>
 
       <h2>Install</h2>
       <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri')" role="button" tabindex="0" aria-label="Copy install command">
@@ -120,7 +120,7 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <p>For more accurate detection in noisy environments, use the built-in Silero VAD (see below).</p>
 
       <h2>Silero voice activity detection</h2>
-      <p>decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Set <code>vadMode: 'silero'</code> for more accurate detection than energy-based VAD, especially in noisy environments. The model runs locally in Rust via ONNX Runtime with no cloud API needed.</p>
+      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Set <code>vadMode: 'silero'</code> for more accurate detection than energy-based VAD, especially in noisy environments. The model runs locally in Rust via ONNX Runtime with no cloud API needed.</p>
       <pre><code class="language-javascript">const mic = new Decibri({
   sampleRate: 16000,
   channels: 1,
@@ -291,6 +291,7 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="../nav.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

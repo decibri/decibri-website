@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Voice activity detection (VAD) | decibri docs</title>
+  <meta name="description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v5 neural model. Both run locally, no cloud API, no extra install.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Voice activity detection (VAD) | decibri docs">
+  <meta property="og:description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v5 neural model. Both run locally, no cloud API, no extra install.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/integrations/vad">
+  <link rel="canonical" href="https://decibri.com/docs/integrations/vad">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations">Integrations</a>
+        <span class="sep">/</span>
+        <span class="current">Voice activity detection (VAD)</span>
+      </div>
+
+      <h1>Voice activity detection (VAD)</h1>
+      <p class="lead">Decibri ships two VAD implementations built in. No cloud API, no extra install, no separate model download.</p>
+
+      <h2>What&rsquo;s built in</h2>
+      <ol>
+        <li><strong>RMS energy detector (default).</strong> Fast, minimal CPU, works well for clean audio. Enable with <code>{ vad: true }</code>. Defaults to <code>vadMode: 'energy'</code>.</li>
+        <li><strong>Silero v5 neural model (bundled).</strong> Significantly more accurate in noisy environments, background music, or multi-speaker scenarios. Enable with <code>{ vad: true, vadMode: 'silero' }</code>.</li>
+      </ol>
+      <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri npm package. No separate download, no <code>sherpa-onnx</code> dependency.</p>
+
+      <h2>Quick example</h2>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const Decibri = require('decibri');
+
+// Default RMS detector. Fast, clean-audio use cases.
+const micRms = new Decibri({ vad: true });
+
+// Silero neural model. Better accuracy under noise / music / multi-speaker.
+const micSilero = new Decibri({ vad: true, vadMode: 'silero' });
+
+// Both emit the same events.
+micSilero.on('speech',  () =&gt; console.log('[speech start]'));
+micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
+        </div>
+      </div>
+
+      <h2>Learn more</h2>
+      <div class="cards-grid">
+        <a href="/docs/integrations/vad/silero" class="doc-card">
+          <h3>Silero VAD</h3>
+          <p>Full walkthrough of the bundled neural VAD, including configuration options and notes on using sherpa-onnx separately if you need its VAD API directly.</p>
+        </a>
+      </div>
+
+      <p>VAD configuration options (<code>vad</code>, <code>vadMode</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>) are documented in the <a href="/docs/apis/node">Node.js API reference</a>.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/integrations/vad/silero">Silero VAD</a>: the bundled neural model walkthrough</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: full VAD option documentation</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of VAD-gated audio</li>
+          <li><a href="/docs/integrations/kws/sherpa-onnx">Sherpa-ONNX Keyword Spotting</a>: sibling neural model for wake words</li>
+          <li><a href="https://github.com/snakers4/silero-vad" target="_blank" rel="noopener noreferrer">Silero VAD on GitHub</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>

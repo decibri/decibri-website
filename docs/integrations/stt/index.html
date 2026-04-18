@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Speech-to-text (STT) | decibri docs</title>
+  <meta name="description" content="Compare decibri's STT integrations: nine providers, cloud and local. Streaming vs buffered, languages, and notable features for picking the right one.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Speech-to-text (STT) | decibri docs">
+  <meta property="og:description" content="Compare decibri's speech-to-text integrations. Cloud vs local, streaming vs buffered, languages, and notable features.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/integrations/stt">
+  <link rel="canonical" href="https://decibri.com/docs/integrations/stt">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations">Integrations</a>
+        <span class="sep">/</span>
+        <span class="current">Speech-to-text (STT)</span>
+      </div>
+
+      <h1>Speech-to-text (STT)</h1>
+      <p class="lead">Turn microphone audio into text. Decibri captures the audio as a standard stream of 16-bit PCM chunks; an STT provider processes it into words. Both cloud and local providers are supported, covering common trade-offs on accuracy, latency, cost, and offline capability.</p>
+
+      <h2>Decision framework</h2>
+      <p><strong>Cloud vs local.</strong> The local providers (Sherpa-ONNX and Whisper.cpp) keep audio on-device, require no API key, and cost nothing per minute, in exchange for a model download, local compute, and manual model management. The cloud providers (Deepgram, AssemblyAI, OpenAI, AWS Transcribe, Google Cloud Speech-to-Text, Azure AI Speech, Mistral Voxtral) handle scaling, model updates, and higher baseline accuracy, at the cost of an API key, network dependency, and per-minute fees.</p>
+      <p><strong>Streaming vs buffered.</strong> Most providers stream results back progressively as you speak. Whisper.cpp is the exception: it buffers audio into short windows (~3 s by default) and transcribes each window in one shot. Whisper.cpp trades latency for higher accuracy and smaller per-chunk overhead. Pick it when you can tolerate a small delay for better results; pick anything else when live feedback matters.</p>
+
+      <h2>Providers</h2>
+      <div class="table-wrap">
+        <table style="min-width: 720px">
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>Mode</th>
+              <th>Deployment</th>
+              <th>Languages</th>
+              <th>Notable features</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="/docs/integrations/stt/assemblyai">AssemblyAI</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>English + multilingual</td>
+              <td>Universal-3 Pro, turn-based model, EU residency option, keyterm prompting</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/aws-transcribe">AWS Transcribe</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>100+</td>
+              <td>IAM auth, HTTP/2 streaming, medical transcription</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/azure">Azure AI Speech</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>100+</td>
+              <td>Enterprise Azure integration, PushAudioInputStream pattern, event-callback API</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/deepgram">Deepgram</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>30+</td>
+              <td>Nova-3 model, WebSocket streaming, diarization, smart formatting</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/google">Google Cloud Speech-to-Text</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>125+</td>
+              <td>Simplest integration (<code>mic.pipe(recognizeStream)</code>), 5-minute session limit</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/mistral-voxtral">Mistral Voxtral</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>13</td>
+              <td>Open-weights (Apache 2.0), self-hostable via vLLM</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/openai">OpenAI</a></td>
+              <td>Streaming</td>
+              <td>Cloud</td>
+              <td>50+</td>
+              <td>24 kHz (not 16 kHz), raw WebSocket, word-level deltas</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/sherpa-onnx">Sherpa-ONNX</a></td>
+              <td>Streaming</td>
+              <td>Local</td>
+              <td>Multilingual (Zipformer)</td>
+              <td>Offline, no API key, streaming Zipformer model</td>
+            </tr>
+            <tr>
+              <td><a href="/docs/integrations/stt/whisper-cpp">Whisper.cpp</a></td>
+              <td>Buffered</td>
+              <td>Local</td>
+              <td>99+</td>
+              <td>Offline, no API key, highest local accuracy, ~3 s buffer</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Browser considerations</h2>
+      <p>The cloud STT providers work from the browser: point decibri at the browser runtime (same npm package, conditional exports serve an AudioWorklet implementation), capture audio, send chunks to the provider's WebSocket or HTTPS endpoint. CORS and the provider's auth flow apply.</p>
+      <p>The local providers (Sherpa-ONNX and Whisper.cpp) are Node.js only. They rely on native bindings (ONNX Runtime, whisper.cpp via a native addon) that can't run in a browser. For local STT in the browser, run decibri's browser capture, ship chunks to a Node.js backend, and do transcription server-side.</p>
+
+      <h2>Troubleshooting</h2>
+      <p><strong>Garbled transcripts.</strong> Almost always a sample-rate mismatch. Decibri defaults to 16 kHz mono 16-bit PCM, which matches what every provider here expects, except OpenAI Realtime, which defaults to 24 kHz. If the transcript looks scrambled, verify both sides agree on sample rate and that you haven't accidentally passed 48 kHz (the browser default) to a 16 kHz API.</p>
+      <p><strong>Silent transcripts.</strong> Microphone permission not granted (browser), or the wrong input device is selected (Node.js). Check <code>Decibri.devices()</code> and confirm <code>isDefault</code> points at the mic you expect. Run <code>decibri-cli capture -o test.wav -d 5</code> to verify the mic works outside of any STT pipeline.</p>
+      <p><strong>API key errors.</strong> Each provider has its own env-var convention. See the provider's page for the exact variable name and where to put it.</p>
+      <p><strong>Cloud-provider-specific errors.</strong> See the &ldquo;Related&rdquo; callout on each provider page. Every page links to the upstream provider's troubleshooting docs and console.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/integrations">Integrations overview</a>: STT, VAD, KWS at a glance</li>
+          <li><a href="/docs/integrations/vad">Voice activity detection</a>: gate audio before sending to an STT provider</li>
+          <li><a href="/docs/integrations/kws">Keyword spotting</a>: detect wake words without full transcription</li>
+          <li><a href="/docs/getting-started">Getting started</a>: install decibri and capture your first chunk</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the library surface STT integrations build on</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser</li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Integrations | decibri docs</title>
+  <meta name="description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting providers that consume decibri's audio stream.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Integrations | decibri docs">
+  <meta property="og:description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting providers that consume decibri's audio stream.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/integrations">
+  <link rel="canonical" href="https://decibri.com/docs/integrations">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <span class="current">Integrations</span>
+      </div>
+
+      <h1>Integrations</h1>
+      <p class="lead">Decibri ships audio to integrations. The three categories are Speech-to-text (STT), Voice activity detection (VAD), and Keyword spotting (KWS). Pick the category, then pick the provider that fits your accuracy, cost, and offline requirements.</p>
+
+      <div class="cards-grid">
+        <a href="/docs/integrations/stt" class="doc-card">
+          <h3>Speech-to-text (STT)</h3>
+          <p>Transcribe microphone audio. Cloud providers (Deepgram, AssemblyAI, OpenAI, AWS Transcribe, Azure AI Speech, Google Cloud Speech-to-Text, Mistral Voxtral) and local providers (Sherpa-ONNX, Whisper.cpp) are supported.</p>
+        </a>
+        <a href="/docs/integrations/vad" class="doc-card">
+          <h3>Voice activity detection (VAD)</h3>
+          <p>Detect when someone is speaking. Silero v5 neural model for accuracy-critical use cases, or the built-in RMS detector for simple pipelines. Both bundled with decibri.</p>
+        </a>
+        <a href="/docs/integrations/kws" class="doc-card">
+          <h3>Keyword spotting (KWS)</h3>
+          <p>Wake words and voice command triggers. Cheaper than full STT when you only need to catch specific phrases. Sherpa-ONNX runs entirely on-device.</p>
+        </a>
+      </div>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/getting-started">Getting started</a>: install decibri and capture your first audio chunk</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the library surface integrations build on</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser</li>
+          <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
+          <li><a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+          <li><a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">decibri on npm</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>
