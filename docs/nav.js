@@ -143,7 +143,7 @@
   }
 
   function mgroup(href, label, childrenHtml, labelClass) {
-    var expanded = isAncestorOrSelf(href) || isImmediateChildOfCurrent(href) || isAlwaysExpanded(href);
+    var expanded = isAncestorOrSelf(href);
     var active = isActive(href);
     return '<div class="expandable mobile-expandable" data-expanded="' + expanded + '">' +
       '<div class="expandable-header">' +
@@ -179,6 +179,9 @@
     + mlink('/docs/apis/cli',     'CLI');
 
   var mobileMenuHtml = ''
+    + '<button class="mobile-menu-close" type="button" aria-label="Close menu" onclick="toggleMobileMenu()">'
+    +   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+    + '</button>'
     + '<a href="/docs/" class="mobile-menu-link' + (isActive('/docs/') ? ' active' : '') + '" onclick="toggleMobileMenu()">Introduction</a>'
     + '<a href="/docs/getting-started" class="mobile-menu-link' + (isActive('/docs/getting-started') ? ' active' : '') + '" onclick="toggleMobileMenu()">Getting started</a>'
     + mgroup('/docs/integrations', 'Integrations', mIntegrationsChildren, 'mobile-menu-section-link')
@@ -217,13 +220,41 @@
   }
   if (overlay) overlay.addEventListener('click', closeSidebar);
 
-  // Mobile menu toggle
+  // Mobile menu toggle with focus management: save the opener on open,
+  // move focus into the menu; restore focus to the opener on close.
+  var lastOpener = null;
+
   window.toggleMobileMenu = function () {
     var menu = document.querySelector('.mobile-menu');
-    menu.classList.toggle('open');
-    document.querySelector('.mobile-menu-overlay').classList.toggle('open');
-    document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+    var menuOverlay = document.querySelector('.mobile-menu-overlay');
+    var isOpening = !menu.classList.contains('open');
+
+    if (isOpening) {
+      lastOpener = document.activeElement;
+      menu.classList.add('open');
+      if (menuOverlay) menuOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(function () {
+        var firstFocusable = menu.querySelector('button, a, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) firstFocusable.focus();
+      });
+    } else {
+      menu.classList.remove('open');
+      if (menuOverlay) menuOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+      if (lastOpener && typeof lastOpener.focus === 'function') {
+        lastOpener.focus();
+      }
+      lastOpener = null;
+    }
   };
+
+  // Escape closes the mobile menu when it is open.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var menu = document.querySelector('.mobile-menu');
+    if (menu && menu.classList.contains('open')) window.toggleMobileMenu();
+  });
 
   // Theme toggle
   window.toggleTheme = function () {
