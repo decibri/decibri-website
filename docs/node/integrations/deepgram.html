@@ -31,7 +31,7 @@
     "name": "How to transcribe microphone audio with Deepgram in Node.js",
     "description": "Real-time cloud speech-to-text transcription using decibri and the Deepgram SDK. No model download required.",
     "step": [
-      {"@type": "HowToStep", "name": "Get an API key", "text": "Sign up at console.deepgram.com and create an API key. Free tier includes $200 in credits."},
+      {"@type": "HowToStep", "name": "Get an API key", "text": "Sign up at console.deepgram.com and create an API key."},
       {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri @deepgram/sdk dotenv"},
       {"@type": "HowToStep", "name": "Configure the client", "text": "Create a DeepgramClient with your API key and set up a WebSocket connection with audio parameters matching decibri."},
       {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
@@ -41,7 +41,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
@@ -93,11 +93,18 @@
 
       <h3>Get an API key</h3>
       <ol>
-        <li>Sign up at <a href="https://console.deepgram.com" target="_blank" rel="noopener noreferrer">console.deepgram.com</a> (free tier includes $200 in credits, no credit card required)</li>
+        <li>Sign up at <a href="https://console.deepgram.com" target="_blank" rel="noopener noreferrer">console.deepgram.com</a></li>
         <li>Create an API key from the dashboard</li>
         <li>Store it in a <code>.env</code> file in your project root:</li>
       </ol>
-      <pre><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
+        </div>
+      </div>
 
       <h3>Install packages</h3>
       <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri @deepgram/sdk dotenv')" role="button" tabindex="0" aria-label="Copy install command">
@@ -112,16 +119,28 @@
 
       <h3>1. Configuration</h3>
       <p>Import decibri, the Deepgram SDK, and dotenv. Create a Deepgram client with your API key.</p>
-      <pre><code class="language-javascript">require('dotenv').config();
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">require('dotenv').config();
 
 const Decibri = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
 const deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
+        </div>
+      </div>
 
       <h3>2. Connect to Deepgram</h3>
       <p>Create a WebSocket connection with audio parameters that match decibri's configuration. The <code>encoding</code>, <code>sample_rate</code>, and <code>channels</code> must match what decibri outputs.</p>
-      <pre><code class="language-javascript">const socket = await deepgram.listen.v1.createConnection({
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const socket = await deepgram.listen.v1.createConnection({
   model: 'nova-3',
   language: 'en',
   encoding: 'linear16',
@@ -133,21 +152,42 @@ const deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</
 
 socket.connect();
 await socket.waitForOpen();</code></pre>
+        </div>
+      </div>
       <p>Audio must only be sent after <code>waitForOpen()</code> resolves. Sending before the WebSocket is open will drop chunks silently.</p>
 
       <h3>3. Open the microphone</h3>
       <p>Create a decibri instance at 16 kHz mono. The default format is 16-bit signed integer PCM, which matches Deepgram's <code>linear16</code> encoding directly.</p>
-      <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+        </div>
+      </div>
 
       <h3>4. Stream audio</h3>
-      <p>Send each audio chunk directly to Deepgram. No format conversion is needed. decibri's raw Int16 PCM Buffer is sent as-is via <code>sendMedia()</code>.</p>
-      <pre><code class="language-javascript">mic.on('data', (chunk) => {
+      <p>Send each audio chunk directly to Deepgram. No format conversion is needed. Decibri's raw Int16 PCM Buffer is sent as-is via <code>sendMedia()</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">mic.on('data', (chunk) => {
   socket.sendMedia(chunk);
 });</code></pre>
+        </div>
+      </div>
 
       <h3>5. Handle transcription results</h3>
       <p>Listen for message events on the socket. Results arrive with <code>data.type === 'Results'</code> and contain one or more transcript alternatives.</p>
-      <pre><code class="language-javascript">socket.on('message', (data) => {
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">socket.on('message', (data) => {
   if (data.type === 'Results' && data.channel?.alternatives?.[0]) {
     const transcript = data.channel.alternatives[0].transcript;
     if (transcript) {
@@ -155,10 +195,17 @@ await socket.waitForOpen();</code></pre>
     }
   }
 });</code></pre>
+        </div>
+      </div>
 
       <h3>6. Clean shutdown</h3>
       <p>Stop the microphone and close the Deepgram connection when the user presses Ctrl+C.</p>
-      <pre><code class="language-javascript">socket.on('close', () => {
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">socket.on('close', () => {
   console.log('Connection closed.');
   process.exit(0);
 });
@@ -177,11 +224,18 @@ process.on('SIGINT', () => {
 });
 
 console.log('Listening... (Ctrl+C to stop)');</code></pre>
+        </div>
+      </div>
 
       <h2>Full example</h2>
       <details>
         <summary>View complete code</summary>
-        <pre><code class="language-javascript">'use strict';
+        <div class="code-tabs" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist">
+            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+            <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const Decibri = require('decibri');
@@ -241,6 +295,8 @@ const live = async () => {
 };
 
 live().catch(console.error);</code></pre>
+          </div>
+        </div>
       </details>
 
       <h2>Configuration options</h2>
@@ -318,6 +374,7 @@ live().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="../../nav.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

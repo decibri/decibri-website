@@ -40,7 +40,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
@@ -83,10 +83,10 @@
       <p>This integration captures live audio from your microphone using decibri and pushes it into Azure's <code>PushAudioInputStream</code> for real-time cloud transcription. Results come back via event callbacks as you speak, with both partial and final results.</p>
 
       <div class="callout">
-        <strong>Important:</strong> Azure's Speech SDK does not support microphone input in Node.js. The <code>fromDefaultMicrophoneInput()</code> method is browser-only. decibri provides the missing audio capture layer, feeding PCM audio into Azure's <code>PushAudioInputStream</code>.
+        <strong>Important:</strong> Azure's Speech SDK does not support microphone input in Node.js. The <code>fromDefaultMicrophoneInput()</code> method is browser-only. Decibri provides the missing audio capture layer, feeding PCM audio into Azure's <code>PushAudioInputStream</code>.
       </div>
 
-      <p>Choose this when you need Azure's speech models, enterprise Azure integration, or the most generous free tier (5 hours/month). For use cases where audio must stay on your device, see the <a href="sherpa-onnx-stt">sherpa-onnx</a> or <a href="whisper-cpp">whisper.cpp</a> local integrations instead.</p>
+      <p>Choose this when you need Azure's speech models or enterprise Azure integration. For use cases where audio must stay on your device, see the <a href="sherpa-onnx-stt">sherpa-onnx</a> or <a href="whisper-cpp">whisper.cpp</a> local integrations instead.</p>
 
       <h2>Cloud vs local</h2>
       <div class="callout">
@@ -305,10 +305,6 @@ main().catch(console.error);</code></pre>
       </div>
       <p>See the <a href="https://learn.microsoft.com/en-us/azure/ai-services/speech-service/get-started-speech-to-text" target="_blank" rel="noopener noreferrer">Azure Speech-to-Text documentation</a> for the complete list of options.</p>
 
-      <div class="callout">
-        <strong>Free tier:</strong> Azure Speech Free F0 tier gives 5 hours of audio per month at no cost. No credit card required for the free tier.
-      </div>
-
       <div class="related-links">
         <h3>Related</h3>
         <ul>
@@ -332,6 +328,7 @@ main().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="../../nav.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>CLI API | decibri docs</title>
+  <meta name="description" content="decibri-cli command-line reference. Quickstart install, commands, flags, exit codes, JSON output schemas, and platform support.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="CLI API | decibri docs">
+  <meta property="og:description" content="decibri-cli command-line reference. Quickstart install, commands, flags, exit codes, JSON output schemas, and platform support.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/apis/cli">
+  <link rel="canonical" href="https://decibri.com/docs/apis/cli">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/apis">APIs</a>
+        <span class="sep">/</span>
+        <span class="current">CLI</span>
+      </div>
+
+      <h1>CLI API</h1>
+      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Node.js and browser packages. This page covers installation and first commands, then the full command-line reference.</p>
+
+      <h2>Quickstart</h2>
+      <h3>Install</h3>
+      <p>Three ways to install. Pick whichever fits your workflow best.</p>
+
+      <h4>npm (recommended)</h4>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install -g decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Downloads the platform-specific binary from GitHub Releases, verifies its SHA256, and adds it to your PATH. No Node.js runtime is required after installation, because npm is used only as a delivery channel.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> The npm install method does not require Node.js to be installed at runtime. The downloaded binary runs independently once it's on your PATH.
+      </div>
+
+      <h4>Cargo</h4>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('cargo install decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">cargo install decibri-cli</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Builds from source. Requires Rust stable. On Linux, you'll also need the ALSA development headers: <code>sudo apt install libasound2-dev</code> on Debian/Ubuntu, or <code>sudo dnf install alsa-lib-devel</code> on Fedora.</p>
+
+      <h4>Direct download</h4>
+      <p>Pre-built archives for every supported platform are available on the <a href="https://github.com/decibri/decibri-cli/releases" target="_blank" rel="noopener noreferrer">releases page</a>, along with <code>SHA256SUMS</code> and SLSA provenance attestations for supply-chain verification.</p>
+
+      <h3>Your first commands</h3>
+
+      <h4>Check the version</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri version</code></pre>
+        </div>
+      </div>
+      <p>Prints the CLI version, the decibri library version it was built against, the audio backend for your platform, the Rust target triple, and the Rust compiler version:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri-cli 0.1.0
+decibri 3.0.0
+Audio backend: WASAPI
+Platform: x86_64-pc-windows-msvc
+Rust: 1.82.0</code></pre>
+        </div>
+      </div>
+
+      <p>For machine-readable output, add <code>--json</code>:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri version --json</code></pre>
+        </div>
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">{
+  "decibri_cli": "0.1.0",
+  "decibri": "3.0.0",
+  "audio_backend": "WASAPI",
+  "target": "x86_64-pc-windows-msvc",
+  "rust_version": "1.82.0"
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Stable schema:</strong> The <code>version --json</code> schema is stable from v0.1.0 and will only change across major version bumps. JSON schemas for other commands are unstable until v1.0.0.
+      </div>
+
+      <h4>List audio devices</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri devices</code></pre>
+        </div>
+      </div>
+      <p>Prints a human-readable table of all input and output devices on the system. Use <code>--input</code> or <code>--output</code> to filter, and <code>--json</code> for machine-readable output.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri devices --input
+decibri devices --output
+decibri devices --input --json</code></pre>
+        </div>
+      </div>
+
+      <h4>Record a WAV file</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri capture -o recording.wav -d 10</code></pre>
+        </div>
+      </div>
+      <p>Records 10 seconds of audio from your default input device to <code>recording.wav</code>. The default format is 16-bit PCM at 16 kHz mono, which is the format expected by most speech recognition engines. Press Ctrl+C at any time to stop early; decibri-cli writes a valid (truncated) WAV file, never a corrupted one.</p>
+
+      <div class="callout">
+        <strong>Always 16-bit PCM WAV.</strong> <code>decibri capture</code> always writes 16-bit PCM WAV in v0.1.0. Change the sample rate with <code>-r</code> and channel count with <code>-c</code>, but the encoding is fixed.
+      </div>
+
+      <h4>Play a WAV file</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri play recording.wav</code></pre>
+        </div>
+      </div>
+      <p>Plays the file through your default output device. Supports 16-bit PCM integer and 32-bit float WAV inputs. Other WAV formats (24-bit, 8-bit, non-PCM codecs) produce a clear error rather than garbled output. Ctrl+C stops playback cleanly with exit code 0.</p>
+
+      <h3>Common workflows</h3>
+
+      <h4>Record from a specific microphone</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri devices --input
+decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
+        </div>
+      </div>
+      <p><code>--device</code> accepts either a case-insensitive name substring or a numeric device index from the <code>devices</code> listing. Name substrings are usually the more stable choice across runs.</p>
+
+      <h4>Higher-quality stereo recording</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri capture -o song.wav -d 60 -r 44100 -c 2</code></pre>
+        </div>
+      </div>
+      <p>CD-quality 44.1 kHz stereo, 60 seconds. The encoding remains 16-bit PCM WAV, since v0.1.0 does not output 24-bit or float formats.</p>
+
+      <h4>Round-trip check</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri capture -o test.wav -d 5 &amp;&amp; decibri play test.wav</code></pre>
+        </div>
+      </div>
+      <p>Useful for verifying that input and output devices both work end-to-end. A simple audio loopback test for CI or new machine setup.</p>
+
+      <h4>CI-friendly recording</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri capture -o /tmp/ci-test.wav -d 2 --quiet --json</code></pre>
+        </div>
+      </div>
+      <p><code>--quiet</code> suppresses progress bars and status messages. Combined with <code>--json</code>, this is the pattern for shell scripts and CI pipelines. Exit code 0 on success, with a JSON summary on stdout describing the output file.</p>
+
+      <p>See <a href="#exit-codes">Exit codes</a> and <a href="#platform-support">Platform support</a> in the API reference below.</p>
+
+            <h2>API reference</h2>
+      <h3>Overview</h3>
+      <p>decibri-cli exposes four subcommands: <code>version</code>, <code>devices</code>, <code>capture</code>, and <code>play</code>. All commands support <code>--json</code> for machine-readable output and <code>--quiet</code> to suppress progress indicators. Exit codes are stable across the 0.x series and documented below.</p>
+
+      <h3>Global flags</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--json</code></td>
+              <td><code>boolean</code></td>
+              <td>Emit machine-readable JSON instead of human output. Only the <code>version --json</code> schema is stable in v0.1.x; other command schemas may change before v1.0.</td>
+            </tr>
+            <tr>
+              <td><code>-q</code>, <code>--quiet</code></td>
+              <td><code>boolean</code></td>
+              <td>Suppress progress bars and status messages. Errors still print to stderr.</td>
+            </tr>
+            <tr>
+              <td><code>-V</code>, <code>--version</code></td>
+              <td><code>boolean</code></td>
+              <td>Print <code>decibri-cli &lt;version&gt;</code> and exit. Equivalent to <code>decibri version</code> for basic info.</td>
+            </tr>
+            <tr>
+              <td><code>-h</code>, <code>--help</code></td>
+              <td><code>boolean</code></td>
+              <td>Print help for the current command and exit.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>decibri version</code></h3>
+      <p>Displays version information and build metadata for decibri-cli and its underlying library.</p>
+
+      <h4>Usage</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri version [--json]</code></pre>
+        </div>
+      </div>
+
+      <h4>Human output</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri-cli 0.1.0
+decibri 3.0.0
+Audio backend: WASAPI
+Platform: x86_64-pc-windows-msvc
+Rust: 1.82.0</code></pre>
+        </div>
+      </div>
+
+      <h4>JSON output (stable schema)</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">{
+  "decibri_cli": "0.1.0",
+  "decibri": "3.0.0",
+  "audio_backend": "WASAPI",
+  "target": "x86_64-pc-windows-msvc",
+  "rust_version": "1.82.0"
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>decibri_cli</code></td>
+              <td><code>string</code></td>
+              <td>Semver version of the CLI binary</td>
+            </tr>
+            <tr>
+              <td><code>decibri</code></td>
+              <td><code>string</code></td>
+              <td>Semver version of the decibri library the CLI was built against</td>
+            </tr>
+            <tr>
+              <td><code>audio_backend</code></td>
+              <td><code>string</code></td>
+              <td><code>WASAPI</code> (Windows), <code>CoreAudio</code> (macOS), or <code>ALSA</code> (Linux)</td>
+            </tr>
+            <tr>
+              <td><code>target</code></td>
+              <td><code>string</code></td>
+              <td>Rust target triple the binary was compiled for</td>
+            </tr>
+            <tr>
+              <td><code>rust_version</code></td>
+              <td><code>string</code></td>
+              <td>Rust compiler version used at build time</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Stable:</strong> The <code>version --json</code> schema is stable from v0.1.0 and will not change without a major version bump.
+      </div>
+
+      <h3><code>decibri devices</code></h3>
+      <p>Lists audio input and output devices available on the system.</p>
+
+      <h4>Usage</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri devices [--input] [--output] [--json]</code></pre>
+        </div>
+      </div>
+
+      <h4>Flags</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--input</code></td>
+              <td><code>boolean</code></td>
+              <td>List only input devices</td>
+            </tr>
+            <tr>
+              <td><code>--output</code></td>
+              <td><code>boolean</code></td>
+              <td>List only output devices</td>
+            </tr>
+            <tr>
+              <td><code>--json</code></td>
+              <td><code>boolean</code></td>
+              <td>Emit JSON instead of the human-readable table</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Default behavior (no <code>--input</code>/<code>--output</code> flag) lists both inputs and outputs.</p>
+
+      <h4>Human output</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">INPUT DEVICES
+  #  Name                     Channels  Sample rate  Default
+  0  MacBook Pro Microphone      1        48000        yes
+  1  Blue Yeti                   2        48000
+
+OUTPUT DEVICES
+  #  Name                     Channels  Sample rate  Default
+  0  MacBook Pro Speakers        2        48000        yes
+  1  External Headphones         2        48000</code></pre>
+        </div>
+      </div>
+
+      <h4>JSON output</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">{
+  "inputs": [
+    { "index": 0, "name": "MacBook Pro Microphone", "channels": 1, "sample_rate": 48000, "is_default": true },
+    { "index": 1, "name": "Blue Yeti",               "channels": 2, "sample_rate": 48000, "is_default": false }
+  ],
+  "outputs": [
+    { "index": 0, "name": "MacBook Pro Speakers",    "channels": 2, "sample_rate": 48000, "is_default": true }
+  ]
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Unstable schema:</strong> The <code>devices --json</code> field names and shape may change before v1.0.0. Only <code>version --json</code> is stable in v0.1.x.
+      </div>
+
+      <h3><code>decibri capture</code></h3>
+      <p>Records audio from an input device to a 16-bit PCM WAV file.</p>
+
+      <h4>Usage</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri capture -o &lt;FILE&gt; [-d &lt;DURATION&gt;] [-r &lt;RATE&gt;] [-c &lt;CHANNELS&gt;] [--device &lt;NAME_OR_INDEX&gt;] [--json] [--quiet]</code></pre>
+        </div>
+      </div>
+
+      <h4>Flags</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Alias</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>--output</code></td>
+              <td><code>-o</code></td>
+              <td><code>path</code></td>
+              <td><strong>required</strong></td>
+              <td>Output WAV file path. Overwrites without prompting.</td>
+            </tr>
+            <tr>
+              <td><code>--duration</code></td>
+              <td><code>-d</code></td>
+              <td><code>duration</code></td>
+              <td>(until Ctrl+C)</td>
+              <td>Recording length. Accepts bare seconds (<code>10</code>, <code>5.5</code>) or suffixed strings (<code>10s</code>, <code>1m30s</code>).</td>
+            </tr>
+            <tr>
+              <td><code>--rate</code></td>
+              <td><code>-r</code></td>
+              <td><code>integer</code></td>
+              <td><code>16000</code></td>
+              <td>Sample rate in Hz.</td>
+            </tr>
+            <tr>
+              <td><code>--channels</code></td>
+              <td><code>-c</code></td>
+              <td><code>integer</code></td>
+              <td><code>1</code></td>
+              <td>Channel count (mono=1, stereo=2).</td>
+            </tr>
+            <tr>
+              <td><code>--device</code></td>
+              <td></td>
+              <td><code>string | int</code></td>
+              <td>system default</td>
+              <td>Input device by case-insensitive name substring or numeric index.</td>
+            </tr>
+            <tr>
+              <td><code>--json</code></td>
+              <td></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Emit JSON summary on completion.</td>
+            </tr>
+            <tr>
+              <td><code>--quiet</code></td>
+              <td><code>-q</code></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Suppress progress bar and status messages.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Behavior</h4>
+      <ul>
+        <li>Always writes <strong>16-bit signed integer PCM WAV</strong>. Other sample formats are not supported in v0.1.0.</li>
+        <li>Ctrl+C (SIGINT) produces a valid truncated WAV file. The header is rewritten with the actual sample count before exit, so files are never left in a corrupt state.</li>
+        <li>Memory usage is bounded and stable during long recordings (verified at 60+ minutes).</li>
+        <li>Watchdog protection aborts cleanly if the output disk stalls, preventing unbounded memory growth.</li>
+        <li>If <code>--duration</code> is omitted, capture runs until Ctrl+C.</li>
+      </ul>
+
+      <h4>Examples</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash"># ASR-ready recording (16 kHz mono, 30 seconds)
+decibri capture -o speech.wav -d 30
+
+# Stereo music recording at CD quality
+decibri capture -o song.wav -d 60 -r 44100 -c 2
+
+# Record from a specific microphone by name substring
+decibri capture -o out.wav -d 10 --device "Yeti"
+
+# Record until Ctrl+C, JSON summary on exit
+decibri capture -o clip.wav --json</code></pre>
+        </div>
+      </div>
+
+      <h4>JSON output</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">{
+  "command": "capture",
+  "output": "speech.wav",
+  "duration": 30.0,
+  "sample_rate": 16000,
+  "channels": 1,
+  "format": "int16",
+  "bytes_written": 960044,
+  "device": "MacBook Pro Microphone",
+  "interrupted": false
+}</code></pre>
+        </div>
+      </div>
+      <p>If the recording was stopped by Ctrl+C, <code>"interrupted": true</code> and <code>duration</code> reflects the actual recorded length.</p>
+
+      <h3><code>decibri play</code></h3>
+      <p>Plays a WAV file through an output device.</p>
+
+      <h4>Usage</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri play &lt;FILE&gt; [--device &lt;NAME_OR_INDEX&gt;] [--json] [--quiet]</code></pre>
+        </div>
+      </div>
+
+      <h4>Flags</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>&lt;FILE&gt;</code></td>
+              <td><code>path</code></td>
+              <td><strong>required</strong></td>
+              <td>Path to a WAV file.</td>
+            </tr>
+            <tr>
+              <td><code>--device</code></td>
+              <td><code>string | int</code></td>
+              <td>system default</td>
+              <td>Output device by case-insensitive name substring or numeric index.</td>
+            </tr>
+            <tr>
+              <td><code>--json</code></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Emit JSON summary on completion.</td>
+            </tr>
+            <tr>
+              <td><code>--quiet</code></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Suppress progress bar.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4>Supported formats</h4>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Format</th>
+              <th>Supported</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>16-bit signed integer PCM WAV</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>32-bit float PCM WAV</td>
+              <td>Yes</td>
+            </tr>
+            <tr>
+              <td>24-bit PCM WAV</td>
+              <td>No (clear error on load)</td>
+            </tr>
+            <tr>
+              <td>8-bit PCM WAV</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Non-PCM (μ-law, A-law, ADPCM, compressed codecs)</td>
+              <td>No</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Use ffmpeg or sox to convert unsupported files to 16-bit PCM WAV before playback.</p>
+
+      <h4>Behavior</h4>
+      <ul>
+        <li>Ctrl+C stops playback cleanly with exit code 0.</li>
+        <li>In <code>--json</code> mode, an interrupted playback reports <code>"interrupted": true</code>.</li>
+      </ul>
+
+      <h4>Examples</h4>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">decibri play recording.wav
+decibri play recording.wav --device "External Headphones"</code></pre>
+        </div>
+      </div>
+
+      <h3 id="exit-codes">Exit codes</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>0</code></td>
+              <td>Success.</td>
+            </tr>
+            <tr>
+              <td><code>1</code></td>
+              <td>Generic error. Audio subsystem failure, unsupported WAV format, corrupt input file, or disk stall.</td>
+            </tr>
+            <tr>
+              <td><code>2</code></td>
+              <td>Invalid arguments, caught by the argument parser (unknown flag, missing required value, bad duration format).</td>
+            </tr>
+            <tr>
+              <td><code>3</code></td>
+              <td>Device not found. The <code>--device</code> value did not match any available device name or index.</td>
+            </tr>
+            <tr>
+              <td><code>4</code></td>
+              <td>IO error. File not found, permission denied, disk full, or device lost mid-capture.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Exit codes are stable and will not change across v0.x releases.</p>
+
+      <h3 id="platform-support">Platform support</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Target</th>
+              <th>Audio backend</th>
+              <th>Distribution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Windows 11</td>
+              <td><code>x86_64-pc-windows-msvc</code></td>
+              <td>WASAPI</td>
+              <td>npm, crates.io, direct download</td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td><code>universal2</code> (Intel + Apple Silicon)</td>
+              <td>CoreAudio</td>
+              <td>npm, direct download</td>
+            </tr>
+            <tr>
+              <td>Linux</td>
+              <td><code>x86_64-unknown-linux-gnu</code></td>
+              <td>ALSA</td>
+              <td>npm, crates.io, direct download</td>
+            </tr>
+            <tr>
+              <td>Linux</td>
+              <td><code>aarch64-unknown-linux-gnu</code></td>
+              <td>ALSA</td>
+              <td>npm, crates.io, direct download</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Troubleshooting</h3>
+
+      <h4>Device not found (exit 3)</h4>
+      <p>Verify the device name with <code>decibri devices</code> first. The <code>--device</code> value is matched case-insensitively against the device name substring, or parsed as a numeric index. Name substrings are generally more stable across runs than indices, which can shift if devices are plugged in or unplugged.</p>
+
+      <h4>Windows SmartScreen warning on first run</h4>
+      <p>v0.1.x binaries are unsigned. If you installed via npm, you shouldn't see the prompt because the binary is fetched to your user directory rather than executed from an untrusted download location. Direct downloads from GitHub Releases may trigger the warning; verify the SHA256 against <code>SHA256SUMS</code> on the release page and run it anyway if it matches.</p>
+
+      <h4>macOS Gatekeeper "cannot be verified" on direct download</h4>
+      <p>Unquarantine the file manually:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">xattr -d com.apple.quarantine /path/to/decibri</code></pre>
+        </div>
+      </div>
+      <p>Or use <code>npm install -g decibri-cli</code> / <code>cargo install decibri-cli</code>, which avoid the issue entirely.</p>
+
+      <h4>Linux: libasound2 error after <code>cargo install</code></h4>
+      <p>Install the ALSA development headers:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">sudo apt install libasound2-dev    # Debian / Ubuntu
+sudo dnf install alsa-lib-devel    # Fedora</code></pre>
+        </div>
+      </div>
+
+      <h4>"Unsupported WAV format" on <code>decibri play</code></h4>
+      <p>v0.1.0 only supports 16-bit PCM integer and 32-bit float WAV. Convert with ffmpeg:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">ffmpeg -i input.wav -acodec pcm_s16le -ar 16000 -ac 1 output.wav
+decibri play output.wav</code></pre>
+        </div>
+      </div>
+
+            <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/apis">APIs overview</a>: decibri&rsquo;s three interface surfaces (Node.js, Browser, CLI)</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: underlying library reference</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser</li>
+          <li><a href="https://github.com/decibri/decibri-cli" target="_blank" rel="noopener noreferrer">decibri-cli on GitHub</a></li>
+          <li><a href="https://www.npmjs.com/package/decibri-cli" target="_blank" rel="noopener noreferrer">decibri-cli on npm</a></li>
+          <li><a href="https://crates.io/crates/decibri-cli" target="_blank" rel="noopener noreferrer">decibri-cli on crates.io</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>

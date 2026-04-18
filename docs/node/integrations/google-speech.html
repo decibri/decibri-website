@@ -40,7 +40,7 @@
     ]
   }
   </script>
-  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
@@ -80,7 +80,7 @@
       <p class="lead">Stream live microphone audio to Google Cloud Speech-to-Text using decibri and a single <code>pipe()</code> call.</p>
 
       <h2>What this does</h2>
-      <p>This is the simplest cloud integration in the decibri docs. Google's <code>streamingRecognize()</code> returns a standard Node.js writable stream. decibri is a Readable stream. The entire integration is one line:</p>
+      <p>This is the simplest cloud integration in the decibri docs. Google's <code>streamingRecognize()</code> returns a standard Node.js writable stream. Decibri is a Readable stream. The entire integration is one line:</p>
       <pre><code class="language-javascript">mic.pipe(recognizeStream);</code></pre>
       <p>No async generator (like AWS Transcribe), no WebSocket management (like Deepgram or OpenAI). Just standard Node.js streams piped together over gRPC.</p>
       <p>Choose this when you need managed cloud transcription with Google's speech models, support for 125+ languages, or the simplest possible integration code. For use cases where audio must stay on your device, see the <a href="sherpa-onnx-stt">sherpa-onnx</a> or <a href="whisper-cpp">whisper.cpp</a> local integrations instead.</p>
@@ -297,10 +297,6 @@ main().catch(console.error);</code></pre>
       </div>
       <p>See the <a href="https://cloud.google.com/speech-to-text/docs/reference/rest/v1/projects.locations/streamingRecognize" target="_blank" rel="noopener noreferrer">Google Cloud Speech-to-Text streaming API reference</a> for the complete list of options.</p>
 
-      <div class="callout">
-        <strong>Free tier:</strong> New Google Cloud accounts get $300 in credit. After that, the first 60 minutes of audio per month are free.
-      </div>
-
       <div class="related-links">
         <h3>Related</h3>
         <ul>
@@ -324,6 +320,7 @@ main().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-  <script src="../../nav.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

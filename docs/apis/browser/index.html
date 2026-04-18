@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Browser API | decibri docs</title>
+  <meta name="description" content="Decibri browser API reference. Constructor options, methods, events, browser quickstart including permission flow, CSP configuration, and differences from decibri for Node.js.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Browser API | decibri docs">
+  <meta property="og:description" content="Decibri browser API reference. Constructor options, methods, events, browser quickstart including permission flow, CSP configuration, and differences from decibri for Node.js.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/apis/browser">
+  <link rel="canonical" href="https://decibri.com/docs/apis/browser">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/apis">APIs</a>
+        <span class="sep">/</span>
+        <span class="current">Browser</span>
+      </div>
+
+      <h1>Browser API</h1>
+      <p class="lead">Decibri includes browser support via conditional exports. When imported in a browser bundle (webpack, vite, etc.), it uses getUserMedia and AudioWorklet to capture raw PCM audio chunks in real-time. Same API as the Node.js version, same npm package.</p>
+
+      <h2>Quickstart</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Environment</th>
+              <th>Backend</th>
+              <th>Entry point</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Node.js</td>
+              <td>Rust native addon (cpal)</td>
+              <td>Resolved via conditional export</td>
+            </tr>
+            <tr>
+              <td>Browser</td>
+              <td>Web Audio API</td>
+              <td>Resolved via conditional export</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Install</h3>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">npm install decibri</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+
+      <h3>Quick start</h3>
+      <p>Capture microphone audio and log the chunk size:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">import { Decibri } from 'decibri';
+
+const mic = new Decibri({ sampleRate: 16000 });
+
+mic.on('data', (chunk) => {
+  console.log(`Received ${chunk.length} samples`);
+});
+
+await mic.start();</code></pre>
+        </div>
+      </div>
+      <p><code>start()</code> must be called from a user gesture (click/tap) in Safari. Each chunk contains 100 ms of audio by default (1,600 frames at 16 kHz).</p>
+
+      <h3>Permission handling</h3>
+      <p>Microphone access requires HTTPS (or localhost). The browser will show a permission prompt when <code>start()</code> is called.</p>
+      <ul>
+        <li>If the user denies permission, <code>start()</code> rejects with <code>Error('Microphone permission denied')</code></li>
+        <li>The <code>'error'</code> event also fires with the same error</li>
+        <li>Device labels from <code>Decibri.devices()</code> may be empty before permission is granted</li>
+      </ul>
+
+      <h3>Stopping and cleanup</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">mic.stop();</code></pre>
+        </div>
+      </div>
+      <p><code>stop()</code> releases all resources: MediaStream tracks are stopped, AudioContext is closed, all nodes are disconnected, references are nulled. Safe for React/Vue component unmount cycles. Safe to call multiple times or before <code>start()</code>.</p>
+      <p>To restart after stopping:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">await mic.start(); // creates a fresh audio pipeline</code></pre>
+        </div>
+      </div>
+
+      <h3>Device selection</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
+await mic.start();
+const devices = await Decibri.devices();
+console.log(devices);
+// [{ deviceId: 'abc123', label: 'Built-in Microphone', groupId: 'g1' }, ...]
+
+// Use a specific device
+const usbMic = new Decibri({ device: devices[1].deviceId });
+await usbMic.start();</code></pre>
+        </div>
+      </div>
+
+      <h3>Output formats</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
+const mic = new Decibri({ format: 'int16' });
+mic.on('data', (chunk) => {
+  // chunk is an Int16Array
+});
+
+// Float32 - native browser format, no conversion
+const mic2 = new Decibri({ format: 'float32' });
+mic2.on('data', (chunk) => {
+  // chunk is a Float32Array
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>Voice activity detection</h3>
+      <p>Enable the built-in VAD to receive <code>'speech'</code> and <code>'silence'</code> events based on RMS energy thresholding:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const mic = new Decibri({
+  sampleRate: 16000,
+  vad: true,
+  vadThreshold: 0.01,
+  vadHoldoff: 300,
+});
+
+mic.on('speech', () => console.log('Speaking...'));
+mic.on('silence', () => console.log('Silence'));
+
+await mic.start();</code></pre>
+        </div>
+      </div>
+
+      <h3>WebSocket streaming</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
+const mic = new Decibri({ sampleRate: 16000, format: 'int16' });
+
+mic.on('data', (chunk) => {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(chunk.buffer);
+  }
+});
+
+document.getElementById('start').onclick = () => mic.start();
+document.getElementById('stop').onclick = () => mic.stop();</code></pre>
+        </div>
+      </div>
+
+      <h3>Browser support</h3>
+      <p>Requires HTTPS (or localhost) for microphone access.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Browser</th>
+              <th>Minimum Version</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Chrome</td>
+              <td>66+</td>
+            </tr>
+            <tr>
+              <td>Firefox</td>
+              <td>76+</td>
+            </tr>
+            <tr>
+              <td>Safari</td>
+              <td>14.1+ (requires user gesture)</td>
+            </tr>
+            <tr>
+              <td>Edge</td>
+              <td>79+</td>
+            </tr>
+            <tr>
+              <td>iOS Safari</td>
+              <td>14.5+</td>
+            </tr>
+            <tr>
+              <td>Android Chrome</td>
+              <td>66+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>CSP-restricted environments</h3>
+      <p>By default, decibri loads its AudioWorklet processor via an inline Blob URL. If your Content Security Policy blocks <code>blob:</code> URLs:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const mic = new Decibri({
+  workletUrl: '/static/decibri-worklet.js',
+});</code></pre>
+        </div>
+      </div>
+      <p>Copy the worklet file from <code>node_modules/decibri/dist/worklet.js</code> to your static assets directory and pass the URL.</p>
+
+      
+      <h2>API reference</h2>
+      <h3>Constructor</h3>
+      <h4><code>new Decibri(options?)</code></h4>
+      <p>Creates a new capture instance. Does not start capture. Call <code>start()</code> to begin.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">import { Decibri } from 'decibri';
+const mic = new Decibri(options?);</code></pre>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code></td>
+              <td><code>number</code></td>
+              <td><code>16000</code></td>
+              <td>Target sample rate in Hz (1,000 to 384,000)</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>number</code></td>
+              <td><code>1</code></td>
+              <td>Number of channels (browsers reliably support 1)</td>
+            </tr>
+            <tr>
+              <td><code>framesPerBuffer</code></td>
+              <td><code>number</code></td>
+              <td><code>1600</code></td>
+              <td>Frames per chunk. 1,600 at 16 kHz = 100 ms chunks (64 to 65,536)</td>
+            </tr>
+            <tr>
+              <td><code>device</code></td>
+              <td><code>string</code></td>
+              <td>system default</td>
+              <td><code>deviceId</code> string from <code>Decibri.devices()</code></td>
+            </tr>
+            <tr>
+              <td><code>format</code></td>
+              <td><code>'int16' | 'float32'</code></td>
+              <td><code>'int16'</code></td>
+              <td>Sample encoding format</td>
+            </tr>
+            <tr>
+              <td><code>vad</code></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Enable voice activity detection</td>
+            </tr>
+            <tr>
+              <td><code>vadThreshold</code></td>
+              <td><code>number</code></td>
+              <td><code>0.01</code></td>
+              <td>RMS energy threshold for speech detection (0 to 1)</td>
+            </tr>
+            <tr>
+              <td><code>vadHoldoff</code></td>
+              <td><code>number</code></td>
+              <td><code>300</code></td>
+              <td>Milliseconds of sub-threshold audio before <code>'silence'</code> is emitted</td>
+            </tr>
+            <tr>
+              <td><code>echoCancellation</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code></td>
+              <td>Browser echo cancellation. Set <code>false</code> for music/tuner apps</td>
+            </tr>
+            <tr>
+              <td><code>noiseSuppression</code></td>
+              <td><code>boolean</code></td>
+              <td><code>true</code></td>
+              <td>Browser noise suppression. Set <code>false</code> for raw signal</td>
+            </tr>
+            <tr>
+              <td><code>workletUrl</code></td>
+              <td><code>string</code></td>
+              <td>(inline Blob URL)</td>
+              <td>URL for AudioWorklet processor file. Override if CSP blocks <code>blob:</code> URLs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>mic.start()</code></h4>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Requests microphone permission and begins capture. Must be called from a user gesture in Safari. No-op if already started. Rejects with a clear error on permission denial.</p>
+
+      <h4><code>mic.stop()</code></h4>
+      <p>Stops capture and releases all resources (tracks, context, nodes). Safe to call anytime, including before <code>start()</code> or multiple times. Emits <code>'end'</code> then <code>'close'</code>.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>mic.isOpen</code></h4>
+      <p><code>boolean</code> (read-only). Returns <code>true</code> while actively capturing audio.</p>
+
+      <h3>Static methods</h3>
+
+      <h4><code>Decibri.devices()</code></h4>
+      <p>Returns <code>Promise&lt;DeviceInfo[]&gt;</code>. Lists available audio input devices. Labels may be empty before microphone permission is granted.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const devices = await Decibri.devices();
+console.log(devices);
+// [
+//   { deviceId: 'abc123', label: 'Built-in Microphone', groupId: 'g1' },
+//   ...
+// ]</code></pre>
+        </div>
+      </div>
+
+      <h4><code>Decibri.version()</code></h4>
+      <p>Returns version information for decibri.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">Decibri.version();
+// { decibri: '3.0.0' }</code></pre>
+        </div>
+      </div>
+
+      <h3>Events</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Payload</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>'data'</code></td>
+              <td><code>Int16Array</code> or <code>Float32Array</code></td>
+              <td>Audio chunk. Format depends on <code>format</code> option. Emitted ~10 times/sec at default settings.</td>
+            </tr>
+            <tr>
+              <td><code>'error'</code></td>
+              <td><code>Error</code></td>
+              <td>Permission denied, worklet load failure, AudioContext creation failure.</td>
+            </tr>
+            <tr>
+              <td><code>'end'</code></td>
+              <td>(none)</td>
+              <td>Emitted after <code>stop()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>'close'</code></td>
+              <td>(none)</td>
+              <td>Emitted after <code>stop()</code>, after <code>'end'</code>.</td>
+            </tr>
+            <tr>
+              <td><code>'speech'</code></td>
+              <td>(none)</td>
+              <td>VAD: RMS energy crossed threshold. Requires <code>vad: true</code>.</td>
+            </tr>
+            <tr>
+              <td><code>'silence'</code></td>
+              <td>(none)</td>
+              <td>VAD: sub-threshold audio for <code>vadHoldoff</code> ms. Requires <code>vad: true</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Types</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">// DeviceInfo
+{
+  deviceId: string,
+  label: string,
+  groupId: string,
+}
+
+// VersionInfo
+{
+  decibri: string,
+}</code></pre>
+        </div>
+      </div>
+
+      <h3>Differences from Decibri (Node.js)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Node.js <code>decibri</code></th>
+              <th><code>decibri</code> (browser)</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Class name</td>
+              <td><code>Decibri</code></td>
+              <td><code>Decibri</code></td>
+              <td>Identical</td>
+            </tr>
+            <tr>
+              <td>Constructor</td>
+              <td>Sync, capture starts on read</td>
+              <td>Sync, requires <code>await start()</code></td>
+              <td>Browser needs async permission</td>
+            </tr>
+            <tr>
+              <td><code>'data'</code> payload</td>
+              <td><code>Buffer</code></td>
+              <td><code>Int16Array</code> / <code>Float32Array</code></td>
+              <td>Different types, same PCM data</td>
+            </tr>
+            <tr>
+              <td><code>devices()</code></td>
+              <td>Sync</td>
+              <td>Async (returns Promise)</td>
+              <td>Browser API is async</td>
+            </tr>
+            <tr>
+              <td><code>device</code> option</td>
+              <td>Number index or name substring</td>
+              <td>String <code>deviceId</code> only</td>
+              <td>Browser uses opaque device IDs</td>
+            </tr>
+            <tr>
+              <td><code>version()</code></td>
+              <td><code>{ decibri, portaudio }</code> (portaudio key kept for compat)</td>
+              <td><code>{ decibri }</code></td>
+              <td>Different runtime info</td>
+            </tr>
+            <tr>
+              <td><code>echoCancellation</code></td>
+              <td>N/A</td>
+              <td><code>boolean</code> (default <code>true</code>)</td>
+              <td>Browser-only option</td>
+            </tr>
+            <tr>
+              <td><code>noiseSuppression</code></td>
+              <td>N/A</td>
+              <td><code>boolean</code> (default <code>true</code>)</td>
+              <td>Browser-only option</td>
+            </tr>
+            <tr>
+              <td><code>'backpressure'</code> event</td>
+              <td>Available</td>
+              <td>Not available</td>
+              <td>No browser equivalent</td>
+            </tr>
+            <tr>
+              <td><code>pipe()</code> / streams</td>
+              <td>Full Readable stream</td>
+              <td>Not available</td>
+              <td>Browser has no Node streams</td>
+            </tr>
+            <tr>
+              <td><code>sampleRate</code></td>
+              <td>Any (cpal resamples)</td>
+              <td>Any (AudioWorklet resamples)</td>
+              <td>Same behavior</td>
+            </tr>
+            <tr>
+              <td><code>format</code></td>
+              <td><code>'int16'</code> or <code>'float32'</code></td>
+              <td><code>'int16'</code> or <code>'float32'</code></td>
+              <td>Identical</td>
+            </tr>
+            <tr>
+              <td>VAD (<code>speech</code>/<code>silence</code>)</td>
+              <td>RMS-based</td>
+              <td>RMS-based (same algorithm)</td>
+              <td>Identical</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+            <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/apis">APIs overview</a>: decibri&rsquo;s three interface surfaces (Node.js, Browser, CLI)</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: same library, different runtime</li>
+          <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: STT providers that work in the browser</li>
+          <li><a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+          <li><a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">decibri on npm</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>

@@ -810,6 +810,18 @@ body {
   margin-bottom: 12px;
 }
 
+/* Same sizing when Related is a top-level H2 (migrated integration pages + merged APIs).
+   Suppress the default .doc-content h2 border-bottom/padding-bottom so only the
+   .related-links border-top renders. Otherwise you get two stacked separators. */
+.related-links h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  margin-top: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
 .related-links ul {
   list-style: none;
   padding: 0;
@@ -932,3 +944,378 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ------------------------------------------------------------------
+   Code tabs component: tabbed code blocks
+   ------------------------------------------------------------------ */
+
+.code-tabs {
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-code);
+  max-width: 100%;
+}
+
+.code-tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 4px 4px 0 4px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code-tab-bar::-webkit-scrollbar {
+  height: 0;
+}
+
+.code-tab-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.code-tab-btn[aria-selected="true"] {
+  background: var(--bg-code);
+  color: var(--text-primary);
+}
+
+.code-tab-btn:hover:not([aria-selected="true"]) {
+  color: var(--text-primary);
+}
+
+.code-tab-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.code-tab-panel {
+  display: block;
+}
+
+.code-tab-panel[hidden] {
+  display: none;
+}
+
+.code-tab-panel > pre {
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Single-tab collapse: render as a plain code block.
+   Driven by the .single-tab class that code-tabs.js adds to every .code-tabs
+   with exactly one .code-tab-panel child. A pure-CSS :has(:only-of-type)
+   approach fails because .code-tab-panel shares its parent with .code-tab-bar,
+   and both are <div>, so :only-of-type never matches. */
+.code-tabs.single-tab .code-tab-bar {
+  display: none;
+}
+.code-tabs.single-tab {
+  background: transparent;
+  border: 0;
+}
+.code-tabs.single-tab > .code-tab-panel > pre {
+  margin: 16px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+  .code-tab-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Mobile hardening: prevent horizontal overflow regressions
+   ------------------------------------------------------------------ */
+
+/* overflow-x: hidden is unconditional; protects against any child that
+   misbehaves. The original .doc-container { max-width: 800px; } rule (near
+   line 455) already constrains the container on desktop and naturally clamps
+   to viewport width on narrow screens, so we don't need to re-assert
+   max-width here. */
+.doc-container {
+  overflow-x: hidden;
+}
+
+.doc-container pre,
+.doc-container .code-tabs,
+.doc-container .table-wrap {
+  max-width: 100%;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.table-wrap > table {
+  min-width: 100%;
+}
+
+.doc-container pre > code {
+  white-space: pre;
+}
+
+.doc-container pre {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+.breadcrumb {
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.breadcrumb::-webkit-scrollbar {
+  height: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav,
+  .mobile-nav-btn {
+    flex-shrink: 0;
+  }
+
+  .nav-inner {
+    overflow: hidden;
+    min-width: 0;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Sidebar / mobile-menu expandable groups.
+   Parent labels are themselves links to the section's landing page.
+   A separate chevron button toggles expand/collapse. Auto-expands
+   the ancestor chain of the current page on load (via nav.js).
+   ------------------------------------------------------------------ */
+
+.expandable-header {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.expandable-header > a {
+  flex: 1;
+  min-width: 0;
+}
+
+.expandable-chevron {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  min-width: 32px;
+  width: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.expandable-chevron:hover {
+  color: var(--text-primary);
+}
+
+.expandable-chevron:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.expandable-chevron svg {
+  width: 10px;
+  height: 10px;
+  transition: transform 0.2s ease;
+}
+
+.expandable[data-expanded="true"] > .expandable-header .expandable-chevron svg {
+  transform: rotate(90deg);
+}
+
+.expandable-children {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+.expandable[data-expanded="true"] > .expandable-children {
+  max-height: 2000px;
+}
+
+/* Mobile: larger chevron target for finger hits */
+@media (max-width: 768px) {
+  .expandable-chevron {
+    min-width: 44px;
+    width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ── Sidebar parent-label links ── */
+
+/* Top-level section label (Integrations, APIs) — styled like section-title but as anchor */
+.sidebar-section-title-link {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 12px 4px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.sidebar-section-title-link:hover {
+  color: var(--text-primary);
+}
+
+.sidebar-section-title-link.active {
+  color: var(--accent);
+}
+
+/* Nested subsection label (STT / VAD / KWS under Integrations) */
+.sidebar-subsection-title-link {
+  display: block;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 12px 4px;
+  text-decoration: none;
+  transition: color 0.2s;
+  margin-left: 12px;
+}
+
+.sidebar-subsection-title-link:hover {
+  color: var(--text-primary);
+}
+
+.sidebar-subsection-title-link.active {
+  color: var(--accent);
+}
+
+/* Getting started — single top-level link, not expandable */
+.sidebar-top-link {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  margin-bottom: 4px;
+}
+
+.sidebar-top-link:hover {
+  background: var(--surface);
+}
+
+.sidebar-top-link.active {
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+/* Visual indent: child links appear indented relative to their parent label */
+.expandable-children > .sidebar-link,
+.expandable-children > .expandable > .expandable-children > .sidebar-link {
+  padding-left: 24px;
+}
+
+.expandable .expandable .expandable-children > .sidebar-link {
+  padding-left: 36px;
+}
+
+/* ── Mobile menu parent-label links ── */
+
+.mobile-menu-section-link {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 16px 0 8px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.mobile-menu-section-link:hover,
+.mobile-menu-section-link.active {
+  color: var(--accent);
+}
+
+.mobile-menu-subsection-link {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 0 4px;
+  margin-left: 12px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.mobile-menu-subsection-link:hover,
+.mobile-menu-subsection-link.active {
+  color: var(--accent);
+}
+
+.mobile-menu-link {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.2s;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.active {
+  color: var(--accent);
+}
+
+/* Indent child links inside mobile expandables */
+.mobile-expandable > .expandable-children > .mobile-menu-link {
+  padding-left: 12px;
+}
+
+.mobile-expandable .mobile-expandable > .expandable-children > .mobile-menu-link {
+  padding-left: 24px;
+}
+
