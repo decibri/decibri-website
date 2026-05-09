@@ -35,6 +35,13 @@
         panels[j].setAttribute('hidden', '');
       }
     }
+    // Notify listeners (e.g. homepage install pill) of the active language.
+    try {
+      group.dispatchEvent(new CustomEvent('code-tabs:change', {
+        detail: { lang: lang },
+        bubbles: true
+      }));
+    } catch (e) {}
   }
 
   function init() {
