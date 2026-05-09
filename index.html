@@ -403,67 +403,124 @@
       margin-bottom: 40px;
     }
 
-    /* ── Code Block ── */
-    .code-block {
-      background: var(--bg-code);
+    /* ── Tabbed code block (shared markup with docs/styles.css .code-tabs system,
+       wired up by /docs/code-tabs.js) ── */
+    .code-tabs {
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
-      margin: 36px 0;
-      position: relative;
+      background: var(--bg-code);
+      max-width: 100%;
     }
 
-    .code-header {
+    .code-tab-bar {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
+      gap: 4px;
+      padding: 4px 4px 0 4px;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
-
-    .code-dots {
-      display: flex;
-      gap: 7px;
-    }
-
-    .code-dots span {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      background: var(--border);
-    }
-
-    .code-dots span:first-child { background: #ff5f57; }
-    .code-dots span:nth-child(2) { background: #febc2e; }
-    .code-dots span:nth-child(3) { background: #28c840; }
-
-    .code-lang {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-    }
-
-    .code-body {
-      padding: 24px;
       overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
 
-    .code-body pre {
+    .code-tab-bar::-webkit-scrollbar { height: 0; }
+
+    .code-tab-btn {
+      appearance: none;
+      border: 0;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .code-tab-btn[aria-selected="true"] {
+      background: var(--surface);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .code-tab-btn:hover:not([aria-selected="true"]) {
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .code-tab-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    [data-theme="light"] .code-tab-bar { background: var(--surface); }
+    [data-theme="light"] .code-tab-btn { background: var(--bg-code); }
+    [data-theme="light"] .code-tab-btn[aria-selected="true"] { background: var(--bg-elevated); }
+    [data-theme="light"] .code-tab-btn:hover:not([aria-selected="true"]) { background: var(--bg-elevated); }
+
+    .code-tab-panel { display: block; }
+    .code-tab-panel[hidden] { display: none; }
+
+    /* Hero-specific size overrides for the tabbed code block. */
+    .hero-code-tabs {
+      margin: 0 0 36px;
+      border-radius: 12px;
+    }
+
+    /* Copy button: lives at the right end of the tab bar, mirrors the
+       install pill's copy icon (same SVG, same muted-to-accent treatment). */
+    .hero-code-tabs .code-copy-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 6px;
+      position: relative;
+      transition: color 0.2s, background 0.15s;
+    }
+
+    .hero-code-tabs .code-copy-btn:hover { color: var(--accent); }
+
+    .hero-code-tabs .code-copy-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* Success feedback: swap copy icon for a green tick for ~1.5s. */
+    .hero-code-tabs .code-copy-btn .icon-check { display: none; }
+    .hero-code-tabs .code-copy-btn.copied .icon-copy { display: none; }
+    .hero-code-tabs .code-copy-btn.copied .icon-check { display: inline-block; }
+    .hero-code-tabs .code-copy-btn.copied { color: #22c55e; }
+    .hero-code-tabs .code-copy-btn.copied:hover { color: #22c55e; }
+
+    .hero-code-tabs .code-tab-panel > pre {
+      margin: 0;
+      padding: 24px;
       font-family: var(--font-mono);
       font-size: 13.5px;
       line-height: 1.75;
       color: var(--text-secondary);
+      overflow-x: auto;
+      max-width: 100%;
     }
 
-    .code-body .kw { color: #c792ea; }
-    .code-body .fn { color: #82aaff; }
-    .code-body .str { color: #c3e88d; }
-    .code-body .cm { color: #546e7a; font-style: italic; }
-    .code-body .const { color: #89ddff; }
-    .code-body .obj { color: #f0c674; }
-    .code-body .param { color: #e8e8f0; }
+    .hero-code-tabs .kw { color: #c792ea; }
+    .hero-code-tabs .fn { color: #82aaff; }
+    .hero-code-tabs .str { color: #c3e88d; }
+    .hero-code-tabs .cm { color: #546e7a; font-style: italic; }
+    .hero-code-tabs .const { color: #89ddff; }
+    .hero-code-tabs .obj { color: #f0c674; }
+    .hero-code-tabs .param { color: #e8e8f0; }
 
     /* ── CTA Buttons ── */
     .cta-group {
@@ -590,6 +647,13 @@
     }
 
     .install-pill .tooltip.show { opacity: 1; }
+
+    /* Success feedback: swap copy icon for a green tick on the hero install pill. */
+    .install-pill .icon-check { display: none; }
+    .install-pill.copied .icon-copy { display: none; }
+    .install-pill.copied .icon-check { display: inline-block; color: #22c55e; }
+    .install-pill.copied { border-color: #22c55e; }
+    .install-pill.copied:hover { border-color: #22c55e; background: var(--surface); }
 
     /* ── Sections ── */
     section {
@@ -1095,13 +1159,13 @@
     footer a:hover { color: var(--accent); }
 
     /* ── Light theme: code syntax ── */
-    [data-theme="light"] .code-body .kw { color: #8839ef; }
-    [data-theme="light"] .code-body .fn { color: #1e66f5; }
-    [data-theme="light"] .code-body .str { color: #40a02b; }
-    [data-theme="light"] .code-body .cm { color: #9ca0b0; font-style: italic; }
-    [data-theme="light"] .code-body .const { color: #d20f39; }
-    [data-theme="light"] .code-body .obj { color: #df8e1d; }
-    [data-theme="light"] .code-body .param { color: #1a1a2e; }
+    [data-theme="light"] .hero-code-tabs .kw { color: #8839ef; }
+    [data-theme="light"] .hero-code-tabs .fn { color: #1e66f5; }
+    [data-theme="light"] .hero-code-tabs .str { color: #40a02b; }
+    [data-theme="light"] .hero-code-tabs .cm { color: #9ca0b0; font-style: italic; }
+    [data-theme="light"] .hero-code-tabs .const { color: #d20f39; }
+    [data-theme="light"] .hero-code-tabs .obj { color: #df8e1d; }
+    [data-theme="light"] .hero-code-tabs .param { color: #1a1a2e; }
     [data-theme="light"] .hero::before { opacity: 0.3; }
     [data-theme="light"] .btn-primary { color: #fff; }
 
@@ -1419,6 +1483,8 @@
       .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
       .install-pill { width: 100%; justify-content: center; }
       .built-with-grid { grid-template-columns: 1fr; }
+      .code-tab-btn { font-size: 12px; padding: 6px 10px; }
+      .hero-code-tabs .code-tab-panel > pre { padding: 16px; font-size: 12.5px; }
     }
 
     /* ── Fade-in animation (only when JS is active) ── */
@@ -1484,8 +1550,8 @@
   <!-- ── Hero ── -->
   <div class="container">
     <section class="hero">
-      <h1>Cross-platform <span class="gradient-text">audio capture and output</span> for Node.js</h1>
-      <p class="subtitle">No ffmpeg. No SoX. No setup. Capture microphone audio, play to speakers, or pipe it anywhere: speech engines, WebSockets, or files. Works in browsers too.</p>
+      <h1>The <span class="gradient-text">unified audio layer</span> for AI agents and Voice AI applications</h1>
+      <p class="subtitle">Capture microphone audio, play to speakers, or pipe it anywhere (speech engines, WebSockets, or files) using Python, Node.js, or Rust. Built-in voice activity detection. Zero system dependencies. Zero setup.</p>
 
       <div class="cta-group">
         <a href="https://decibri.com/docs/" class="btn-primary">
@@ -1496,33 +1562,48 @@
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
           View on GitHub
         </a>
-        <a href="https://www.npmjs.com/package/decibri" class="btn-secondary" target="_blank" rel="noopener noreferrer">
-          View on npm
-        </a>
       </div>
 
       <p class="hero-label">Install with one command:</p>
-      <div class="install-pill" onclick="copyInstall()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall()}" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-pill" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
-        <span class="cmd">npm install decibri</span>
-        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        <span class="tooltip" id="copy-tooltip">Copied!</span>
+        <span class="cmd" id="install-cmd">pip install decibri</span>
+        <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
 
       <p class="hero-label">Then start streaming:</p>
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-dots"><span></span><span></span><span></span></div>
-          <span class="code-lang">JavaScript</span>
+      <div class="code-tabs hero-code-tabs" data-tab-group="hero">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+          <button type="button" class="code-copy-btn" onclick="copyHeroCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-body">
-<pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
-<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span>, <span class="param">channels</span>: <span class="const">1</span> });
+        <div class="code-tab-panel" role="tabpanel" data-lang="python"><pre><span class="kw">import</span> <span class="obj">decibri</span>
 
-<span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) => {
-  <span class="obj">websocket</span>.<span class="fn">send</span>(<span class="param">chunk</span>); <span class="cm">// stream audio to your backend</span>
-});</pre>
-        </div>
+<span class="kw">with</span> <span class="obj">decibri</span>.<span class="fn">Microphone</span>(<span class="param">sample_rate</span>=<span class="const">16000</span>) <span class="kw">as</span> <span class="obj">mic</span>:
+    <span class="kw">for</span> <span class="param">chunk</span> <span class="kw">in</span> <span class="obj">mic</span>:
+        <span class="fn">print</span>(<span class="str">f"Got {len(chunk)} bytes"</span>)
+        <span class="kw">break</span></pre></div>
+        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+
+<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
+<span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Got ${chunk.length} bytes`</span>));
+<span class="fn">setTimeout</span>(() =&gt; <span class="obj">mic</span>.<span class="fn">stop</span>(), <span class="const">5000</span>);</pre></div>
+        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">capture</span>::{<span class="obj">AudioCapture</span>, <span class="obj">CaptureConfig</span>};
+
+<span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">AudioCapture</span>::<span class="fn">new</span>(<span class="obj">CaptureConfig</span>::<span class="fn">default</span>())?;
+    <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
+    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
+        <span class="fn">println!</span>(<span class="str">"Got {} bytes"</span>, <span class="param">chunk</span>.<span class="param">data</span>.<span class="fn">len</span>());
+    }
+    <span class="obj">Ok</span>(())
+}</pre></div>
       </div>
     </section>
   </div>
@@ -2001,6 +2082,9 @@
     </div>
   </footer>
 
+  <!-- Tabbed code blocks: shared component, also used across docs pages -->
+  <script src="/docs/code-tabs.js"></script>
+
   <script>
     // Enable fade-in animations (content stays visible without JS)
     document.documentElement.classList.add('js-loaded');
@@ -2034,15 +2118,67 @@
       }
     }
 
-    // Copy to clipboard
-    function copyInstall() {
-      navigator.clipboard.writeText('npm install decibri').then(() => {
-        document.querySelectorAll('.tooltip').forEach(t => {
-          t.classList.add('show');
-          setTimeout(() => t.classList.remove('show'), 1500);
-        });
-      });
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts.
+    function copyHeroCode(el) {
+      const tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      const panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      const pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      const flash = () => {
+        el.classList.add('copied');
+        setTimeout(() => el.classList.remove('copied'), 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
     }
+
+    // Copy install command to clipboard.
+    //   - Hero pill passes `this`: gets the icon-swap (copy → green tick) feedback.
+    //   - Bottom CTA pill calls without args: keeps the original tooltip flash
+    //     (out of scope for the hero rebuild).
+    function copyInstall(el) {
+      const cmd = document.getElementById('install-cmd').textContent;
+      const flash = () => {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(() => el.classList.remove('copied'), 1500);
+        } else {
+          document.querySelectorAll('.tooltip').forEach(t => {
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1500);
+          });
+        }
+      };
+      navigator.clipboard.writeText(cmd).then(flash).catch(flash);
+    }
+
+    // Install pill follows the hero code tabs. /docs/code-tabs.js dispatches
+    // a bubbling 'code-tabs:change' event whenever a tab becomes active
+    // (including on initial load from the localStorage preference).
+    (function () {
+      const installCommands = {
+        python: 'pip install decibri',
+        node: 'npm install decibri',
+        rust: 'cargo add decibri'
+      };
+      function syncInstallPill(lang) {
+        const cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        const btn = document.querySelector('.hero-code-tabs .code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
 
     function copyInstallCli(el) {
       navigator.clipboard.writeText('npm install -g decibri-cli').then(() => {
