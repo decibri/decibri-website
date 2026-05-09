@@ -13,15 +13,15 @@
       else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
     })();
   </script>
-  <title>Decibri | Cross-platform audio capture and output for Node.js</title>
-  <meta name="description" content="Cross-platform audio capture and output for Node.js and browsers. No ffmpeg. No SoX. No setup. Just a real-time audio stream.">
+  <title>Decibri | Cross-platform audio capture for Python, Node.js, and Rust</title>
+  <meta name="description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="microphone, Node.js, audio capture, audio output, speaker playback, DecibriOutput, streaming, PCM, cross-platform, voice AI, real-time audio, speech-to-text, wake word, voice agent, whisper, cpal, rust, napi-rs, native addon, silero vad, voice activity detection, browser audio capture, AudioWorklet, full duplex audio, deepgram, assemblyai, openai, sherpa-onnx, aws transcribe, google speech-to-text, azure speech-to-text, real-time transcription, cloud transcription, local transcription">
+  <meta name="keywords" content="microphone, Node.js, audio capture, audio output, speaker playback, DecibriOutput, streaming, PCM, cross-platform, voice AI, real-time audio, speech-to-text, wake word, voice agent, whisper, cpal, rust, napi-rs, native addon, silero vad, voice activity detection, browser audio capture, AudioWorklet, full duplex audio, deepgram, assemblyai, openai, sherpa-onnx, aws transcribe, google speech-to-text, azure speech-to-text, real-time transcription, cloud transcription, local transcription, python, pypi, pip, python audio capture, asyncio">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://decibri.com">
   <link rel="alternate" type="text/plain" href="https://decibri.com/llms.txt" title="LLM-readable package description">
-  <meta property="og:title" content="Decibri | Cross-platform audio capture and output for Node.js">
-  <meta property="og:description" content="Cross-platform audio capture and output for Node.js and browsers. Integrates with Deepgram, OpenAI, AssemblyAI, AWS Transcribe, Google Speech-to-Text, Azure Speech-to-Text, Whisper.cpp, and Sherpa-ONNX.">
+  <meta property="og:title" content="Decibri | Cross-platform audio capture for Python, Node.js, and Rust">
+  <meta property="og:description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://decibri.com">
   <meta property="og:site_name" content="Decibri">
@@ -30,8 +30,8 @@
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Decibri | Cross-platform audio capture and output for Node.js">
-  <meta name="twitter:description" content="Cross-platform audio capture and output for Node.js and browsers. No ffmpeg. No SoX. No setup.">
+  <meta name="twitter:title" content="Decibri | Cross-platform audio capture for Python, Node.js, and Rust">
+  <meta name="twitter:description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
   <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
   <meta name="twitter:site" content="@decibriai">
   <script type="application/ld+json">
@@ -40,16 +40,13 @@
     "@type": "SoftwareSourceCode",
     "name": "Decibri",
     "alternateName": "decibri",
-    "description": "Cross-platform audio capture and output for Node.js and browsers. Rust native addon using cpal for direct OS audio access via napi-rs. Includes DecibriOutput for speaker playback and bundled Silero VAD v5 for ML-based voice activity detection. No ffmpeg, no SoX, no build tools required. Browser support via conditional exports and AudioWorklet.",
+    "description": "Cross-platform audio capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Real-time microphone streaming for AI agents and Voice AI applications. Zero system dependencies. Zero setup.",
     "url": "https://decibri.com",
     "codeRepository": "https://github.com/decibri/decibri",
-    "programmingLanguage": ["Rust", "JavaScript", "TypeScript"],
-    "runtimePlatform": "Node.js",
-    "operatingSystem": ["Windows", "macOS", "Linux"],
+    "programmingLanguage": ["Python", "Rust", "JavaScript", "TypeScript"],
     "license": "https://opensource.org/licenses/Apache-2.0",
-    "version": "3.0.0",
     "datePublished": "2026-03-09",
-    "dateModified": "2026-04-11",
+    "dateModified": "2026-05-10",
     "author": {
       "@type": "Organization",
       "name": "Decibri",
@@ -127,6 +124,30 @@
           "@type": "Answer",
           "text": "Apache-2.0."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "What Python versions are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, and Windows x64."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I install decibri for Python?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Run pip install decibri. Decibri ships prebuilt wheels for the supported platforms, so no compiler or system audio libraries are needed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does decibri support asyncio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Decibri ships AsyncMicrophone, AsyncSpeaker, and async_record_to_file() as proper async classes that work as async context managers with async for iteration. Audio capture runs on a separate thread, so the event loop isn't blocked. The recommended pattern is async with await decibri.AsyncMicrophone.open(...) as mic: async for chunk in mic: ... The open() factory dispatches the optional Silero VAD model load off the event loop."
+        }
       }
     ]
   }
@@ -145,7 +166,7 @@
     },
     "url": "https://decibri.com",
     "downloadUrl": "https://www.npmjs.com/package/decibri",
-    "softwareRequirements": "Node.js 18+",
+    "softwareRequirements": "Python 3.10+, Node.js 18+",
     "author": {
       "@type": "Organization",
       "name": "Decibri",
@@ -183,6 +204,41 @@
         "@type": "HowToStep",
         "name": "Stop capture",
         "text": "mic.stop();"
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Capture microphone audio in Python with Decibri",
+    "description": "Install Decibri and capture microphone audio in Python.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Install Python",
+        "text": "Install Python 3.10 or later from python.org or your platform's package manager."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Install Decibri",
+        "text": "Run pip install decibri. Prebuilt wheels are downloaded automatically; no compiler is required."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Import Decibri",
+        "text": "Add import decibri to your Python file."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Open the microphone",
+        "text": "Use decibri.Microphone(sample_rate=16000) as a context manager to open the system default microphone."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Iterate chunks",
+        "text": "Iterate over the microphone object to receive 16-bit PCM audio chunks as Python bytes."
       }
     ]
   }
