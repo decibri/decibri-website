@@ -49,7 +49,7 @@
     return '<a href="' + href + '" class="sidebar-link' + (isActive(href) ? ' active' : '') + '">' + label + '</a>';
   }
 
-  // Expandable group — parent label is itself a link (to the section's landing page);
+  // Expandable group: parent label is itself a link (to the section's landing page);
   // a separate chevron button toggles expand/collapse. Auto-expanded when the current
   // URL is inside this section.
   function group(href, label, childrenHtml, labelClass, extraAttrs) {
@@ -89,7 +89,8 @@
     + group('/docs/integrations/kws', 'Keyword spotting (KWS)',       kwsChildren, 'sidebar-subsection-title-link', subsectionStyle);
 
   var apisChildren =
-      link('/docs/apis/node',    'Node.js')
+      link('/docs/apis/python',  'Python')
+    + link('/docs/apis/node',    'Node.js')
     + link('/docs/apis/browser', 'Browser')
     + link('/docs/apis/cli',     'CLI');
 
@@ -107,12 +108,12 @@
 
     + '<nav class="sidebar-nav">'
 
-    // Introduction — single link, not expandable
+    // Introduction (single link, not expandable)
     +   '<div class="sidebar-section">'
     +     '<a href="/docs/" class="sidebar-top-link' + (isActive('/docs/') ? ' active' : '') + '">Introduction</a>'
     +   '</div>'
 
-    // Getting started — single link, not expandable
+    // Getting started (single link, not expandable)
     +   '<div class="sidebar-section">'
     +     '<a href="/docs/getting-started" class="sidebar-top-link' + (isActive('/docs/getting-started') ? ' active' : '') + '">Getting started</a>'
     +   '</div>'
@@ -174,7 +175,8 @@
     + mgroup('/docs/integrations/kws', 'Keyword spotting (KWS)',       mKwsChildren, 'mobile-menu-subsection-link');
 
   var mApisChildren =
-      mlink('/docs/apis/node',    'Node.js')
+      mlink('/docs/apis/python',  'Python')
+    + mlink('/docs/apis/node',    'Node.js')
     + mlink('/docs/apis/browser', 'Browser')
     + mlink('/docs/apis/cli',     'CLI');
 
@@ -198,7 +200,7 @@
   if (mobileMenu) mobileMenu.innerHTML = mobileMenuHtml;
 
   // Wire every chevron: clicking it toggles expand state of its nearest .expandable ancestor.
-  // Text-label clicks (the <a>) navigate normally — no JS interception.
+  // Text-label clicks (the <a>) navigate normally; no JS interception.
   var chevrons = document.querySelectorAll('.expandable-chevron');
   for (var i = 0; i < chevrons.length; i++) {
     chevrons[i].addEventListener('click', function (e) {
