@@ -288,7 +288,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <p>Stop the capture stream and reset VAD state and the sequence counter. Idempotent; safe to call multiple times.</p>
 
       <h4><code>mic.close()</code></h4>
-      <p>Permanent alias for <code>stop()</code>. Provided for ergonomic parity with the asyncio / aiohttp / httpx convention. The two methods are guaranteed to remain semantically equivalent across all decibri versions.</p>
+      <p>Alias for <code>stop()</code>. Provided for ergonomic parity with the asyncio / aiohttp / httpx convention. The two methods are currently equivalent and are intended to remain interchangeable.</p>
 
       <h4><code>mic.read(timeout_ms=None)</code></h4>
       <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Return type is <code>bytes</code> by default, or <code>numpy.ndarray</code> when the Microphone was constructed with <code>as_ndarray=True</code>. Advances VAD state as a side effect when VAD is enabled.</p>
@@ -423,7 +423,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       <p>Stop the output stream.</p>
 
       <h4><code>spk.close()</code></h4>
-      <p>Permanent alias for <code>stop()</code>.</p>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
 
       <h4><code>spk.write(samples)</code></h4>
       <p>Write a chunk to the output stream. Accepts <code>bytes</code> or a <code>numpy.ndarray</code> with dtype matching the configured <code>dtype</code>. Multi-channel ndarrays use shape <code>(N, channels)</code>. Output streams duck-type the input on each call rather than committing at construction time; mixing <code>bytes</code> and ndarrays across calls is supported. Raises <code>TypeError</code> on dtype mismatch or unsupported input.</p>
@@ -501,7 +501,7 @@ async with mic:
       <p>Stop the capture stream and reset VAD state and the sequence counter.</p>
 
       <h4><code>await mic.close()</code></h4>
-      <p>Permanent alias for <code>stop()</code>.</p>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
 
       <h4><code>await mic.read(timeout_ms=None)</code></h4>
       <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Same return-type rules as the sync <code>read()</code>.</p>
@@ -588,7 +588,7 @@ async with mic:
       <p>Stop the output stream.</p>
 
       <h4><code>await spk.close()</code></h4>
-      <p>Permanent alias for <code>stop()</code>.</p>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
 
       <h4><code>await spk.write(samples)</code></h4>
       <p>Async parallel of <code>Speaker.write</code>. Accepts <code>bytes</code> or a <code>numpy.ndarray</code> with matching dtype.</p>
@@ -869,7 +869,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <p>Decibri runs a pure-Python state machine on top of the raw VAD probability. Above-threshold chunks set the speaking state and cancel any pending silence timer. Below-threshold chunks while already speaking start a silence timer; the timer expires after <code>vad_holdoff_ms</code> elapsed real time, at which point <code>is_speaking</code> flips back to <code>False</code>. Timer expiry is checked on every property access via <code>time.monotonic()</code>, so consumers who pause iteration still observe correct state on the next read.</p>
 
       <h3><code>is_speaking</code> vs <code>vad_score</code></h3>
-      <p><code>is_speaking</code> is the debounced state machine output: above the threshold plus the holdoff grace. <code>vad_score</code> is the raw per-chunk view, identical to the Silero probability in silero mode and the normalised RMS in energy mode. Use <code>is_speaking</code> for gating downstream work; use <code>vad_score</code> when you need the underlying signal (for example, to threshold differently per chunk or to log probability distributions).</p>
+      <p><code>is_speaking</code> is the debounced state machine output: above the threshold plus the holdoff grace. <code>vad_score</code> is the raw per-chunk view, identical to the Silero probability in Silero mode and the normalised RMS in energy mode. Use <code>is_speaking</code> for gating downstream work; use <code>vad_score</code> when you need the underlying signal (for example, to threshold differently per chunk or to log probability distributions).</p>
 
       <h3>Custom Silero model with <code>model_path</code></h3>
       <p>The bundled Silero model is the published Silero v5 checkpoint. To use a different Silero ONNX variant, pass an absolute path on the <code>model_path</code> constructor parameter. The path is only consulted when <code>vad="silero"</code>; energy mode and <code>vad=False</code> ignore it.</p>
