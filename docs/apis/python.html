@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Python API | decibri docs</title>
+  <meta name="description" content="Decibri Python API reference. Microphone, Speaker, AsyncMicrophone, AsyncSpeaker, voice activity detection, audio formats, exception hierarchy, and device enumeration.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Python API | decibri docs">
+  <meta property="og:description" content="Decibri Python API reference. Microphone, Speaker, AsyncMicrophone, AsyncSpeaker, voice activity detection, audio formats, exception hierarchy, and device enumeration.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/apis/python">
+  <link rel="canonical" href="https://decibri.com/docs/apis/python">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/apis">APIs</a>
+        <span class="sep">/</span>
+        <span class="current">Python</span>
+      </div>
+
+      <h1>Python API</h1>
+      <p class="lead">Decibri ships a native Python package with synchronous <code>Microphone</code> and <code>Speaker</code> classes plus matching <code>AsyncMicrophone</code> and <code>AsyncSpeaker</code> classes for asyncio. Written in Rust (via PyO3 / abi3) with pre-built wheels for Python 3.10 and newer. For installation and first capture, see <a href="/docs/getting-started">Getting started</a>.</p>
+
+      <h2>Quickstart</h2>
+      <p>Three ways to get audio into and out of Python, in order of increasing control.</p>
+
+      <h3>Install</h3>
+      <p>Recommended with <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener noreferrer">uv</a>:</p>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('uv pip install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">uv pip install decibri</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Or with pip:</p>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">pip install decibri</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>For NumPy ndarray support (see <a href="#audio-format">Audio format</a>):</p>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">pip install decibri[numpy]</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+
+      <h3>Record to a file in one line</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+decibri.record_to_file("output.wav", duration_seconds=10)</code></pre>
+        </div>
+      </div>
+      <p>Captures 10 seconds of microphone audio to a 16-bit PCM WAV file at 16 kHz mono. No async, no streaming, no setup.</p>
+
+      <h3>Stream chunks with a <code>with</code> block</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(sample_rate=16000) as mic:
+    for chunk in mic:
+        print(f"Got {len(chunk)} bytes")
+        break</code></pre>
+        </div>
+      </div>
+      <p>Open the system microphone, iterate raw 16-bit PCM chunks, break after the first. Replace <code>break</code> with your processing pipeline.</p>
+
+      <h3>Async parallel</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import asyncio
+import decibri
+
+async def main():
+    async with await decibri.AsyncMicrophone.open(sample_rate=16000) as mic:
+        async for chunk in mic:
+            print(f"Got {len(chunk)} bytes")
+            break
+
+asyncio.run(main())</code></pre>
+        </div>
+      </div>
+      <p>Same loop, but on the event loop. Use this in voice agents or websocket pipelines.</p>
+
+      <h2>Compatibility</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Python versions</th>
+              <th>Platforms</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>3.10, 3.11, 3.12, 3.13, 3.14</td>
+              <td>Linux x64, Linux ARM64, macOS Apple Silicon, Windows x64</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Pre-built wheels are published for every supported platform. <code>pip install decibri</code> fetches a binary wheel; no Rust toolchain, no C compiler, and no system audio headers are required at install time.</p>
+      <p>Wheels are built against the CPython stable ABI (abi3) with a 3.10 floor, so a single wheel per platform serves every supported interpreter version. New CPython releases work without a new decibri release as long as the stable ABI is preserved.</p>
+
+      <h2 id="microphone">Microphone (sync)</h2>
+      <p>Primary capture surface for synchronous code. Construct an instance, enter a <code>with</code> block (or call <code>start()</code> manually), then iterate or call <code>read()</code> for chunks.</p>
+
+      <h3>Constructor</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">decibri.Microphone(
+    sample_rate=16000,
+    channels=1,
+    frames_per_buffer=1600,
+    dtype="int16",
+    device=None,
+    vad=False,
+    vad_threshold=None,
+    vad_holdoff_ms=300,
+    model_path=None,
+    as_ndarray=False,
+    ort_library_path=None,
+)</code></pre>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sample_rate</code></td>
+              <td><code>int</code></td>
+              <td><code>16000</code></td>
+              <td>Samples per second (1,000 to 384,000 Hz). 16,000 matches Silero VAD and most cloud STT providers; OpenAI Realtime requires 24,000.</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>int</code></td>
+              <td><code>1</code></td>
+              <td>Number of input channels (1 to 32).</td>
+            </tr>
+            <tr>
+              <td><code>frames_per_buffer</code></td>
+              <td><code>int</code></td>
+              <td><code>1600</code></td>
+              <td>Frames per audio callback. 1,600 at 16 kHz is 100 ms chunks (64 to 65,536).</td>
+            </tr>
+            <tr>
+              <td><code>dtype</code></td>
+              <td><code>"int16" | "float32"</code></td>
+              <td><code>"int16"</code></td>
+              <td>Sample encoding format.</td>
+            </tr>
+            <tr>
+              <td><code>device</code></td>
+              <td><code>int | str | None</code></td>
+              <td>system default</td>
+              <td>Device index from <code>Microphone.input_devices()</code> or case-insensitive name substring.</td>
+            </tr>
+            <tr>
+              <td><code>vad</code></td>
+              <td><code>False | "silero" | "energy"</code></td>
+              <td><code>False</code></td>
+              <td>Voice activity detector mode. See <a href="#vad">Voice activity detection</a>.</td>
+            </tr>
+            <tr>
+              <td><code>vad_threshold</code></td>
+              <td><code>float | None</code></td>
+              <td>mode default</td>
+              <td>Threshold in <code>[0, 1]</code>. Defaults to 0.5 in <code>"silero"</code> mode, 0.01 in <code>"energy"</code> mode.</td>
+            </tr>
+            <tr>
+              <td><code>vad_holdoff_ms</code></td>
+              <td><code>int</code></td>
+              <td><code>300</code></td>
+              <td>Milliseconds of sub-threshold audio before <code>is_speaking</code> flips back to <code>False</code>.</td>
+            </tr>
+            <tr>
+              <td><code>model_path</code></td>
+              <td><code>str | Path | None</code></td>
+              <td>bundled</td>
+              <td>Override path to a Silero VAD ONNX model. Only used when <code>vad="silero"</code>; defaults to the model bundled with the wheel.</td>
+            </tr>
+            <tr>
+              <td><code>as_ndarray</code></td>
+              <td><code>bool</code></td>
+              <td><code>False</code></td>
+              <td>When <code>True</code>, <code>read()</code> returns a <code>numpy.ndarray</code> instead of <code>bytes</code>. Requires <code>pip install decibri[numpy]</code>.</td>
+            </tr>
+            <tr>
+              <td><code>ort_library_path</code></td>
+              <td><code>str | Path | None</code></td>
+              <td>resolver</td>
+              <td>Override path to the ONNX Runtime dynamic library. Only used when <code>vad="silero"</code>. See <a href="#ort">ONNX Runtime resolution</a> for the four-arm priority order.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Context manager usage</h3>
+      <p>The canonical Python pattern. Entering the <code>with</code> block opens the stream and starts capture; exiting stops the stream and resets VAD state, even if an exception propagates out.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) as mic:
+    for chunk in mic:
+        process(chunk)
+        if done():
+            break</code></pre>
+        </div>
+      </div>
+      <p>Calling <code>start()</code> manually is also supported when the context manager does not fit. Pair it with <code>stop()</code> in a <code>try / finally</code>.</p>
+
+      <h3>Methods</h3>
+
+      <h4><code>mic.start()</code></h4>
+      <p>Open and start the capture stream. Calling <code>start()</code> after <code>stop()</code> or <code>close()</code> is supported and reconstructs the stream cleanly; VAD state resets on each new <code>start()</code>. Calling <code>start()</code> on an already-running instance raises <code>AlreadyRunning</code>.</p>
+
+      <h4><code>mic.stop()</code></h4>
+      <p>Stop the capture stream and reset VAD state and the sequence counter. Idempotent; safe to call multiple times.</p>
+
+      <h4><code>mic.close()</code></h4>
+      <p>Alias for <code>stop()</code>. Provided for ergonomic parity with the asyncio / aiohttp / httpx convention. The two methods are currently equivalent and are intended to remain interchangeable.</p>
+
+      <h4><code>mic.read(timeout_ms=None)</code></h4>
+      <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Return type is <code>bytes</code> by default, or <code>numpy.ndarray</code> when the Microphone was constructed with <code>as_ndarray=True</code>. Advances VAD state as a side effect when VAD is enabled.</p>
+
+      <h4><code>mic.read_with_metadata(timeout_ms=None)</code></h4>
+      <p>Read one chunk and return it as a frozen <code>Chunk</code> with <code>.data</code>, <code>.timestamp</code>, <code>.sequence</code>, <code>.is_speaking</code>, and <code>.vad_score</code> attributes. Returns <code>None</code> on clean stream close. See <a href="#value-types">Value types</a>.</p>
+
+      <h4><code>mic.iter_with_metadata()</code></h4>
+      <p>Generator yielding <code>Chunk</code> objects until the stream closes cleanly. Use this in place of <code>for chunk in mic</code> when you want metadata alongside the audio data.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with decibri.Microphone(vad="silero") as mic:
+    for chunk in mic.iter_with_metadata():
+        if chunk.is_speaking:
+            send_to_stt(chunk.data)</code></pre>
+        </div>
+      </div>
+
+      <h4><code>iter(mic)</code> and <code>next(mic)</code></h4>
+      <p>The Microphone is itself an iterator. <code>for chunk in mic:</code> yields the raw data shape (<code>bytes</code> or <code>numpy.ndarray</code>) and raises <code>StopIteration</code> when the stream closes.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>mic.is_open</code></h4>
+      <p><code>bool</code> (read-only). Returns <code>True</code> while the capture stream is currently running.</p>
+
+      <h4><code>mic.is_speaking</code></h4>
+      <p><code>bool</code> (read-only). Returns <code>True</code> while VAD considers the user to be speaking, including the holdoff grace period. Always <code>False</code> when <code>vad=False</code>. Holdoff expiry is checked on every property access, so consumers who pause iteration still observe correct state when they next read.</p>
+
+      <h4><code>mic.vad_score</code></h4>
+      <p><code>float</code> in <code>[0, 1]</code>, mode-agnostic. In <code>vad="silero"</code> mode this is the raw Silero probability for the most recent chunk; in <code>vad="energy"</code> mode it is the normalised RMS energy. Always <code>0.0</code> when <code>vad=False</code>.</p>
+
+      <h3>Static methods</h3>
+
+      <h4><code>Microphone.input_devices()</code></h4>
+      <p>Returns a list of <code>DeviceInfo</code> objects describing every input device recognised by the operating system.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">for d in decibri.Microphone.input_devices():
+    print(d.index, d.name, d.default_sample_rate)</code></pre>
+        </div>
+      </div>
+
+      <h4><code>Microphone.version()</code></h4>
+      <p>Returns a <code>VersionInfo</code> object with the Rust core version, the audio backend version, and the binding wheel version.</p>
+
+      <p>All Microphone instances support <code>repr()</code> for debugging; the output includes sample rate, channels, dtype, frames per buffer, device, VAD mode, and open state.</p>
+
+      <h2 id="speaker">Speaker (sync)</h2>
+      <p>Audio output surface. Construct, enter a <code>with</code> block, write samples, and drain.</p>
+
+      <h3>Constructor</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">decibri.Speaker(
+    sample_rate=16000,
+    channels=1,
+    dtype="int16",
+    device=None,
+)</code></pre>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sample_rate</code></td>
+              <td><code>int</code></td>
+              <td><code>16000</code></td>
+              <td>Output sample rate in Hz (1,000 to 384,000). Use 24,000 for OpenAI Realtime playback.</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>int</code></td>
+              <td><code>1</code></td>
+              <td>Number of output channels (1 to 32). Multi-channel samples are interleaved on the wire.</td>
+            </tr>
+            <tr>
+              <td><code>dtype</code></td>
+              <td><code>"int16" | "float32"</code></td>
+              <td><code>"int16"</code></td>
+              <td>Sample dtype. Must match the data passed to <code>write()</code>; mismatch raises <code>TypeError</code>.</td>
+            </tr>
+            <tr>
+              <td><code>device</code></td>
+              <td><code>int | str | None</code></td>
+              <td>system default</td>
+              <td>Device index from <code>Speaker.output_devices()</code> or case-insensitive name substring.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Context manager usage</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Speaker(sample_rate=16000, channels=1) as spk:
+    spk.write(audio_bytes)
+    spk.drain()</code></pre>
+        </div>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>spk.start()</code></h4>
+      <p>Open and start the output stream. Re-entry after <code>stop()</code> or <code>close()</code> is supported.</p>
+
+      <h4><code>spk.stop()</code></h4>
+      <p>Stop the output stream.</p>
+
+      <h4><code>spk.close()</code></h4>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
+
+      <h4><code>spk.write(samples)</code></h4>
+      <p>Write a chunk to the output stream. Accepts <code>bytes</code> or a <code>numpy.ndarray</code> with dtype matching the configured <code>dtype</code>. Multi-channel ndarrays use shape <code>(N, channels)</code>. Output streams duck-type the input on each call rather than committing at construction time; mixing <code>bytes</code> and ndarrays across calls is supported. Raises <code>TypeError</code> on dtype mismatch or unsupported input.</p>
+
+      <h4><code>spk.drain()</code></h4>
+      <p>Block until all queued samples have been played. Useful at the end of a playback sequence so the program does not exit before the speaker buffer empties.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>spk.is_playing</code></h4>
+      <p><code>bool</code> (read-only). Returns <code>True</code> while the output stream is currently running.</p>
+
+      <h3>Static methods</h3>
+
+      <h4><code>Speaker.output_devices()</code></h4>
+      <p>Returns a list of <code>OutputDeviceInfo</code> objects describing every output device recognised by the operating system.</p>
+
+      <h2 id="async-microphone">AsyncMicrophone</h2>
+
+      <h3>When to use async</h3>
+      <p>Reach for <code>AsyncMicrophone</code> when capture lives on an event loop: a voice agent that streams chunks to a websocket, a coroutine-based pipeline, or anywhere a sibling task may need to cancel the read in flight. The async classes serialise concurrent calls via a Rust-side Tokio mutex, so sibling-task cancellation is safe in a way that the sync <code>Microphone</code> does not provide.</p>
+
+      <h3>Constructor</h3>
+      <p>Parameters match <code>Microphone</code> exactly. See the <a href="#microphone">Microphone section</a> for the full parameter table.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.AsyncMicrophone(sample_rate=16000, vad="silero")</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> <code>AsyncMicrophone.version()</code> is synchronous (no <code>await</code>) because it returns compile-time constants. Every other method on the class is a coroutine. Double-awaiting <code>version()</code> raises a confusing <code>TypeError</code>; call it without <code>await</code>.
+      </div>
+
+      <h3><code>await AsyncMicrophone.open(...)</code></h3>
+      <p>Async factory classmethod. The synchronous constructor blocks for roughly 100 to 500 milliseconds when <code>vad="silero"</code> because it loads the Silero ONNX model inline. <code>open()</code> dispatches that load to <code>loop.run_in_executor(None, ...)</code> so the event loop keeps spinning while ORT initialises.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = await decibri.AsyncMicrophone.open(vad="silero")
+async with mic:
+    async for chunk in mic:
+        await process(chunk)</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> The canonical pattern is <code>async with await AsyncMicrophone.open(...) as mic:</code>. The <code>open()</code> factory is itself a coroutine, so it must be awaited before <code>async with</code> takes the resulting instance.
+      </div>
+
+      <h3><code>async with</code> and <code>async for</code></h3>
+      <p>The async context manager opens the stream on entry and stops it on exit. Iteration via <code>async for</code> yields the same data shape as the sync <code>Microphone</code> (<code>bytes</code> by default, <code>numpy.ndarray</code> when <code>as_ndarray=True</code>).</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(sample_rate=16000) as mic:
+    async for chunk in mic:
+        await websocket.send(chunk)</code></pre>
+        </div>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>await mic.start()</code></h4>
+      <p>Open and start the capture stream. Re-entry after <code>stop()</code> or <code>close()</code> is supported and resets VAD state.</p>
+
+      <h4><code>await mic.stop()</code></h4>
+      <p>Stop the capture stream and reset VAD state and the sequence counter.</p>
+
+      <h4><code>await mic.close()</code></h4>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
+
+      <h4><code>await mic.read(timeout_ms=None)</code></h4>
+      <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Same return-type rules as the sync <code>read()</code>.</p>
+
+      <h4><code>await mic.read_with_metadata(timeout_ms=None)</code></h4>
+      <p>Async parallel of <code>Microphone.read_with_metadata()</code>. Returns a frozen <code>Chunk</code> with metadata, or <code>None</code> on clean close.</p>
+
+      <h4><code>mic.aiter_with_metadata()</code></h4>
+      <p>Async-generator function yielding <code>Chunk</code> objects until the stream closes cleanly. Stops when the bridge returns <code>None</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(vad="silero") as mic:
+    async for chunk in mic.aiter_with_metadata():
+        if chunk.is_speaking:
+            await stt.send(chunk.data)</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> <code>aiter_with_metadata()</code> is an async-generator function. The correct iteration pattern is <code>async for chunk in mic.aiter_with_metadata():</code>; do not <code>await</code> the call itself.
+      </div>
+
+      <h3>Properties</h3>
+      <p>Properties on <code>AsyncMicrophone</code> are synchronous attribute access (no <code>await</code>). They are backed by lock-free atomic mirrors on the Rust bridge, so they report current truth even when the Rust side closes the stream itself (for example, device disconnect).</p>
+
+      <h4><code>mic.is_open</code></h4>
+      <p><code>bool</code> (read-only). <code>True</code> while the capture stream is running.</p>
+
+      <h4><code>mic.is_speaking</code></h4>
+      <p><code>bool</code> (read-only). Same semantics as the sync property: above-threshold detection plus holdoff. Always <code>False</code> when <code>vad=False</code>.</p>
+
+      <h4><code>mic.vad_score</code></h4>
+      <p><code>float</code> in <code>[0, 1]</code>. Same semantics as the sync property.</p>
+
+      <h3>Static methods</h3>
+
+      <h4><code>await AsyncMicrophone.input_devices()</code></h4>
+      <p>Async parallel of <code>Microphone.input_devices()</code>. Returns a list of <code>DeviceInfo</code>.</p>
+
+      <h4><code>AsyncMicrophone.version()</code></h4>
+      <p>Synchronous (see the callout above). Returns a <code>VersionInfo</code> for the Rust core, the audio backend, and the binding wheel.</p>
+
+      <h3>Cancellation semantics</h3>
+      <p>Cancelling an awaited <code>AsyncMicrophone</code> call (via <code>asyncio.CancelledError</code>, <code>asyncio.wait_for</code>, or explicit <code>task.cancel()</code>) raises <code>CancelledError</code> immediately on the Python side. The Rust-side <code>spawn_blocking</code> thread completes on its own schedule and its result is dropped. The bridge state stays consistent for subsequent reads, so sibling-task cancellation while a <code>read()</code> is in flight is safe.</p>
+
+      <h2 id="async-speaker">AsyncSpeaker</h2>
+      <p>Asyncio mirror of <code>Speaker</code>. Same parameter set, same lifecycle, all methods coroutines.</p>
+
+      <h3>Constructor</h3>
+      <p>Parameters match <code>Speaker</code> exactly. See the <a href="#speaker">Speaker section</a> for the parameter table.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">spk = decibri.AsyncSpeaker(sample_rate=24000, channels=1)</code></pre>
+        </div>
+      </div>
+
+      <h3><code>await AsyncSpeaker.open(...)</code></h3>
+      <p>Async factory classmethod, symmetric with <code>AsyncMicrophone.open</code>. <code>Speaker</code> does not load ORT, so the event-loop blocking risk is smaller, but the factory is provided for API parity.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> Unlike <code>AsyncMicrophone</code>, the synchronous <code>AsyncSpeaker(...)</code> constructor does no heavy work, so calling it directly inside an async function is fine. <code>open()</code> is provided for symmetry; reach for it if you prefer the consistent factory pattern across both classes.
+      </div>
+
+      <h3><code>async with</code> usage</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">async with decibri.AsyncSpeaker(sample_rate=24000) as spk:
+    await spk.write(audio_bytes)
+    await spk.drain()</code></pre>
+        </div>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>await spk.start()</code></h4>
+      <p>Open and start the output stream.</p>
+
+      <h4><code>await spk.stop()</code></h4>
+      <p>Stop the output stream.</p>
+
+      <h4><code>await spk.close()</code></h4>
+      <p>Alias for <code>stop()</code>. See <a href="#microphone"><code>Microphone.close()</code></a> for the equivalence note.</p>
+
+      <h4><code>await spk.write(samples)</code></h4>
+      <p>Async parallel of <code>Speaker.write</code>. Accepts <code>bytes</code> or a <code>numpy.ndarray</code> with matching dtype.</p>
+
+      <h4><code>await spk.drain()</code></h4>
+      <p>Block until all queued samples have been played. Cancelling this await raises <code>CancelledError</code> immediately, but the audio continues to play until the output buffer empties on the callback's own schedule. For production code, complete drains before initiating new writes.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>spk.is_playing</code></h4>
+      <p><code>bool</code> (read-only). Synchronous property backed by a lock-free atomic mirror on the bridge.</p>
+
+      <h3>Static methods</h3>
+
+      <h4><code>await AsyncSpeaker.output_devices()</code></h4>
+      <p>Async parallel of <code>Speaker.output_devices()</code>.</p>
+
+      <h2 id="helpers">Module-level helpers</h2>
+      <p>Convenience entry points exposed directly on the <code>decibri</code> module.</p>
+
+      <h3><code>decibri.input_devices()</code></h3>
+      <p>Module-level shortcut for <code>Microphone.input_devices()</code>. Returns a list of <code>DeviceInfo</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">for d in decibri.input_devices():
+    print(d.index, d.name)</code></pre>
+        </div>
+      </div>
+
+      <h3><code>decibri.output_devices()</code></h3>
+      <p>Module-level shortcut for <code>Speaker.output_devices()</code>. Returns a list of <code>OutputDeviceInfo</code>.</p>
+
+      <h3><code>decibri.version()</code></h3>
+      <p>Returns a <code>VersionInfo</code> for the Rust core, the audio backend, and the binding wheel.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">v = decibri.version()
+print(v.decibri, v.audio_backend, v.binding)</code></pre>
+        </div>
+      </div>
+
+      <h3><code>decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)</code></h3>
+      <p>Synchronous one-shot recorder. Captures <code>duration_seconds</code> of microphone audio to a 16-bit PCM WAV file. Wraps <code>Microphone</code> plus the standard library <code>wave</code> module. Frame-count termination guarantees an accurate duration even on platforms where the buffer hint is ignored by the OS audio subsystem.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">decibri.record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
+        </div>
+      </div>
+
+      <h3><code>await decibri.async_record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)</code></h3>
+      <p>Async parallel of <code>record_to_file</code>. Same parameters, same semantics; await it from an asyncio context.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">await decibri.async_record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
+        </div>
+      </div>
+
+      <h2 id="value-types">Value types</h2>
+      <p>Small typed return shapes used across the API.</p>
+
+      <h3><code>Chunk</code></h3>
+      <p>Frozen dataclass returned by <code>read_with_metadata()</code> and <code>iter_with_metadata()</code> on both <code>Microphone</code> and <code>AsyncMicrophone</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>data</code></td>
+              <td><code>bytes</code> or <code>numpy.ndarray</code></td>
+              <td>Audio chunk. Shape matches the <code>as_ndarray</code> constructor flag.</td>
+            </tr>
+            <tr>
+              <td><code>timestamp</code></td>
+              <td><code>float</code></td>
+              <td><code>time.monotonic()</code> snapshot at the chunk boundary, in seconds. Useful for relative timing within a session.</td>
+            </tr>
+            <tr>
+              <td><code>sequence</code></td>
+              <td><code>int</code></td>
+              <td>Per-session chunk counter starting at 0. Resets on each new <code>start()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>is_speaking</code></td>
+              <td><code>bool</code></td>
+              <td>VAD state snapshot at the chunk boundary. Always <code>False</code> when VAD is disabled.</td>
+            </tr>
+            <tr>
+              <td><code>vad_score</code></td>
+              <td><code>float</code></td>
+              <td>VAD score snapshot in <code>[0, 1]</code>. Always <code>0.0</code> when VAD is disabled.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>DeviceInfo</code></h3>
+      <p>Returned by <code>Microphone.input_devices()</code>, <code>decibri.input_devices()</code>, and <code>await AsyncMicrophone.input_devices()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>index</code></td>
+              <td><code>int</code></td>
+              <td>Device index, usable as the <code>device</code> constructor argument.</td>
+            </tr>
+            <tr>
+              <td><code>name</code></td>
+              <td><code>str</code></td>
+              <td>Human-readable device name reported by the operating system.</td>
+            </tr>
+            <tr>
+              <td><code>id</code></td>
+              <td><code>str</code></td>
+              <td>Stable platform-specific device identifier.</td>
+            </tr>
+            <tr>
+              <td><code>max_input_channels</code></td>
+              <td><code>int</code></td>
+              <td>Maximum number of input channels the device supports.</td>
+            </tr>
+            <tr>
+              <td><code>default_sample_rate</code></td>
+              <td><code>int</code></td>
+              <td>The device's native or preferred sample rate in Hz.</td>
+            </tr>
+            <tr>
+              <td><code>is_default</code></td>
+              <td><code>bool</code></td>
+              <td>Whether this is the current system default input device.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>OutputDeviceInfo</code></h3>
+      <p>Returned by <code>Speaker.output_devices()</code>, <code>decibri.output_devices()</code>, and <code>await AsyncSpeaker.output_devices()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>index</code></td>
+              <td><code>int</code></td>
+              <td>Device index, usable as the <code>device</code> constructor argument.</td>
+            </tr>
+            <tr>
+              <td><code>name</code></td>
+              <td><code>str</code></td>
+              <td>Human-readable device name reported by the operating system.</td>
+            </tr>
+            <tr>
+              <td><code>id</code></td>
+              <td><code>str</code></td>
+              <td>Stable platform-specific device identifier.</td>
+            </tr>
+            <tr>
+              <td><code>max_output_channels</code></td>
+              <td><code>int</code></td>
+              <td>Maximum number of output channels the device supports.</td>
+            </tr>
+            <tr>
+              <td><code>default_sample_rate</code></td>
+              <td><code>int</code></td>
+              <td>The device's native or preferred sample rate in Hz.</td>
+            </tr>
+            <tr>
+              <td><code>is_default</code></td>
+              <td><code>bool</code></td>
+              <td>Whether this is the current system default output device.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>VersionInfo</code></h3>
+      <p>Returned by <code>Microphone.version()</code>, <code>AsyncMicrophone.version()</code>, and <code>decibri.version()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>decibri</code></td>
+              <td><code>str</code></td>
+              <td>Semver of the underlying Rust core.</td>
+            </tr>
+            <tr>
+              <td><code>audio_backend</code></td>
+              <td><code>str</code></td>
+              <td>Audio backend name and version (for example, <code>"cpal 0.17"</code>).</td>
+            </tr>
+            <tr>
+              <td><code>binding</code></td>
+              <td><code>str</code></td>
+              <td>Semver of the Python binding wheel.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="vad">Voice activity detection</h2>
+      <p>Decibri ships two VAD modes plus a disabled default. All three are selected with the <code>vad</code> constructor parameter on <code>Microphone</code> and <code>AsyncMicrophone</code>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Description</th>
+              <th>Default threshold</th>
+              <th>Threshold range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>False</code></td>
+              <td>VAD disabled. <code>is_speaking</code> always <code>False</code>, <code>vad_score</code> always <code>0.0</code>.</td>
+              <td>n/a</td>
+              <td>n/a</td>
+            </tr>
+            <tr>
+              <td><code>"energy"</code></td>
+              <td>Lightweight RMS-energy threshold computed in pure Python over each chunk.</td>
+              <td>0.01</td>
+              <td>0.0 to 1.0</td>
+            </tr>
+            <tr>
+              <td><code>"silero"</code></td>
+              <td>ML-based detector using the bundled Silero ONNX model, run through ONNX Runtime.</td>
+              <td>0.5</td>
+              <td>0.0 to 1.0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> The bundled Silero VAD ONNX model and ONNX Runtime dylib ship inside the wheel. No separate download, no API keys, and no <code>onnxruntime</code> system dependency are required for <code>vad="silero"</code>.
+      </div>
+
+      <h3>Holdoff and the <code>is_speaking</code> state machine</h3>
+      <p>Decibri runs a pure-Python state machine on top of the raw VAD probability. Above-threshold chunks set the speaking state and cancel any pending silence timer. Below-threshold chunks while already speaking start a silence timer; the timer expires after <code>vad_holdoff_ms</code> elapsed real time, at which point <code>is_speaking</code> flips back to <code>False</code>. Timer expiry is checked on every property access via <code>time.monotonic()</code>, so consumers who pause iteration still observe correct state on the next read.</p>
+
+      <h3><code>is_speaking</code> vs <code>vad_score</code></h3>
+      <p><code>is_speaking</code> is the debounced state machine output: above the threshold plus the holdoff grace. <code>vad_score</code> is the raw per-chunk view, identical to the Silero probability in Silero mode and the normalised RMS in energy mode. Use <code>is_speaking</code> for gating downstream work; use <code>vad_score</code> when you need the underlying signal (for example, to threshold differently per chunk or to log probability distributions).</p>
+
+      <h3>Custom Silero model with <code>model_path</code></h3>
+      <p>The bundled Silero model is the published Silero v5 checkpoint. To use a different Silero ONNX variant, pass an absolute path on the <code>model_path</code> constructor parameter. The path is only consulted when <code>vad="silero"</code>; energy mode and <code>vad=False</code> ignore it.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(vad="silero", model_path="/opt/models/silero_vad_v4.onnx")</code></pre>
+        </div>
+      </div>
+
+      <h2 id="audio-format">Audio format</h2>
+      <p>Decibri supports two on-the-wire sample formats, selected with the <code>dtype</code> constructor parameter. Both apply to <code>Microphone</code>, <code>Speaker</code>, and their async variants.</p>
+
+      <h3><code>int16</code> (default)</h3>
+      <p>Each two bytes represents one 16-bit signed integer sample, little-endian. Range: -32,768 to 32,767. Two bytes per sample. This is the format expected by most cloud STT providers and the wire format used by the <code>record_to_file</code> helpers.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with decibri.Microphone(dtype="int16") as mic:
+    chunk = mic.read()  # bytes; len(chunk) == frames * channels * 2</code></pre>
+        </div>
+      </div>
+
+      <h3><code>float32</code></h3>
+      <p>Each four bytes represents one 32-bit IEEE 754 float sample, little-endian. Range: approximately -1.0 to 1.0. Four bytes per sample. Use this when your downstream pipeline expects normalised floats and you would otherwise convert from int16.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with decibri.Microphone(dtype="float32") as mic:
+    chunk = mic.read()  # bytes; len(chunk) == frames * channels * 4</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> On Windows WASAPI, the audio backend often ignores the <code>frames_per_buffer</code> hint and delivers chunks sized to the OS device period instead. Frame-count loops still observe accurate total duration (see <code>record_to_file</code>); chunk-count loops can record more or less than requested. Prefer frame-count termination when an exact duration matters.
+      </div>
+
+      <h3>NumPy integration</h3>
+      <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>); the shape is 1-D <code>(N,)</code> for mono and 2-D <code>(N, channels)</code> for multi-channel (interleaved).</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+import numpy as np
+
+with decibri.Microphone(sample_rate=16000, dtype="float32", as_ndarray=True) as mic:
+    chunk = mic.read()
+    assert isinstance(chunk, np.ndarray)
+    assert chunk.dtype == np.float32</code></pre>
+        </div>
+      </div>
+      <p><code>Speaker.write()</code> duck-types on each call: pass <code>bytes</code> or pass an <code>ndarray</code> with matching dtype. Mixing both within a single output session is supported.</p>
+      <p>The NumPy extra is opt-in to keep the default install lightweight:</p>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">pip install decibri[numpy]</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> <code>as_ndarray=True</code> requires the NumPy extra. Reading from a Microphone constructed with <code>as_ndarray=True</code> on an install without the extra raises <code>ImportError</code> with the message <code>numpy is not installed. Install with: pip install decibri[numpy]</code>.
+      </div>
+
+      <h2 id="type-hints">Type hints and <code>py.typed</code></h2>
+      <p>The decibri wheel ships a <code>py.typed</code> marker file per PEP 561, with hand-written <code>.pyi</code> stubs covering the internal Rust extension module and the full exception hierarchy. The package is mypy strict-clean. IDEs and type checkers will autocomplete every public name and narrow return types correctly.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+import numpy as np
+
+mic = decibri.Microphone(as_ndarray=True)
+chunk = mic.read()
+# Type checker narrows `chunk` to numpy.ndarray | None when as_ndarray=True
+# and to bytes | None otherwise.</code></pre>
+        </div>
+      </div>
+      <p>The package depends on <code>typing-extensions</code> at runtime to support the 3.10 abi3 floor (<code>typing.Self</code> is only available in 3.11 and newer).</p>
+
+      <h2 id="exceptions">Exception handling</h2>
+      <p>Decibri raises typed exceptions instead of generic <code>RuntimeError</code> or <code>Exception</code>. The root of the hierarchy is <code>DecibriError</code>. Three intermediate parents (<code>DeviceError</code>, <code>OrtError</code>, <code>OrtPathError</code>) group related instance classes so callers can catch by category instead of by individual class. Every exception remains catchable as <code>DecibriError</code>.</p>
+
+      <h3>Hierarchy</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Exception class</th>
+              <th>Parent</th>
+              <th>Common cause</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SampleRateOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Constructor <code>sample_rate</code> outside the supported range.</td>
+            </tr>
+            <tr>
+              <td><code>ChannelsOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Constructor <code>channels</code> outside the supported range.</td>
+            </tr>
+            <tr>
+              <td><code>FramesPerBufferOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Constructor <code>frames_per_buffer</code> outside the supported range.</td>
+            </tr>
+            <tr>
+              <td><code>InvalidFormat</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Constructor <code>dtype</code> not <code>"int16"</code> or <code>"float32"</code>.</td>
+            </tr>
+            <tr>
+              <td><code>AlreadyRunning</code></td>
+              <td><code>DecibriError</code></td>
+              <td><code>start()</code> called on an instance that is already capturing.</td>
+            </tr>
+            <tr>
+              <td><code>StreamOpenFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The audio stream failed to open.</td>
+            </tr>
+            <tr>
+              <td><code>StreamStartFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The audio stream opened but failed to start.</td>
+            </tr>
+            <tr>
+              <td><code>PermissionDenied</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The operating system denied microphone access. Message includes platform-specific guidance.</td>
+            </tr>
+            <tr>
+              <td><code>CaptureStreamClosed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Read attempted on a closed capture stream (often a mid-stream device disconnect).</td>
+            </tr>
+            <tr>
+              <td><code>OutputStreamClosed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Write attempted on a closed output stream.</td>
+            </tr>
+            <tr>
+              <td><code>VadSampleRateUnsupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>VAD enabled with a sample rate the VAD model cannot accept.</td>
+            </tr>
+            <tr>
+              <td><code>VadThresholdOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Constructor <code>vad_threshold</code> outside <code>[0, 1]</code>.</td>
+            </tr>
+            <tr>
+              <td><code>ForkAfterOrtInit</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Linux only. The current process inherited an ORT session from its parent across <code>fork()</code>. See <a href="#multiprocessing">Multiprocessing and asyncio caveats</a>.</td>
+            </tr>
+            <tr>
+              <td><code>DeviceNotFound</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The named input device does not match any device on the system.</td>
+            </tr>
+            <tr>
+              <td><code>OutputDeviceNotFound</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The named output device does not match any device on the system.</td>
+            </tr>
+            <tr>
+              <td><code>MultipleDevicesMatch</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The device name substring matches more than one device; use a more specific substring or the integer index.</td>
+            </tr>
+            <tr>
+              <td><code>DeviceIndexOutOfRange</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The integer device index is out of range for the host audio API.</td>
+            </tr>
+            <tr>
+              <td><code>NoMicrophoneFound</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The system reports zero input devices.</td>
+            </tr>
+            <tr>
+              <td><code>NoOutputDeviceFound</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The system reports zero output devices.</td>
+            </tr>
+            <tr>
+              <td><code>NotAnInputDevice</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The matched device exists but is not capable of input.</td>
+            </tr>
+            <tr>
+              <td><code>DeviceEnumerationFailed</code></td>
+              <td><code>DeviceError</code></td>
+              <td>The audio backend failed to enumerate devices.</td>
+            </tr>
+            <tr>
+              <td><code>OrtInitFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>ONNX Runtime initialisation itself failed (no specific path was supplied).</td>
+            </tr>
+            <tr>
+              <td><code>OrtSessionBuildFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Building an ORT inference session failed.</td>
+            </tr>
+            <tr>
+              <td><code>OrtThreadsConfigFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Configuring ORT thread pools failed.</td>
+            </tr>
+            <tr>
+              <td><code>VadModelLoadFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Loading the Silero VAD ONNX model failed. Has a <code>.path</code> attribute.</td>
+            </tr>
+            <tr>
+              <td><code>OrtInferenceFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>ORT inference produced an error at runtime.</td>
+            </tr>
+            <tr>
+              <td><code>OrtTensorCreateFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Creating an ORT input tensor failed.</td>
+            </tr>
+            <tr>
+              <td><code>OrtTensorExtractFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Extracting values from an ORT output tensor failed.</td>
+            </tr>
+            <tr>
+              <td><code>OrtLoadFailed</code></td>
+              <td><code>OrtPathError</code></td>
+              <td>The supplied ORT dylib path passed the filesystem pre-check but ORT rejected it. Has a <code>.path</code> attribute.</td>
+            </tr>
+            <tr>
+              <td><code>OrtPathInvalid</code></td>
+              <td><code>OrtPathError</code></td>
+              <td>The supplied ORT dylib path failed the pre-check before ORT saw it. Has <code>.path</code> and <code>.reason</code> attributes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Exceptions with extra attributes</h3>
+      <p>Three classes carry additional attributes beyond the standard exception message:</p>
+      <ul>
+        <li><code>VadModelLoadFailed.path</code>: the model path that failed to load.</li>
+        <li><code>OrtLoadFailed.path</code>: the ORT dylib path that failed to load.</li>
+        <li><code>OrtPathInvalid.path</code>, <code>OrtPathInvalid.reason</code>: the rejected path and a short reason string.</li>
+      </ul>
+
+      <h3>Catch patterns</h3>
+      <p>Catch any decibri error:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">try:
+    with decibri.Microphone(sample_rate=16000) as mic:
+        chunk = mic.read()
+except decibri.DecibriError as e:
+    print(f"Decibri error: {e}")</code></pre>
+        </div>
+      </div>
+      <p>Catch device-selection failures specifically, then fall back to the system default:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">try:
+    mic = decibri.Microphone(device="USB Audio")
+except decibri.DeviceError as e:
+    print(f"Device problem: {e}")
+    mic = decibri.Microphone()</code></pre>
+        </div>
+      </div>
+
+      <h2 id="multiprocessing">Multiprocessing and asyncio caveats</h2>
+
+      <h3>Linux fork-safety with Silero</h3>
+      <p>Python's default <code>fork</code> start method on Linux duplicates the parent's memory into the child, but ONNX Runtime's internal state is not safe to share across forked processes. A Silero-enabled <code>Microphone</code> initialised in the parent and then used in a forked child either produces incorrect inference results or segfaults; decibri detects the PID mismatch at the start of every Silero inference call and raises <code>ForkAfterOrtInit</code> instead.</p>
+      <p>The fix is to either set the spawn start method before constructing any worker, or to construct the <code>Microphone</code> inside each child process after the fork.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import multiprocessing
+
+if __name__ == "__main__":
+    multiprocessing.set_start_method("spawn")
+    # ... rest of program</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> On Linux, when combining <code>vad="silero"</code> with <code>multiprocessing</code>, call <code>multiprocessing.set_start_method("spawn")</code> before spawning workers. The default <code>fork</code> start method shares ORT state across processes unsafely; decibri detects the mismatch and raises <code>ForkAfterOrtInit</code>. macOS already defaults to spawn; Windows always uses spawn. The setting only matters on Linux.
+      </div>
+
+      <h3>Async event-loop blocking on ORT init</h3>
+      <p>The synchronous <code>AsyncMicrophone(...)</code> constructor blocks for roughly 100 to 500 milliseconds when <code>vad="silero"</code> because it loads the Silero ONNX model inline. In an async context this blocks the event loop for the duration of the load, which can cause dropped websocket frames, late timer callbacks, and UI jitter in voice agents. Use <code>await AsyncMicrophone.open(...)</code> instead; the factory dispatches the synchronous construction to <code>loop.run_in_executor(None, ...)</code> so the event loop keeps running.</p>
+
+      <p>For more multiprocessing recipes, see the <a href="https://github.com/decibri/decibri/blob/main/bindings/python/docs/ecosystem/multiprocessing.md" target="_blank" rel="noopener noreferrer">Python multiprocessing guide</a> in the repository.</p>
+
+      <h2 id="ort">ONNX Runtime resolution</h2>
+      <p>When <code>vad="silero"</code> is requested, decibri needs to load the ONNX Runtime dynamic library. The path is resolved in this order, first match wins:</p>
+      <ol>
+        <li>The <code>ort_library_path</code> constructor argument, if supplied.</li>
+        <li>The <code>DECIBRI_ORT_DYLIB_PATH</code> environment variable, for per-deployment overrides without code changes.</li>
+        <li>The <code>ORT_DYLIB_PATH</code> environment variable, the upstream <code>ort</code> crate's standard convention, respected so existing bare-ort deployments keep working.</li>
+        <li>The dylib bundled inside the wheel under <code>decibri/_ort/</code>. This is the default <code>pip install decibri</code> experience.</li>
+      </ol>
+      <p>If none of the above resolve to a real file, ORT's default loader runs. That loader itself respects <code>ORT_DYLIB_PATH</code> if set after decibri import, so a late environment change still works as a last-resort fallback.</p>
+
+      <h3>When ORT is loaded</h3>
+      <p>Only when <code>vad="silero"</code>. The other VAD modes (<code>"energy"</code>, <code>False</code>) never touch ORT, so the resolver and bundled-dylib lookup are skipped entirely.</p>
+
+      <h3>First-load cost</h3>
+      <p>The first <code>Microphone</code> constructed with <code>vad="silero"</code> incurs roughly 100 to 500 milliseconds of cold load on most platforms. The cost is amortised across the rest of the process: subsequent Microphones (sync or async) reuse the same loaded ORT.</p>
+
+      <h3>Process-global initialisation</h3>
+      <p>The first <code>Microphone</code> that loads Silero determines the dylib for the whole process. Subsequent Microphone constructions inherit that initialisation regardless of their own <code>ort_library_path</code> argument. To switch dylibs, restart the process.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/apis">APIs overview</a>: decibri's four interface surfaces (Python, Node.js, Browser, CLI)</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: same library, JavaScript / TypeScript surface</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser via AudioWorklet</li>
+          <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
+          <li><a href="/docs/getting-started">Getting started</a>: install and first capture</li>
+          <li><a href="/docs/integrations">Integrations</a>: STT, VAD, and KWS providers</li>
+          <li><a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+          <li><a href="https://pypi.org/project/decibri/" target="_blank" rel="noopener noreferrer">decibri on PyPI</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>

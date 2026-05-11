@@ -13,10 +13,10 @@
     })();
   </script>
   <title>APIs | decibri docs</title>
-  <meta name="description" content="Decibri's three interface surfaces: Node.js native addon, Browser runtime via AudioWorklet, and the decibri-cli standalone command-line tool. Same audio backend, three hosts.">
+  <meta name="description" content="Decibri's four interface surfaces: Python via PyO3, Node.js native addon, Browser runtime via AudioWorklet, and the decibri-cli standalone command-line tool. Same audio backend, four hosts.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="APIs | decibri docs">
-  <meta property="og:description" content="Decibri's three interface surfaces: Node.js native addon, Browser runtime via AudioWorklet, and the decibri-cli standalone command-line tool.">
+  <meta property="og:description" content="Decibri's four interface surfaces: Python via PyO3, Node.js native addon, Browser runtime via AudioWorklet, and the decibri-cli standalone command-line tool.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/apis">
   <link rel="canonical" href="https://decibri.com/docs/apis">
@@ -58,9 +58,13 @@
       </div>
 
       <h1>APIs</h1>
-      <p class="lead">Decibri surfaces as three runtime bindings. Same Rust audio backend, same chunk semantics, three host environments.</p>
+      <p class="lead">Decibri surfaces as four runtime bindings. Same Rust audio backend, same chunk semantics, four host environments.</p>
 
       <div class="cards-grid">
+        <a href="/docs/apis/python" class="doc-card">
+          <h3>Python API</h3>
+          <p>Native Python package via PyO3 / abi3, pre-built wheels for Linux, macOS Apple Silicon, and Windows. Exposes <code>Microphone</code> and <code>Speaker</code> plus matching <code>AsyncMicrophone</code> and <code>AsyncSpeaker</code> for asyncio.</p>
+        </a>
         <a href="/docs/apis/node" class="doc-card">
           <h3>Node.js API</h3>
           <p>Rust native addon via napi-rs, cpal audio backend, pre-built binaries for Windows / macOS / Linux. Exposes <code>Decibri</code> (Readable stream) and <code>DecibriOutput</code> (Writable stream).</p>
@@ -88,7 +92,7 @@
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
       </footer>
 
     </div>
