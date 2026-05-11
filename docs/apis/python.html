@@ -567,6 +567,10 @@ async with mic:
       <h3><code>await AsyncSpeaker.open(...)</code></h3>
       <p>Async factory classmethod, symmetric with <code>AsyncMicrophone.open</code>. <code>Speaker</code> does not load ORT, so the event-loop blocking risk is smaller, but the factory is provided for API parity.</p>
 
+      <div class="callout">
+        <strong>Note:</strong> Unlike <code>AsyncMicrophone</code>, the synchronous <code>AsyncSpeaker(...)</code> constructor does no heavy work, so calling it directly inside an async function is fine. <code>open()</code> is provided for symmetry; reach for it if you prefer the consistent factory pattern across both classes.
+      </div>
+
       <h3><code>async with</code> usage</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
