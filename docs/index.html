@@ -12,11 +12,11 @@
       else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
     })();
   </script>
-  <title>Documentation | decibri</title>
-  <meta name="description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection in Node.js and browsers.">
+  <title>Documentation | Decibri</title>
+  <meta name="description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection across Python, Node.js, Rust, browser, and CLI.">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="Documentation | decibri">
-  <meta property="og:description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection in Node.js and browsers.">
+  <meta property="og:title" content="Documentation | Decibri">
+  <meta property="og:description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection across Python, Node.js, Rust, browser, and CLI.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://decibri.com/docs/">
   <link rel="canonical" href="https://decibri.com/docs/">
@@ -29,8 +29,8 @@
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": "Decibri Documentation",
-    "description": "Decibri docs. Getting started, integrations (speech-to-text, voice activity detection, keyword spotting), and API reference for Node.js, browsers, and the decibri-cli command-line tool.",
-    "numberOfItems": 20,
+    "description": "Decibri docs. Getting started, integrations (speech-to-text, voice activity detection, keyword spotting), and API reference for Python, Node.js, browsers, and the decibri-cli command-line tool.",
+    "numberOfItems": 21,
     "itemListElement": [
       {"@type": "ListItem", "position": 1,  "name": "Getting started",                     "url": "https://decibri.com/docs/getting-started"},
       {"@type": "ListItem", "position": 2,  "name": "Integrations",                        "url": "https://decibri.com/docs/integrations"},
@@ -49,13 +49,22 @@
       {"@type": "ListItem", "position": 15, "name": "Keyword spotting (KWS)",              "url": "https://decibri.com/docs/integrations/kws"},
       {"@type": "ListItem", "position": 16, "name": "Sherpa-ONNX Keyword Spotting",        "url": "https://decibri.com/docs/integrations/kws/sherpa-onnx"},
       {"@type": "ListItem", "position": 17, "name": "APIs",                                "url": "https://decibri.com/docs/apis"},
-      {"@type": "ListItem", "position": 18, "name": "Node.js API",                         "url": "https://decibri.com/docs/apis/node"},
-      {"@type": "ListItem", "position": 19, "name": "Browser API",                         "url": "https://decibri.com/docs/apis/browser"},
-      {"@type": "ListItem", "position": 20, "name": "CLI API",                             "url": "https://decibri.com/docs/apis/cli"}
+      {"@type": "ListItem", "position": 18, "name": "Python API",                          "url": "https://decibri.com/docs/apis/python"},
+      {"@type": "ListItem", "position": 19, "name": "Node.js API",                         "url": "https://decibri.com/docs/apis/node"},
+      {"@type": "ListItem", "position": 20, "name": "Browser API",                         "url": "https://decibri.com/docs/apis/browser"},
+      {"@type": "ListItem", "position": 21, "name": "CLI API",                             "url": "https://decibri.com/docs/apis/cli"}
     ]
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
+  <style>
+    /* APIs cards grid: force 2x2 on desktop, keep base responsive behavior on mobile */
+    @media (min-width: 641px) {
+      .cards-grid--api {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -87,13 +96,13 @@
       </div>
 
       <h1>Welcome to the Decibri documentation</h1>
-      <p class="lead">This documentation is here to help you get up and running with decibri and integrate it into your voice and audio applications. Decibri is a cross-platform audio capture and output library for Node.js and browsers. The Node.js package is a Rust native addon using cpal with pre-built binaries. In browsers, conditional exports serve an AudioWorklet implementation automatically. Same API, different runtimes.</p>
+      <p class="lead">This documentation is here to help you get up and running with decibri and integrate it into your voice and audio applications. Decibri is a cross-platform audio capture and output library available as a Python package, a Node.js package, a Rust library, a browser-side AudioWorklet, and a standalone CLI. The Rust core is built on cpal with pre-built binaries. One audio engine, five ways to use it.</p>
 
       <h2>Getting started</h2>
       <div class="cards-grid">
         <a href="/docs/getting-started" class="doc-card">
           <h3>Getting started</h3>
-          <p>Install decibri, capture your first PCM chunk, and build real-time voice applications in Node.js.</p>
+          <p>Install decibri, capture your first PCM chunk, and build real-time voice applications.</p>
         </a>
       </div>
 
@@ -144,7 +153,7 @@
       <div class="cards-grid">
         <a href="/docs/integrations/vad/silero" class="doc-card">
           <h3>Silero VAD</h3>
-          <p>Neural voice activity detection. The Silero v5 ONNX model is bundled with decibri. Enable with <code>vadMode: 'silero'</code>.</p>
+          <p>Neural voice activity detection. The Silero v5 ONNX model is bundled with decibri.</p>
         </a>
       </div>
 
@@ -157,11 +166,15 @@
       </div>
 
       <h2>APIs</h2>
-      <p>Decibri surfaces as three runtime bindings with the same audio backend and chunk semantics.</p>
-      <div class="cards-grid">
+      <p>Decibri surfaces as four runtime bindings with the same audio backend and chunk semantics.</p>
+      <div class="cards-grid cards-grid--api">
+        <a href="/docs/apis/python" class="doc-card">
+          <h3>Python API</h3>
+          <p>Sync and async Microphone and Speaker, voice activity detection, asyncio support, and exception hierarchy. Python 3.10 and above.</p>
+        </a>
         <a href="/docs/apis/node" class="doc-card">
           <h3>Node.js API</h3>
-          <p>Rust native addon via napi-rs. <code>Decibri</code> Readable stream, <code>DecibriOutput</code> Writable stream, standard Node.js events.</p>
+          <p>Rust native addon via napi-rs. Provides a Readable stream and standard Node.js events.</p>
         </a>
         <a href="/docs/apis/browser" class="doc-card">
           <h3>Browser API</h3>
@@ -174,7 +187,7 @@
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
       </footer>
 
     </div>
