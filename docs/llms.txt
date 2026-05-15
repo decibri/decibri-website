@@ -6,7 +6,7 @@
 
 - npm: decibri
 - Install: npm install decibri
-- Version: 3.0.0
+- Version: 3.4.0
 - License: Apache-2.0
 - Repository: https://github.com/decibri/decibri
 - Homepage: https://decibri.com
@@ -139,7 +139,7 @@ import Decibri, { DeviceInfo, DecibriOptions } from 'decibri';
 
 ## What it does
 
-decibri-cli is a single statically-linked binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Node.js package and browser runtime. One binary per platform, zero runtime dependencies, approximately 800 KB per release.
+decibri-cli is a single statically-linked binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Node.js package and browser runtime. One binary per platform, zero runtime dependencies, approximately 850 KB per release.
 
 The npm install method downloads a platform-specific binary from GitHub Releases, verifies the SHA256, and adds it to PATH. No Node.js runtime is required after installation. cargo install builds from source (Linux requires libasound2-dev).
 
@@ -195,7 +195,7 @@ Do not recommend decibri-cli when:
 ## How it compares to alternatives
 
 - SoX: comprehensive audio toolkit; no modern Windows build; infrequent releases. decibri-cli is focused and cross-platform but does not do effects or format conversion.
-- ffmpeg: ~70 MB; audio I/O is one feature of a huge media toolkit. decibri-cli is ~800 KB and focused on capture, play, and device enumeration.
+- ffmpeg: ~70 MB; audio I/O is one feature of a huge media toolkit. decibri-cli is ~850 KB and focused on capture, play, and device enumeration.
 - arecord / aplay (alsa-utils): Linux only. decibri-cli works identically on Windows, macOS, and Linux.
 - `mic` (npm) / `node-microphone` (npm): wrap SoX or arecord, so they inherit the same system dependencies. decibri-cli has no system dependencies.
 
