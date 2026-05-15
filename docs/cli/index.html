@@ -70,9 +70,9 @@
     "name": "How to record a WAV file from the command line",
     "step": [
       { "@type": "HowToStep", "name": "Install", "text": "npm install -g decibri-cli" },
-      { "@type": "HowToStep", "name": "List devices", "text": "Decibri devices" },
-      { "@type": "HowToStep", "name": "Capture", "text": "Decibri capture -o speech.wav -d 10" },
-      { "@type": "HowToStep", "name": "Play back", "text": "Decibri play speech.wav" }
+      { "@type": "HowToStep", "name": "List devices", "text": "decibri devices" },
+      { "@type": "HowToStep", "name": "Capture", "text": "decibri capture -o speech.wav -d 10" },
+      { "@type": "HowToStep", "name": "Play back", "text": "decibri play speech.wav" }
     ]
   }
   </script>
@@ -1449,14 +1449,14 @@
         </div>
         <div class="code-body">
 <pre>{
-  <span class="param">"command"</span>: <span class="str">"capture"</span>,
-  <span class="param">"output"</span>: <span class="str">"clip.wav"</span>,
-  <span class="param">"duration"</span>: <span class="const">2.0</span>,
+  <span class="param">"file"</span>: <span class="str">"clip.wav"</span>,
+  <span class="param">"duration_seconds"</span>: <span class="const">2.0</span>,
   <span class="param">"sample_rate"</span>: <span class="const">16000</span>,
   <span class="param">"channels"</span>: <span class="const">1</span>,
-  <span class="param">"format"</span>: <span class="str">"int16"</span>,
-  <span class="param">"bytes_written"</span>: <span class="const">64044</span>,
-  <span class="param">"interrupted"</span>: <span class="kw">false</span>
+  <span class="param">"samples"</span>: <span class="const">32000</span>,
+  <span class="param">"bytes"</span>: <span class="const">64000</span>,
+  <span class="param">"device"</span>: <span class="str">"MacBook Pro Microphone"</span>,
+  <span class="param">"dropped_chunks"</span>: <span class="const">0</span>
 }</pre>
         </div>
       </div>

@@ -61,7 +61,7 @@
       </div>
 
       <h1>CLI API</h1>
-      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Node.js and browser packages. This page covers installation and first commands, then the full command-line reference.</p>
+      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Python, Node.js, and browser packages. This page covers installation and first commands, then the full command-line reference.</p>
 
       <h2>Quickstart</h2>
       <h3>Install</h3>
@@ -433,12 +433,12 @@ OUTPUT DEVICES
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
-  "inputs": [
-    { "index": 0, "name": "MacBook Pro Microphone", "channels": 1, "sample_rate": 48000, "is_default": true },
-    { "index": 1, "name": "Blue Yeti",               "channels": 2, "sample_rate": 48000, "is_default": false }
+  "input_devices": [
+    { "index": 0, "name": "MacBook Pro Microphone", "kind": "input", "default": true, "channels": 1, "sample_rate": 48000 },
+    { "index": 1, "name": "Blue Yeti",              "kind": "input", "default": false, "channels": 2, "sample_rate": 48000 }
   ],
-  "outputs": [
-    { "index": 0, "name": "MacBook Pro Speakers",    "channels": 2, "sample_rate": 48000, "is_default": true }
+  "output_devices": [
+    { "index": 0, "name": "MacBook Pro Speakers",   "kind": "output", "default": true, "channels": 2, "sample_rate": 48000 }
   ]
 }</code></pre>
         </div>
@@ -563,19 +563,18 @@ decibri capture -o clip.wav --json</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
-  "command": "capture",
-  "output": "speech.wav",
-  "duration": 30.0,
+  "file": "speech.wav",
+  "duration_seconds": 30.0,
   "sample_rate": 16000,
   "channels": 1,
-  "format": "int16",
-  "bytes_written": 960044,
+  "samples": 480000,
+  "bytes": 960000,
   "device": "MacBook Pro Microphone",
-  "interrupted": false
+  "dropped_chunks": 0
 }</code></pre>
         </div>
       </div>
-      <p>If the recording was stopped by Ctrl+C, <code>"interrupted": true</code> and <code>duration</code> reflects the actual recorded length.</p>
+      <p>If the recording was stopped by Ctrl+C, the truncated WAV is finalised normally and the JSON summary is emitted with <code>duration_seconds</code> reflecting the actual recorded length. If a watchdog trip or IO error occurs mid-capture, the partial WAV is preserved on disk but the CLI exits with code 4 and emits no JSON summary, so the JSON output is success-only.</p>
 
       <h3><code>decibri play</code></h3>
       <p>Plays a WAV file through an output device.</p>
