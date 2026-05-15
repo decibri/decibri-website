@@ -1,29 +1,20 @@
 # Decibri Website
 
-This repository contains the source for [decibri.com](https://decibri.com), the
-documentation site for Decibri. The site is plain HTML with no build step.
-GitHub Pages currently serves the repository root, and Cloudflare sits in front
-for DNS and proxying.
+The source for [decibri.com](https://decibri.com): documentation, API references, and integration guides for [Decibri](https://github.com/decibri/decibri), the cross-platform audio capture, playback, and processing library for Node.js, Python, Rust, and the browser.
 
-## Repository structure
+## What's here
 
-Published files live at the repository root and inside the `docs/` and `cli/`
-folders. At the root: `index.html`, `404.html`, the metadata and asset files
-`sitemap.xml`, `robots.txt`, `manifest.json`, `llms.txt`, `CNAME`,
-`decibri-social-og.png`, and `favicon.ico`. The `docs/` folder holds all
-documentation pages along with the shared assets `nav.js`, `code-tabs.js`, and
-`styles.css`. The `cli/` folder holds the CLI landing page.
+- **Getting started, API references, and integration guides** for the Decibri   library across Node.js, Python, Rust, and browser environments.
+- **Integration provider pages** covering speech-to-text, voice activity
+  detection, and keyword spotting providers that work with Decibri.
+- **The CLI landing page** for the Decibri command-line tool.
 
-Repository-only files also live at the root and are never published:
-`README.md`, `CONTRIBUTING.md`, `CLAUDE.md`, `LICENSE`, `ATTRIBUTION.md`, and
-`.gitignore`.
+For the Decibri library itself (source code, releases, issues), see the main [decibri repository](https://github.com/decibri/decibri).
 
 ## Contributing
 
-Documentation improvements and integration partner contributions are welcome.
-See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+Documentation improvements and integration partner contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## License
 
-This repository is licensed under the Apache License 2.0. See [LICENSE](LICENSE)
-for the full text.
+Apache License 2.0. See [LICENSE](LICENSE) for the full text.
