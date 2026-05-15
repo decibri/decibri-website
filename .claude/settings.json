@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes serve -p 5174 .)"
+    ]
+  }
+}

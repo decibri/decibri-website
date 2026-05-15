@@ -1,0 +1,21 @@
+# Claude Code per-machine permissions
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor noise
+*.swp
+*.swo
+.idea/
