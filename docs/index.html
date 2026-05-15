@@ -6,71 +6,1577 @@
   <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
   <script>
+    // Prevent flash of wrong theme
     (function() {
       var t = localStorage.getItem('decibri-theme');
       if (t) document.documentElement.setAttribute('data-theme', t);
       else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
     })();
   </script>
-  <title>Documentation | Decibri</title>
-  <meta name="description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection across Python, Node.js, Rust, browser, and CLI.">
+  <title>Decibri | Cross-platform audio capture for Python, Node.js, and Rust</title>
+  <meta name="description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="Documentation | Decibri">
-  <meta property="og:description" content="Decibri documentation. Guides, API reference, and integration examples for audio capture, output, and voice activity detection across Python, Node.js, Rust, browser, and CLI.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://decibri.com/docs/">
-  <link rel="canonical" href="https://decibri.com/docs/">
+  <meta name="keywords" content="microphone, Node.js, audio capture, audio output, speaker playback, streaming, PCM, cross-platform, voice AI, real-time audio, speech-to-text, wake word, voice agent, whisper, cpal, rust, napi-rs, native addon, silero vad, voice activity detection, browser audio capture, AudioWorklet, full duplex audio, deepgram, assemblyai, openai, sherpa-onnx, aws transcribe, google speech-to-text, azure speech-to-text, real-time transcription, cloud transcription, local transcription, python, pypi, pip, python audio capture, asyncio">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="canonical" href="https://decibri.com">
+  <link rel="alternate" type="text/plain" href="https://decibri.com/llms.txt" title="LLM-readable package description">
+  <meta property="og:title" content="Decibri | Cross-platform audio capture for Python, Node.js, and Rust">
+  <meta property="og:description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://decibri.com">
+  <meta property="og:site_name" content="Decibri">
+  <meta property="og:image" content="https://decibri.com/decibri-social-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Decibri | Cross-platform audio capture for Python, Node.js, and Rust">
+  <meta name="twitter:description" content="Microphone capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Zero system dependencies. Zero setup.">
+  <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
+  <meta name="twitter:site" content="@decibriai">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Decibri Documentation",
-    "description": "Decibri docs. Getting started, integrations (speech-to-text, voice activity detection, keyword spotting), and API reference for Python, Node.js, browsers, and the decibri-cli command-line tool.",
-    "numberOfItems": 21,
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1,  "name": "Getting started",                     "url": "https://decibri.com/docs/getting-started"},
-      {"@type": "ListItem", "position": 2,  "name": "Integrations",                        "url": "https://decibri.com/docs/integrations"},
-      {"@type": "ListItem", "position": 3,  "name": "Speech-to-text (STT)",                "url": "https://decibri.com/docs/integrations/stt"},
-      {"@type": "ListItem", "position": 4,  "name": "AssemblyAI",                          "url": "https://decibri.com/docs/integrations/stt/assemblyai"},
-      {"@type": "ListItem", "position": 5,  "name": "AWS Transcribe",                      "url": "https://decibri.com/docs/integrations/stt/aws-transcribe"},
-      {"@type": "ListItem", "position": 6,  "name": "Azure AI Speech",                     "url": "https://decibri.com/docs/integrations/stt/azure"},
-      {"@type": "ListItem", "position": 7,  "name": "Deepgram",                            "url": "https://decibri.com/docs/integrations/stt/deepgram"},
-      {"@type": "ListItem", "position": 8,  "name": "Google Cloud Speech-to-Text",         "url": "https://decibri.com/docs/integrations/stt/google"},
-      {"@type": "ListItem", "position": 9,  "name": "Mistral Voxtral",                     "url": "https://decibri.com/docs/integrations/stt/mistral-voxtral"},
-      {"@type": "ListItem", "position": 10, "name": "OpenAI",                              "url": "https://decibri.com/docs/integrations/stt/openai"},
-      {"@type": "ListItem", "position": 11, "name": "Sherpa-ONNX",                         "url": "https://decibri.com/docs/integrations/stt/sherpa-onnx"},
-      {"@type": "ListItem", "position": 12, "name": "Whisper.cpp",                         "url": "https://decibri.com/docs/integrations/stt/whisper-cpp"},
-      {"@type": "ListItem", "position": 13, "name": "Voice activity detection (VAD)",      "url": "https://decibri.com/docs/integrations/vad"},
-      {"@type": "ListItem", "position": 14, "name": "Silero VAD",                          "url": "https://decibri.com/docs/integrations/vad/silero"},
-      {"@type": "ListItem", "position": 15, "name": "Keyword spotting (KWS)",              "url": "https://decibri.com/docs/integrations/kws"},
-      {"@type": "ListItem", "position": 16, "name": "Sherpa-ONNX Keyword Spotting",        "url": "https://decibri.com/docs/integrations/kws/sherpa-onnx"},
-      {"@type": "ListItem", "position": 17, "name": "APIs",                                "url": "https://decibri.com/docs/apis"},
-      {"@type": "ListItem", "position": 18, "name": "Python API",                          "url": "https://decibri.com/docs/apis/python"},
-      {"@type": "ListItem", "position": 19, "name": "Node.js API",                         "url": "https://decibri.com/docs/apis/node"},
-      {"@type": "ListItem", "position": 20, "name": "Browser API",                         "url": "https://decibri.com/docs/apis/browser"},
-      {"@type": "ListItem", "position": 21, "name": "CLI API",                             "url": "https://decibri.com/docs/apis/cli"}
+    "@type": "SoftwareSourceCode",
+    "name": "Decibri",
+    "alternateName": "decibri",
+    "description": "Cross-platform audio capture, speaker output, and voice activity detection for Python, Node.js, and Rust. Real-time microphone streaming for AI agents and Voice AI applications. Zero system dependencies. Zero setup.",
+    "url": "https://decibri.com",
+    "codeRepository": "https://github.com/decibri/decibri",
+    "programmingLanguage": ["Python", "Rust", "JavaScript", "TypeScript"],
+    "license": "https://opensource.org/licenses/Apache-2.0",
+    "datePublished": "2026-03-09",
+    "dateModified": "2026-05-10",
+    "author": {
+      "@type": "Organization",
+      "name": "Decibri",
+      "url": "https://decibri.com",
+      "sameAs": [
+        "https://x.com/decibriai",
+        "https://www.linkedin.com/company/decibri",
+        "https://www.facebook.com/decibri"
+      ]
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What audio format does decibri output?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "16-bit signed integer PCM, little-endian by default. A 32-bit float format is also available. The default is the raw format expected by most speech and wake-word engines including Vosk, sherpa-onnx, and whisper.cpp."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does decibri require any system audio tools?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Decibri uses cpal for direct OS audio access. There are no system audio libraries to install."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need build tools to install decibri?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Pre-built binaries ship with the package on every supported platform: Python (wheels), Node.js (optional platform packages), and Rust (compiled at install time via cargo). No compilers, no node-gyp, no Visual Studio Build Tools, no Xcode required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does decibri work in the browser?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Decibri works in both Node.js and the browser from a single package. When bundled for the browser, conditional exports serve the browser implementation automatically. See https://decibri.com/docs/apis/browser for browser documentation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I select a specific microphone?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Use Decibri.devices() to list available input devices, then pass the device index or a name substring to the constructor options."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What Node.js versions are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Node.js 18 and above."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What license is decibri released under?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Apache-2.0."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What Python versions are supported?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, and Windows x64."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does decibri support asyncio?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Decibri ships AsyncMicrophone, AsyncSpeaker, and async_record_to_file() as proper async classes that work as async context managers with async for iteration. Audio capture runs on a separate thread, so the event loop isn't blocked. The recommended pattern is async with await decibri.AsyncMicrophone.open(...) as mic: async for chunk in mic: ... The open() factory dispatches the optional Silero VAD model load off the event loop."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is decibri written in Rust?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Rust gives decibri direct OS audio access via cpal, a cross-platform Rust audio library. The Rust core compiles to native code on every supported platform, so the same audio engine powers the Python, Node.js, and Rust packages. Memory safety enables real-time audio code without manual buffer management. The result: predictable low-latency audio with zero system dependencies."
+        }
+      }
     ]
   }
   </script>
-  <link rel="stylesheet" href="/docs/styles.css">
-  <style>
-    /* APIs cards grid: force 2x2 on desktop, keep base responsive behavior on mobile */
-    @media (min-width: 641px) {
-      .cards-grid--api {
-        grid-template-columns: repeat(2, 1fr);
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Decibri",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Windows, macOS, Linux",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "url": "https://decibri.com",
+    "downloadUrl": "https://www.npmjs.com/package/decibri",
+    "softwareRequirements": "Python 3.10+, Node.js 18+",
+    "author": {
+      "@type": "Organization",
+      "name": "Decibri",
+      "url": "https://decibri.com"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to capture microphone audio in Node.js",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Install",
+        "text": "npm install decibri"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Import",
+        "text": "const Decibri = require('decibri');"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Create stream",
+        "text": "const mic = new Decibri({ sampleRate: 16000, channels: 1 });"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Handle audio",
+        "text": "mic.on('data', (chunk) => { /* process PCM audio buffer */ });"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Stop capture",
+        "text": "mic.stop();"
       }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Capture microphone audio in Python with Decibri",
+    "description": "Install Decibri and capture microphone audio in Python.",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Install Python",
+        "text": "Install Python 3.10 or later from python.org or your platform's package manager."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Install Decibri",
+        "text": "Run pip install decibri. Prebuilt wheels are downloaded automatically; no compiler is required."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Import Decibri",
+        "text": "Add import decibri to your Python file."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Open the microphone",
+        "text": "Use decibri.Microphone(sample_rate=16000) as a context manager to open the system default microphone."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Iterate chunks",
+        "text": "Iterate over the microphone object to receive 16-bit PCM audio chunks as Python bytes."
+      }
+    ]
+  }
+  </script>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-elevated: #12121a;
+      --bg-code: #0d0d15;
+      --surface: #1a1a26;
+      --border: #252536;
+      --border-glow: #3b3b5c;
+      --text-primary: #e8e8f0;
+      --text-secondary: #9494b0;
+      --text-muted: #7a7a96;
+      --accent: #5ea3f8;
+      --accent-glow: rgba(94, 163, 248, 0.15);
+      --accent-glow-strong: rgba(94, 163, 248, 0.25);
+      --red: #ff6b6b;
+      --red-dim: rgba(255, 107, 107, 0.12);
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-theme="light"] {
+      --bg: #f8f8fb;
+      --bg-elevated: #ffffff;
+      --bg-code: #f0f0f6;
+      --surface: #eaeaf0;
+      --border: #d4d4de;
+      --border-glow: #b0b0c4;
+      --text-primary: #1a1a2e;
+      --text-secondary: #52526e;
+      --text-muted: #6e6e86;
+      --accent: #1d5bbf;
+      --accent-glow: rgba(29, 91, 191, 0.10);
+      --accent-glow-strong: rgba(29, 91, 191, 0.18);
+      --red: #d94444;
+      --red-dim: rgba(217, 68, 68, 0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    [data-theme="light"] body::before { opacity: 0.4; }
+
+    /* ── Container ── */
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 16px 24px;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    [data-theme="light"] nav {
+      background: rgba(248, 248, 251, 0.85);
+    }
+
+    nav .nav-inner {
+      max-width: 840px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-logo::before {
+      content: '';
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-right: 3px;
+      vertical-align: -7px;
+      flex-shrink: 0;
+      background-color: var(--accent);
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .nav-links .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 7px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #fff;
+      transition: all 0.2s;
+    }
+
+    [data-theme="light"] .nav-links .nav-cta {
+      color: #1a1a2e;
+    }
+
+    .nav-links .nav-cta:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 0 100px;
+      position: relative;
+    }
+
+    /* Ambient glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 5.5vw, 56px);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -2.5px;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      max-width: 700px;
+    }
+
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .subtitle {
+      font-size: 18px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    /* ── Tabbed code block (shared markup with docs/styles.css .code-tabs system,
+       wired up by /docs/code-tabs.js) ── */
+    .code-tabs {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg-code);
+      max-width: 100%;
+    }
+
+    .code-tab-bar {
+      display: flex;
+      gap: 4px;
+      padding: 4px 4px 0 4px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .code-tab-bar::-webkit-scrollbar { height: 0; }
+
+    .code-tab-btn {
+      appearance: none;
+      border: 0;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .code-tab-btn[aria-selected="true"] {
+      background: var(--surface);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .code-tab-btn:hover:not([aria-selected="true"]) {
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .code-tab-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    [data-theme="light"] .code-tab-bar { background: var(--surface); }
+    [data-theme="light"] .code-tab-btn { background: var(--bg-code); }
+    [data-theme="light"] .code-tab-btn[aria-selected="true"] { background: var(--bg-elevated); }
+    [data-theme="light"] .code-tab-btn:hover:not([aria-selected="true"]) { background: var(--bg-elevated); }
+
+    .code-tab-panel { display: block; }
+    .code-tab-panel[hidden] { display: none; }
+
+    /* Hero-specific size overrides for the tabbed code block. */
+    .hero-code-tabs {
+      margin: 0 0 36px;
+      border-radius: 12px;
+    }
+
+    /* Copy button: lives at the right end of the tab bar, mirrors the
+       install pill's copy icon (same SVG, same muted-to-accent treatment). */
+    .hero-code-tabs .code-copy-btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 6px;
+      position: relative;
+      transition: color 0.2s, background 0.15s;
+    }
+
+    .hero-code-tabs .code-copy-btn:hover { color: var(--accent); }
+
+    .hero-code-tabs .code-copy-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* Success feedback: swap copy icon for a green tick for ~1.5s. */
+    .hero-code-tabs .code-copy-btn .icon-check { display: none; }
+    .hero-code-tabs .code-copy-btn.copied .icon-copy { display: none; }
+    .hero-code-tabs .code-copy-btn.copied .icon-check { display: inline-block; }
+    .hero-code-tabs .code-copy-btn.copied { color: #22c55e; }
+    .hero-code-tabs .code-copy-btn.copied:hover { color: #22c55e; }
+
+    .hero-code-tabs .code-tab-panel > pre {
+      margin: 0;
+      padding: 24px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .hero-code-tabs .kw { color: #c792ea; }
+    .hero-code-tabs .fn { color: #82aaff; }
+    .hero-code-tabs .str { color: #c3e88d; }
+    .hero-code-tabs .cm { color: #546e7a; font-style: italic; }
+    .hero-code-tabs .const { color: #89ddff; }
+    .hero-code-tabs .obj { color: #f0c674; }
+    .hero-code-tabs .param { color: #e8e8f0; }
+
+    /* ── CTA Buttons ── */
+    .cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .hero .cta-group {
+      margin-top: 36px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-primary:hover {
+      background: #7bb8ff;
+      box-shadow: 0 0 30px var(--accent-glow-strong);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.3px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--border-glow);
+      background: var(--surface);
+    }
+
+    .btn-secondary svg, .btn-primary svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Hero Labels ── */
+    .hero-label {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      margin-top: 36px;
+      margin-bottom: 12px;
+    }
+
+    .hero-label + .code-block {
+      margin-top: 0;
+    }
+
+    /* ── Install Pill ── */
+    .install-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .install-pill:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .install-pill .dollar { color: var(--accent); user-select: none; }
+    .install-pill .cmd { color: var(--text-primary); }
+
+    .install-pill .copy-icon {
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .install-pill:hover .copy-icon { color: var(--accent); }
+
+    .install-pill .tooltip {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      padding: 5px 10px;
+      background: var(--accent);
+      color: var(--bg);
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .install-pill .tooltip.show { opacity: 1; }
+
+    /* Success feedback: swap copy icon for a green tick on the hero install pill. */
+    .install-pill .icon-check { display: none; }
+    .install-pill.copied .icon-copy { display: none; }
+    .install-pill.copied .icon-check { display: inline-block; color: #22c55e; }
+    .install-pill.copied { border-color: #22c55e; }
+    .install-pill.copied:hover { border-color: #22c55e; background: var(--surface); }
+
+    /* ── Sections ── */
+    section {
+      padding: 80px 0;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    section h2 {
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      margin-bottom: 24px;
+    }
+
+    section p.section-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── Problem Section ── */
+    .problem-grid {
+      display: grid;
+      gap: 12px;
+      margin: 40px 0 28px;
+    }
+
+    .problem-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      background: var(--red-dim);
+      border: 1px solid rgba(255, 107, 107, 0.12);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
+
+    .problem-item .x-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: var(--red);
+      opacity: 0.8;
+    }
+
+    /* ── Features Grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .feature-card {
+      padding: 28px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.25s;
+      position: relative;
+      border-left: 3px solid var(--border);
+    }
+
+    .feature-card.local { border-left-color: #34d399; }
+    .feature-card.cloud { border-left-color: var(--accent); }
+
+    .feature-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+    }
+
+    .feature-card.local:hover { border-left-color: #34d399; }
+    .feature-card.cloud:hover { border-left-color: var(--accent); }
+
+    .feature-pill {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .feature-pill.local {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+
+    .feature-pill.cloud {
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(94, 163, 248, 0.2);
+    }
+
+    [data-theme="light"] .feature-pill.local {
+      color: #059669;
+      background: rgba(5, 150, 105, 0.08);
+      border-color: rgba(5, 150, 105, 0.2);
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-glow);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .feature-card.local .feature-icon {
+      background: rgba(52, 211, 153, 0.1);
+      color: #34d399;
+    }
+
+    [data-theme="light"] .feature-card.local .feature-icon {
+      background: rgba(5, 150, 105, 0.08);
+      color: #059669;
+    }
+
+    .feature-icon svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .feature-icon .logo-dark { display: block; }
+    .feature-icon .logo-light { display: none; }
+    [data-theme="light"] .feature-icon .logo-dark { display: none; }
+    [data-theme="light"] .feature-icon .logo-light { display: block; }
+
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    .feature-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── Use Cases ── */
+    .use-cases {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .use-case {
+      padding: 20px 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .use-case .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* ── Example Block ── */
+    .example-heading {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      margin-top: 44px;
+      margin-bottom: 10px;
+    }
+
+    .example-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* ── Integrations ── */
+    .integrations-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    .integration-tag {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      padding: 10px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Platform Support ── */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .platform-card {
+      padding: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .platform-card .platform-icon {
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .platform-card .platform-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .platform-card .platform-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .platform-card .platform-arch {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── When to use / Comparison ── */
+    .when-to-use {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+      margin-top: 20px;
+    }
+
+    .when-to-use code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-primary);
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 640px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+
+    .compare-card {
+      padding: 24px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .compare-card h3 {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+
+    .compare-card .alt-name { color: var(--text-muted); }
+    .compare-card .mic-name { color: var(--accent); }
+
+    .compare-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .compare-card ul li {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      padding: 5px 0;
+      padding-left: 22px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .compare-card ul li::before {
+      position: absolute;
+      left: 0;
+      top: 7px;
+    }
+
+    .compare-card.alt ul li::before {
+      content: '×';
+      color: var(--red);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .compare-card.ours ul li::before {
+      content: '✓';
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* ── FAQ Accordion ── */
+    .faq-list {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+
+    .faq-q {
+      margin: 0;
+    }
+
+    .faq-q button {
+      all: unset;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      padding: 20px 0;
+      cursor: pointer;
+      color: inherit;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .faq-q button:hover {
+      color: var(--accent);
+    }
+
+    .faq-chevron {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+      transition: transform 0.3s ease, color 0.2s;
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--accent);
+    }
+
+    .faq-a-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+
+    .faq-item.open .faq-a-wrap {
+      grid-template-rows: 1fr;
+    }
+
+    .faq-a-inner {
+      overflow: hidden;
+    }
+
+    .faq-a {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+      padding-bottom: 20px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* ── Final CTA ── */
+    .final-cta {
+      padding: 100px 0;
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .final-cta p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      font-weight: 300;
+    }
+
+    .final-cta .cta-group {
+      justify-content: center;
+    }
+
+    /* ── Skip-to-content ── */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      width: auto;
+      height: auto;
+      padding: 8px 16px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 4px;
+      z-index: 10000;
+      font-family: var(--font-display);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--accent); }
+
+    /* ── Light theme: code syntax ── */
+    [data-theme="light"] .hero-code-tabs .kw { color: #8839ef; }
+    [data-theme="light"] .hero-code-tabs .fn { color: #1e66f5; }
+    [data-theme="light"] .hero-code-tabs .str { color: #40a02b; }
+    [data-theme="light"] .hero-code-tabs .cm { color: #9ca0b0; font-style: italic; }
+    [data-theme="light"] .hero-code-tabs .const { color: #d20f39; }
+    [data-theme="light"] .hero-code-tabs .obj { color: #df8e1d; }
+    [data-theme="light"] .hero-code-tabs .param { color: #1a1a2e; }
+    [data-theme="light"] .hero::before { opacity: 0.3; }
+    [data-theme="light"] .btn-primary { color: #fff; }
+
+    /* ── Theme Toggle ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .theme-toggle .icon-sun { display: none; }
+    .theme-toggle .icon-moon { display: block; }
+    [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+    /* ── Mobile nav ── */
+    .mobile-nav {
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mobile-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .mobile-nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .mobile-nav-btn svg { width: 16px; height: 16px; }
+
+    .mobile-nav-btn .icon-sun { display: none; }
+    .mobile-nav-btn .icon-moon { display: block; }
+    [data-theme="light"] .mobile-nav-btn .icon-sun { display: block; }
+    [data-theme="light"] .mobile-nav-btn .icon-moon { display: none; }
+
+    .mobile-nav .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .mobile-nav .nav-cta:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .mobile-nav .nav-cta svg { width: 16px; height: 16px; }
+
+    .mobile-menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 150;
+    }
+
+    .mobile-menu-overlay.open { display: block; }
+
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 260px;
+      height: 100vh;
+      background: var(--bg-elevated);
+      border-left: 1px solid var(--border);
+      z-index: 151;
+      padding: 28px 24px;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .mobile-menu.open { transform: translateX(0); }
+
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:first-child { padding-top: 0; }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--accent); }
+
+    /* ── Built With Grid ── */
+    .built-with-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .built-with-card {
+      padding: 32px 28px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .built-with-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    }
+
+    .built-with-card.voxagent-card:hover { border-color: rgba(232, 145, 58, 0.3); }
+    .built-with-card.wakeword-card:hover { border-color: rgba(0, 124, 254, 0.3); }
+
+    .built-with-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .built-with-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .built-with-logo.voxagent-logo { background: rgba(232, 145, 58, 0.10); }
+    .built-with-logo.wakeword-logo { background: rgba(0, 124, 254, 0.08); }
+    .built-with-logo.wakeword-logo svg { width: 26px; height: 26px; }
+
+    .built-with-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .highlight-amber { color: #e8913a; }
+    .highlight-blue { color: #007CFE; }
+
+    .built-with-desc {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .built-with-stack {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;
+    }
+
+    .stack-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+    }
+
+    .stack-separator {
+      color: var(--border);
+      font-size: 10px;
+    }
+
+    .built-with-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .built-with-url {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.2s;
+    }
+
+    .built-with-card:hover .built-with-url { color: var(--accent); }
+
+    .built-with-type {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .type-cli {
+      color: #e8913a;
+      background: rgba(232, 145, 58, 0.08);
+      border: 1px solid rgba(232, 145, 58, 0.15);
+    }
+
+    .type-extension {
+      color: #007CFE;
+      background: rgba(0, 124, 254, 0.08);
+      border: 1px solid rgba(0, 124, 254, 0.15);
+    }
+
+    [data-theme="light"] .type-cli {
+      color: #b86e1a;
+      background: rgba(184, 110, 26, 0.06);
+      border-color: rgba(184, 110, 26, 0.15);
+    }
+
+    [data-theme="light"] .type-extension {
+      color: #0058b8;
+      background: rgba(0, 88, 184, 0.06);
+      border-color: rgba(0, 88, 184, 0.15);
+    }
+
+    .pipeline-note {
+      margin-top: 32px;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pipeline-note p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .pipeline-note code {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--text-primary);
+      background: var(--bg-code);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; }
+      .hero { padding: 130px 0 70px; }
+      .nav-links { display: none; }
+      .mobile-nav { display: flex; }
+      .cta-group { flex-direction: column; align-items: flex-start; }
+      .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+      .install-pill { width: 100%; justify-content: center; }
+      .built-with-grid { grid-template-columns: 1fr; }
+      .code-tab-btn { font-size: 12px; padding: 6px 10px; }
+      .hero-code-tabs .code-tab-panel > pre { padding: 16px; font-size: 12.5px; }
+    }
+
+    /* ── Fade-in animation (only when JS is active) ── */
+    .js-loaded .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .js-loaded .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
+  <a href="#main" class="skip-link">Skip to main content</a>
 
-  <nav class="docs-nav">
+  <!-- ── Nav ── -->
+  <header>
+  <nav>
     <div class="nav-inner">
-      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <a href="/" class="nav-logo">deci<span>bri</span></a>
+      <div class="nav-links">
+        <a href="#problem">Why</a>
+        <a href="#features">Features</a>
+        <a href="#compare">Compare</a>
+        <a href="#platforms">Platforms</a>
+        <a href="/cli/">CLI</a>
+        <a href="/docs/">Docs</a>
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span class="nav-cta-label">GitHub</span></a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
       <div class="mobile-nav">
         <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
@@ -83,117 +1589,663 @@
       </div>
     </div>
   </nav>
+  </header>
+
   <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
-  <div class="mobile-menu"></div>
-  <div class="sidebar-overlay"></div>
-  <aside id="sidebar" class="sidebar"></aside>
-
-  <div class="doc-content">
-    <div class="doc-container">
-
-      <div class="breadcrumb">
-        <span class="current">Docs</span>
-      </div>
-
-      <h1>Welcome to the Decibri documentation</h1>
-      <p class="lead">This documentation is here to help you get up and running with decibri and integrate it into your voice and audio applications. Decibri is a cross-platform audio capture and output library available as a Python package, a Node.js package, a Rust library, a browser-side AudioWorklet, and a standalone CLI. The Rust core is built on cpal with pre-built binaries. One audio engine, five ways to use it.</p>
-
-      <h2>Getting started</h2>
-      <div class="cards-grid">
-        <a href="/docs/getting-started" class="doc-card">
-          <h3>Getting started</h3>
-          <p>Install decibri, capture your first PCM chunk, and build real-time voice applications.</p>
-        </a>
-      </div>
-
-      <h2>Integrations</h2>
-      <p>Decibri ships audio to three kinds of integrations: speech-to-text, voice activity detection, and keyword spotting. Nine STT providers are supported today (seven cloud, two local), plus built-in VAD and a local KWS engine.</p>
-
-      <h3>Speech-to-text (STT)</h3>
-      <div class="cards-grid">
-        <a href="/docs/integrations/stt/assemblyai" class="doc-card">
-          <h3>AssemblyAI</h3>
-          <p>Cloud speech-to-text with AssemblyAI's Universal-3 Pro streaming model.</p>
-        </a>
-        <a href="/docs/integrations/stt/aws-transcribe" class="doc-card">
-          <h3>AWS Transcribe</h3>
-          <p>Cloud speech-to-text with AWS Transcribe streaming over HTTP/2.</p>
-        </a>
-        <a href="/docs/integrations/stt/azure" class="doc-card">
-          <h3>Azure AI Speech</h3>
-          <p>Cloud speech-to-text with Azure AI Speech using PushAudioInputStream.</p>
-        </a>
-        <a href="/docs/integrations/stt/deepgram" class="doc-card">
-          <h3>Deepgram</h3>
-          <p>Cloud speech-to-text with Deepgram's Nova-3 model over WebSocket.</p>
-        </a>
-        <a href="/docs/integrations/stt/google" class="doc-card">
-          <h3>Google Cloud Speech-to-Text</h3>
-          <p>Cloud speech-to-text with Google Cloud Speech-to-Text. The simplest integration: one pipe() call.</p>
-        </a>
-        <a href="/docs/integrations/stt/mistral-voxtral" class="doc-card">
-          <h3>Mistral Voxtral</h3>
-          <p>Cloud speech-to-text with Mistral's Voxtral open-weights model (Apache 2.0).</p>
-        </a>
-        <a href="/docs/integrations/stt/openai" class="doc-card">
-          <h3>OpenAI</h3>
-          <p>Stream audio to OpenAI's Realtime API for cloud speech-to-text. 24 kHz sample rate, raw WebSocket.</p>
-        </a>
-        <a href="/docs/integrations/stt/sherpa-onnx" class="doc-card">
-          <h3>Sherpa-ONNX</h3>
-          <p>Real-time local transcription with a streaming Zipformer model. No API key, no network.</p>
-        </a>
-        <a href="/docs/integrations/stt/whisper-cpp" class="doc-card">
-          <h3>Whisper.cpp</h3>
-          <p>Local buffered transcription with OpenAI's Whisper model via a native addon. No API key, no network.</p>
-        </a>
-      </div>
-
-      <h3>Voice activity detection (VAD)</h3>
-      <div class="cards-grid">
-        <a href="/docs/integrations/vad/silero" class="doc-card">
-          <h3>Silero VAD</h3>
-          <p>Neural voice activity detection. The Silero v5 ONNX model is bundled with decibri.</p>
-        </a>
-      </div>
-
-      <h3>Keyword spotting (KWS)</h3>
-      <div class="cards-grid">
-        <a href="/docs/integrations/kws/sherpa-onnx" class="doc-card">
-          <h3>Sherpa-ONNX Keyword Spotting</h3>
-          <p>Detect spoken keywords and wake phrases locally. BPE-based keyword spotter, no cloud, no API key.</p>
-        </a>
-      </div>
-
-      <h2>APIs</h2>
-      <p>Decibri surfaces as four runtime bindings with the same audio backend and chunk semantics.</p>
-      <div class="cards-grid cards-grid--api">
-        <a href="/docs/apis/python" class="doc-card">
-          <h3>Python API</h3>
-          <p>Sync and async Microphone and Speaker, voice activity detection, asyncio support, and exception hierarchy. Python 3.10 and above.</p>
-        </a>
-        <a href="/docs/apis/node" class="doc-card">
-          <h3>Node.js API</h3>
-          <p>Rust native addon via napi-rs. Provides a Readable stream and standard Node.js events.</p>
-        </a>
-        <a href="/docs/apis/browser" class="doc-card">
-          <h3>Browser API</h3>
-          <p>AudioWorklet implementation via conditional exports. Same npm package, same API shape, async permission flow.</p>
-        </a>
-        <a href="/docs/apis/cli" class="doc-card">
-          <h3>CLI API</h3>
-          <p>Standalone statically-linked binary: decibri-cli. Capture WAV, play WAV, enumerate audio devices.</p>
-        </a>
-      </div>
-
-      <footer class="doc-footer">
-        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
-      </footer>
-
-    </div>
+  <div class="mobile-menu">
+    <a href="#problem" onclick="toggleMobileMenu()">Why</a>
+    <a href="#features" onclick="toggleMobileMenu()">Features</a>
+    <a href="#compare" onclick="toggleMobileMenu()">Compare</a>
+    <a href="#platforms" onclick="toggleMobileMenu()">Platforms</a>
+    <a href="/cli/" onclick="toggleMobileMenu()">CLI</a>
+    <a href="/docs/">Docs</a>
   </div>
 
-  <script src="/docs/nav.js"></script>
+  <main id="main">
+
+  <!-- ── Hero ── -->
+  <div class="container">
+    <section class="hero">
+      <h1>The <span class="gradient-text">unified audio layer</span> for AI agents and Voice AI applications</h1>
+      <p class="subtitle">Capture real-time microphone audio, play to speakers, or pipe anywhere (voice agents, WebSockets, or files) using Python, Node.js, or Rust. Built-in voice activity detection. Zero system dependencies. Zero setup.</p>
+
+      <div class="cta-group">
+        <a href="https://decibri.com/docs/" class="btn-primary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Get Started
+        </a>
+        <a href="https://github.com/decibri/decibri" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          View on GitHub
+        </a>
+      </div>
+
+      <p class="hero-label">Install with one command:</p>
+      <div class="install-pill" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd" id="install-cmd">pip install decibri</span>
+        <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+
+      <p class="hero-label">Then start streaming:</p>
+      <div class="code-tabs hero-code-tabs" data-tab-group="hero">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+          <button type="button" class="code-copy-btn" onclick="copyHeroCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" role="tabpanel" data-lang="python"><pre><span class="kw">import</span> <span class="obj">decibri</span>
+
+<span class="kw">with</span> <span class="obj">decibri</span>.<span class="fn">Microphone</span>(<span class="param">sample_rate</span>=<span class="const">16000</span>) <span class="kw">as</span> <span class="obj">mic</span>:
+    <span class="kw">for</span> <span class="param">chunk</span> <span class="kw">in</span> <span class="obj">mic</span>:
+        <span class="fn">print</span>(<span class="str">f"Got {len(chunk)} bytes"</span>)
+        <span class="kw">break</span></pre></div>
+        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+
+<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
+<span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Got ${chunk.length} bytes`</span>));
+<span class="fn">setTimeout</span>(() =&gt; <span class="obj">mic</span>.<span class="fn">stop</span>(), <span class="const">5000</span>);</pre></div>
+        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">capture</span>::{<span class="obj">AudioCapture</span>, <span class="obj">CaptureConfig</span>};
+
+<span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">AudioCapture</span>::<span class="fn">new</span>(<span class="obj">CaptureConfig</span>::<span class="fn">default</span>())?;
+    <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
+    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
+        <span class="fn">println!</span>(<span class="str">"Got {} bytes"</span>, <span class="param">chunk</span>.<span class="param">data</span>.<span class="fn">len</span>());
+    }
+    <span class="obj">Ok</span>(())
+}</pre></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Problem ── -->
+  <div class="container">
+    <section id="problem" class="fade-in">
+      <div class="section-label">The Problem</div>
+      <h2>Real-time audio capture and playback is harder than it should be</h2>
+      <div class="problem-grid">
+        <div class="problem-item">
+          <svg class="x-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Requires system audio tools, build tools, or both
+        </div>
+        <div class="problem-item">
+          <svg class="x-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Inconsistent install experience across Python, Node.js, and Rust
+        </div>
+        <div class="problem-item">
+          <svg class="x-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Inconsistent runtime behavior across macOS, Windows, and Linux
+        </div>
+        <div class="problem-item">
+          <svg class="x-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Painful setup for something that should be simple
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Features ── -->
+  <div class="container">
+    <section id="features" class="fade-in">
+      <div class="section-label">Why decibri</div>
+      <h2>Designed for real-time systems</h2>
+      <p class="section-desc">Built for real-time audio. Pre-built binaries for Python, Node.js, and Rust mean no compilers, no system audio libraries, and no setup.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>Cross-platform</h3>
+          <p>macOS, Windows, and Linux with pre-built binaries. No build tools required on any platform.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>Direct capture</h3>
+          <p>100ms audio chunks by default (1600 frames at 16kHz). cpal captures directly from the OS audio layer with no subprocess, no shell, and no intermediate encoding.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          </div>
+          <h3>Stream-native</h3>
+          <p>Python iterators, Node.js Readable streams, and Rust channels. Pipe to files, WebSockets, or voice agents using each language's native idioms.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Zero dependencies</h3>
+          <p>No system audio libraries, no build tools, no install scripts. Rust and cpal compiled into a single package per language.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <h3>Type-safe</h3>
+          <p>Bundled type definitions for Python (typing stubs), Node.js (TypeScript .d.ts), and Rust (native types). Full IDE autocomplete and inline documentation.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </div>
+          <h3>Configurable</h3>
+          <p>Sample rate, channels, frames per buffer, device selection by index or name, int16 or float32 output, and optional voice activity detection with speech/silence events.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </div>
+          <h3>Audio output</h3>
+          <p>Play audio through the system speaker. Decibri's Speaker API works as a standard write target you can pipe capture into for full duplex audio.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>ML voice detection</h3>
+          <p>Bundled Silero VAD v5 model for accurate speech detection in noisy environments. Runs locally in Rust via ONNX Runtime with no cloud API needed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Browser support</h3>
+          <p>The Node.js package ships with browser support out of the box. Conditional exports serve an AudioWorklet implementation when bundled for browsers.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Platforms ── -->
+  <div class="container">
+    <section id="platforms" class="fade-in">
+      <div class="section-label">Platform Support</div>
+      <h2>Pre-built binaries, zero setup</h2>
+      <p class="section-desc">Pre-compiled native binaries ship inside the package. No build tools, no compilation, no post-install downloads.</p>
+      <div class="platform-grid">
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.6L24 0v11.4H10.949M0 12.6h9.75v9.45L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg></div>
+          <div class="platform-name">Windows 11</div>
+          <div class="platform-arch">x64</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
+          <div class="platform-name">macOS</div>
+          <div class="platform-arch">arm64 (Apple Silicon)</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg></div>
+          <div class="platform-name">Linux</div>
+          <div class="platform-arch">x64</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.132 1.884 1.071.771-.06 1.592-.536 2.257-1.306.631-.765 1.683-1.084 2.378-1.503.348-.199.629-.469.649-.853.023-.4-.2-.811-.714-1.376v-.097l-.003-.003c-.17-.2-.25-.535-.338-.926-.085-.401-.182-.786-.492-1.046h-.003c-.059-.054-.123-.067-.188-.135a.357.357 0 00-.19-.064c.431-1.278.264-2.55-.173-3.694-.533-1.41-1.465-2.638-2.175-3.483-.796-1.005-1.576-1.957-1.56-3.368.026-2.152.236-6.133-3.544-6.139zm.529 3.405h.013c.213 0 .396.062.584.198.19.135.33.332.438.533.105.259.158.459.166.724 0-.02.006-.04.006-.06v.105a.086.086 0 01-.004-.021l-.004-.024a1.807 1.807 0 01-.15.706.953.953 0 01-.213.335.71.71 0 00-.088-.042c-.104-.045-.198-.064-.284-.133a1.312 1.312 0 00-.22-.066c.05-.06.146-.133.183-.198.053-.128.082-.264.088-.402v-.02a1.21 1.21 0 00-.061-.4c-.045-.134-.101-.2-.183-.333-.084-.066-.167-.132-.267-.132h-.016c-.093 0-.176.03-.262.132a.8.8 0 00-.205.334 1.18 1.18 0 00-.09.4v.019c.002.089.008.179.02.267-.193-.067-.438-.135-.607-.202a1.635 1.635 0 01-.018-.2v-.02a1.772 1.772 0 01.15-.768c.082-.22.232-.406.43-.533a.985.985 0 01.594-.2zm-2.962.059h.036c.142 0 .27.048.399.135.146.129.264.288.344.465.09.199.14.4.153.667v.004c.007.134.006.2-.002.266v.08c-.03.007-.056.018-.083.024-.152.055-.274.135-.393.2.012-.09.013-.18.003-.267v-.015c-.012-.133-.04-.2-.082-.333a.613.613 0 00-.166-.267.248.248 0 00-.183-.064h-.021c-.071.006-.13.04-.186.132a.552.552 0 00-.12.27.944.944 0 00-.023.33v.015c.012.135.037.2.08.334.046.134.098.2.166.268.01.009.02.018.034.024-.07.057-.117.07-.176.136a.304.304 0 01-.131.068 2.62 2.62 0 01-.275-.402 1.772 1.772 0 01-.155-.667 1.759 1.759 0 01.08-.668 1.43 1.43 0 01.283-.535c.128-.133.26-.2.418-.2zm1.37 1.706c.332 0 .733.065 1.216.399.293.2.523.269 1.052.468h.003c.255.136.405.266.478.399v-.131a.571.571 0 01.016.47c-.123.31-.516.643-1.063.842v.002c-.268.135-.501.333-.775.465-.276.135-.588.292-1.012.267a1.139 1.139 0 01-.448-.067 3.566 3.566 0 01-.322-.198c-.195-.135-.363-.332-.612-.465v-.005h-.005c-.4-.246-.616-.512-.686-.71-.07-.268-.005-.47.193-.6.224-.135.38-.271.483-.336.104-.074.143-.102.176-.131h.002v-.003c.169-.202.436-.47.839-.601.139-.036.294-.065.466-.065zm2.8 2.142c.358 1.417 1.196 3.475 1.735 4.473.286.534.855 1.659 1.102 3.024.156-.005.33.018.513.064.646-1.671-.546-3.467-1.089-3.966-.22-.2-.232-.335-.123-.335.59.534 1.365 1.572 1.646 2.757.13.535.16 1.104.021 1.67.067.028.135.06.205.067 1.032.534 1.413.938 1.23 1.537v-.043c-.06-.003-.12 0-.18 0h-.016c.151-.467-.182-.825-1.065-1.224-.915-.4-1.646-.336-1.77.465-.008.043-.013.066-.018.135-.068.023-.139.053-.209.064-.43.268-.662.669-.793 1.187-.13.533-.17 1.156-.205 1.869v.003c-.02.334-.17.838-.319 1.35-1.5 1.072-3.58 1.538-5.348.334a2.645 2.645 0 00-.402-.533 1.45 1.45 0 00-.275-.333c.182 0 .338-.03.465-.067a.615.615 0 00.314-.334c.108-.267 0-.697-.345-1.163-.345-.467-.931-.995-1.788-1.521-.63-.4-.986-.87-1.15-1.396-.165-.534-.143-1.085-.015-1.645.245-1.07.873-2.11 1.274-2.763.107-.065.037.135-.408.974-.396.751-1.14 2.497-.122 3.854a8.123 8.123 0 01.647-2.876c.564-1.278 1.743-3.504 1.836-5.268.048.036.217.135.289.202.218.133.38.333.59.465.21.201.477.335.876.335.039.003.075.006.11.006.412 0 .73-.134.997-.268.29-.134.52-.334.74-.4h.005c.467-.135.835-.402 1.044-.7zm2.185 8.958c.037.6.343 1.245.882 1.377.588.134 1.434-.333 1.791-.765l.211-.01c.315-.007.577.01.847.268l.003.003c.208.199.305.53.391.876.085.4.154.78.409 1.066.486.527.645.906.636 1.14l.003-.007v.018l-.003-.012c-.015.262-.185.396-.498.595-.63.401-1.746.712-2.457 1.57-.618.737-1.37 1.14-2.036 1.191-.664.053-1.237-.2-1.574-.898l-.005-.003c-.21-.4-.12-1.025.056-1.69.176-.668.428-1.344.463-1.897.037-.714.076-1.335.195-1.814.12-.465.308-.797.641-.984l.045-.022zm-10.814.049h.01c.053 0 .105.005.157.014.376.055.706.333 1.023.752l.91 1.664.003.003c.243.533.754 1.064 1.189 1.637.434.598.77 1.131.729 1.57v.006c-.057.744-.48 1.148-1.125 1.294-.645.135-1.52.002-2.395-.464-.968-.536-2.118-.469-2.857-.602-.369-.066-.61-.2-.723-.4-.11-.2-.113-.602.123-1.23v-.004l.002-.003c.117-.334.03-.752-.027-1.118-.055-.401-.083-.71.043-.94.16-.334.396-.4.69-.533.294-.135.64-.202.915-.47h.002v-.002c.256-.268.445-.601.668-.838.19-.201.38-.336.663-.336zm7.159-9.074c-.435.201-.945.535-1.488.535-.542 0-.97-.267-1.28-.466-.154-.134-.28-.268-.373-.335-.164-.134-.144-.333-.074-.333.109.016.129.134.199.2.096.066.215.2.36.333.292.2.68.467 1.167.467.485 0 1.053-.267 1.398-.466.195-.135.445-.334.648-.467.156-.136.149-.267.279-.267.128.016.034.134-.147.332a8.097 8.097 0 01-.69.468zm-1.082-1.583V5.64c-.006-.02.013-.042.029-.05.074-.043.18-.027.26.004.063 0 .16.067.15.135-.006.049-.085.066-.135.066-.055 0-.092-.043-.141-.068-.052-.018-.146-.008-.163-.065zm-.551 0c-.02.058-.113.049-.166.066-.047.025-.086.068-.14.068-.05 0-.13-.02-.136-.068-.01-.066.088-.133.15-.133.08-.031.184-.047.259-.005.019.009.036.03.03.05v.02h.003z"/></svg></div>
+          <div class="platform-name">Linux</div>
+          <div class="platform-arch">arm64</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Use Cases ── -->
+  <div class="container">
+    <section class="fade-in">
+      <div class="section-label">Use Cases</div>
+      <h2>Built for real-time voice applications</h2>
+      <div class="use-cases">
+        <div class="use-case"><span class="dot"></span> Real-time transcription</div>
+        <div class="use-case"><span class="dot"></span> Wake word detection</div>
+        <div class="use-case"><span class="dot"></span> Voice agents &amp; assistants</div>
+        <div class="use-case"><span class="dot"></span> Streaming audio pipelines</div>
+        <div class="use-case"><span class="dot"></span> Speech-to-text engines</div>
+        <div class="use-case"><span class="dot"></span> Audio monitoring</div>
+      </div>
+
+      <h3 class="example-heading">Record audio to disk</h3>
+      <p class="example-desc">Decibri provides a one-line <code>record_to_file()</code> helper for the simple case, and full streaming control when you need it. Set the sample rate to match your target format. No encoding step, no intermediate buffers.</p>
+
+      <div class="code-tabs hero-code-tabs" data-tab-group="use-cases" style="margin-top: 16px;">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+          <button type="button" class="code-copy-btn" onclick="copyHeroCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+
+        <div class="code-tab-panel" role="tabpanel" data-lang="python">
+<pre><span class="kw">import</span> <span class="obj">decibri</span>
+
+<span class="obj">decibri</span>.<span class="fn">record_to_file</span>(<span class="str">"capture.wav"</span>, <span class="param">duration_seconds</span>=<span class="const">10</span>, <span class="param">sample_rate</span>=<span class="const">16000</span>)</pre>
+        </div>
+
+        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden>
+<pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+<span class="kw">const</span> <span class="obj">fs</span> = <span class="fn">require</span>(<span class="str">'fs'</span>);
+
+<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span>, <span class="param">channels</span>: <span class="const">1</span> });
+<span class="obj">mic</span>.<span class="fn">pipe</span>(<span class="obj">fs</span>.<span class="fn">createWriteStream</span>(<span class="str">'capture.raw'</span>));</pre>
+        </div>
+
+        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden>
+<pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">capture</span>::{<span class="obj">AudioCapture</span>, <span class="obj">CaptureConfig</span>};
+<span class="kw">use</span> <span class="obj">std</span>::<span class="obj">fs</span>::<span class="obj">File</span>;
+<span class="kw">use</span> <span class="obj">std</span>::<span class="obj">io</span>::<span class="obj">Write</span>;
+
+<span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
+    <span class="kw">let</span> <span class="kw">mut</span> <span class="param">file</span> = <span class="obj">File</span>::<span class="fn">create</span>(<span class="str">"capture.raw"</span>)?;
+    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">AudioCapture</span>::<span class="fn">new</span>(<span class="obj">CaptureConfig</span>::<span class="fn">default</span>())?;
+    <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
+    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
+        <span class="param">file</span>.<span class="fn">write_all</span>(&amp;<span class="param">chunk</span>.<span class="param">data</span>)?;
+    }
+    <span class="obj">Ok</span>(())
+}</pre>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── When to use / Comparison ── -->
+  <div class="container">
+    <section id="compare" class="fade-in">
+      <div class="section-label">When to use decibri</div>
+      <h2>Audio infrastructure for real-time applications</h2>
+      <p class="when-to-use">Decibri sits between your application and the operating system. It captures from microphones, plays to speakers, and runs voice activity detection, all in real-time. Use it when you need predictable, low-latency audio I/O without managing system dependencies or platform differences.</p>
+
+      <h3 style="font-size: 16px; font-weight: 600; margin-top: 32px; margin-bottom: 16px; color: var(--text-primary);">Decibri is built for:</h3>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Real-time microphone capture in Python, Node.js, or Rust applications</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Streaming PCM audio to speech-to-text services, voice agents, or WebSocket pipelines</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Local wake word detection with bundled Silero VAD</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Recording audio to file for ASR batch jobs or CI smoke tests</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Cross-platform deployment (Windows, macOS, Linux) without system audio dependencies</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300;"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Server-side audio in voice agent backends, CLI tools, and edge devices</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Integrations ── -->
+  <div class="container">
+    <section class="fade-in">
+      <div class="section-label">Integrations</div>
+      <h2>Works with your existing stack</h2>
+      <p class="section-desc">Decibri outputs raw 16-bit PCM, the standard format expected by speech and audio processing engines. See the integration guides for working examples.</p>
+
+      <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 32px;">
+        <a href="/docs/integrations/stt/assemblyai" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M223.66 55.36c-28.561 0-54.267 17.56-64.633 44.217L25 444.64h101.869L232.44 172.99c2.645-6.664 9.097-11.319 16.714-11.319s14.069 4.654 16.714 11.319h14.069v-55.113h-26.128l24.33-62.518H223.66z" fill="#2545D3"/><path fill-rule="evenodd" clip-rule="evenodd" d="M159.027 99.577c9.944-25.494 33.956-42.736 61.142-44.111V55.36h3.491h39.14h13.434c28.561 0 54.267 17.56 64.633 44.217L475 444.64H371.439L241.432 109.944c-7.405-16.396-24.013-27.821-43.159-27.821-19.252 0-35.86 11.425-43.265 27.927l4.019-10.473z" fill="#566DE8"/></svg>
+          </div>
+          <h3>AssemblyAI</h3>
+          <p>Real-time cloud speech-to-text with turn-based transcription</p>
+        </a>
+<a href="/docs/integrations/stt/aws-transcribe" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg class="logo-dark" aria-hidden="true" viewBox="0 -51.5 256 204" xmlns="http://www.w3.org/2000/svg"><path d="M72.39 55.44c0 3.14.34 5.68.93 7.54.68 1.87 1.53 3.9 2.71 6.1.42.68.59 1.36.59 1.95 0 .85-.51 1.7-1.61 2.54l-5.34 3.56c-.76.51-1.53.76-2.21.76-.85 0-1.7-.42-2.54-1.19-1.19-1.27-2.21-2.63-3.05-3.98-.85-1.44-1.7-3.05-2.63-5-6.61 7.8-14.92 11.7-24.92 11.7-7.12 0-12.8-2.03-16.95-6.1-4.15-4.07-6.27-9.49-6.27-16.28 0-7.2 2.54-13.05 7.71-17.46 5.17-4.41 12.04-6.61 20.77-6.61 2.88 0 5.85.25 8.99.68 3.14.42 6.36 1.1 9.75 1.86v-6.19c0-6.44-1.36-10.93-3.98-13.56-2.72-2.63-7.29-3.9-13.82-3.9-2.97 0-6.02.34-9.15 1.1-3.14.76-6.19 1.7-9.15 2.88-1.36.59-2.38.93-2.97 1.1-.59.17-1.02.25-1.36.25-1.19 0-1.78-.85-1.78-2.63v-4.15c0-1.36.17-2.37.59-2.97.42-.59 1.19-1.19 2.37-1.78 2.97-1.53 6.53-2.8 10.68-3.81 4.15-1.1 8.56-1.61 13.22-1.61 10.09 0 17.46 2.29 22.21 6.87 4.66 4.58 7.03 11.53 7.03 20.85v27.46h.17zm-34.42 12.88c2.8 0 5.68-.51 8.73-1.53 3.05-1.02 5.76-2.88 8.05-5.43 1.36-1.61 2.37-3.39 2.88-5.43.51-2.03.85-4.49.85-7.37v-3.56c-2.46-.59-5.09-1.1-7.8-1.44-2.71-.34-5.34-.51-7.97-.51-5.68 0-9.83 1.1-12.63 3.39-2.8 2.29-4.15 5.51-4.15 9.75 0 3.98 1.02 6.95 3.14 8.99 2.03 2.12 4.99 3.14 8.9 3.14zm68.07 9.15c-1.53 0-2.54-.25-3.22-.85-.68-.51-1.27-1.7-1.78-3.31L81.12 7.8c-.51-1.7-.76-2.8-.76-3.39 0-1.36.68-2.12 2.03-2.12h8.31c1.61 0 2.71.25 3.31.85.68.51 1.19 1.7 1.7 3.31l14.24 56.12 13.22-56.12c.42-1.7.93-2.8 1.61-3.31.68-.51 1.87-.85 3.39-.85h6.78c1.61 0 2.71.25 3.39.85.68.51 1.27 1.7 1.61 3.31l13.39 56.79 14.66-56.79c.51-1.7 1.1-2.8 1.7-3.31.68-.51 1.78-.85 3.31-.85h7.88c1.36 0 2.12.68 2.12 2.12 0 .42-.08.85-.17 1.36-.08.51-.25 1.19-.59 2.12l-20.43 65.53c-.51 1.7-1.1 2.8-1.78 3.31-.68.51-1.78.85-3.22.85h-7.29c-1.61 0-2.71-.25-3.39-.85-.68-.59-1.27-1.7-1.61-3.39l-13.14-54.68-13.05 54.59c-.42 1.7-.93 2.8-1.61 3.39-.68.59-1.87.85-3.39.85h-7.29zm109.93 2.29c-4.41 0-8.81-.51-13.05-1.53-4.24-1.02-7.54-2.12-9.75-3.39-1.36-.76-2.29-1.61-2.63-2.37-.34-.76-.51-1.61-.51-2.37v-4.32c0-1.78.68-2.63 1.95-2.63.51 0 1.02.08 1.53.25.51.17 1.27.51 2.12.85 2.88 1.27 6.02 2.29 9.32 2.97 3.39.68 6.7 1.02 10.09 1.02 5.34 0 9.49-.93 12.37-2.8 2.88-1.86 4.41-4.58 4.41-8.05 0-2.37-.76-4.32-2.29-5.93-1.53-1.61-4.41-3.05-8.56-4.41l-12.29-3.81c-6.19-1.95-10.77-4.83-13.56-8.65-2.8-3.73-4.24-7.88-4.24-12.29 0-3.56.76-6.7 2.29-9.41 1.53-2.71 3.56-5.09 6.1-6.95 2.54-1.95 5.43-3.39 8.81-4.41 3.39-1.02 6.95-1.44 10.68-1.44 1.87 0 3.81.08 5.68.34 1.95.25 3.73.59 5.51.93 1.7.42 3.31.85 4.83 1.36 1.53.51 2.71 1.02 3.56 1.53 1.19.68 2.03 1.36 2.54 2.12.51.68.76 1.61.76 2.8v3.98c0 1.78-.68 2.71-1.95 2.71-.68 0-1.78-.34-3.22-1.02-4.83-2.2-10.25-3.31-16.27-3.31-4.83 0-8.65.76-11.27 2.37-2.63 1.61-3.98 4.07-3.98 7.54 0 2.37.85 4.41 2.54 6.02 1.7 1.61 4.83 3.22 9.32 4.66l12.04 3.81c6.1 1.95 10.51 4.66 13.14 8.14 2.63 3.48 3.9 7.46 3.9 11.87 0 3.64-.76 6.95-2.2 9.83-1.53 2.88-3.56 5.43-6.19 7.46-2.63 2.12-5.76 3.64-9.41 4.75-3.81 1.19-7.8 1.78-12.12 1.78z" fill="#fff" fill-rule="nonzero"/><path d="M230.99 120.96c-27.89 20.6-68.41 31.53-103.25 31.53-48.83 0-92.82-18.06-126.05-48.06-2.63-2.37-.25-5.6 2.88-3.73 35.94 20.85 80.28 33.48 126.14 33.48 30.94 0 64.93-6.44 96.21-19.67 4.66-2.12 8.65 3.05 4.07 6.44zm11.61-13.22c-3.56-4.58-23.57-2.2-32.64-1.1-2.71.34-3.14-2.03-.67-3.82 15.94-11.19 42.13-7.97 45.18-4.21 3.05 3.81-.85 30.01-15.77 42.55-2.29 1.95-4.49.93-3.48-1.61 3.39-8.39 10.94-27.3 7.38-31.79z" fill="#FF9900"/></svg>
+            <svg class="logo-light" aria-hidden="true" viewBox="0 -51.5 256 204" xmlns="http://www.w3.org/2000/svg"><path d="M72.39 55.44c0 3.14.34 5.68.93 7.54.68 1.87 1.53 3.9 2.71 6.1.42.68.59 1.36.59 1.95 0 .85-.51 1.7-1.61 2.54l-5.34 3.56c-.76.51-1.53.76-2.21.76-.85 0-1.7-.42-2.54-1.19-1.19-1.27-2.21-2.63-3.05-3.98-.85-1.44-1.7-3.05-2.63-5-6.61 7.8-14.92 11.7-24.92 11.7-7.12 0-12.8-2.03-16.95-6.1-4.15-4.07-6.27-9.49-6.27-16.28 0-7.2 2.54-13.05 7.71-17.46 5.17-4.41 12.04-6.61 20.77-6.61 2.88 0 5.85.25 8.99.68 3.14.42 6.36 1.1 9.75 1.86v-6.19c0-6.44-1.36-10.93-3.98-13.56-2.72-2.63-7.29-3.9-13.82-3.9-2.97 0-6.02.34-9.15 1.1-3.14.76-6.19 1.7-9.15 2.88-1.36.59-2.38.93-2.97 1.1-.59.17-1.02.25-1.36.25-1.19 0-1.78-.85-1.78-2.63v-4.15c0-1.36.17-2.37.59-2.97.42-.59 1.19-1.19 2.37-1.78 2.97-1.53 6.53-2.8 10.68-3.81 4.15-1.1 8.56-1.61 13.22-1.61 10.09 0 17.46 2.29 22.21 6.87 4.66 4.58 7.03 11.53 7.03 20.85v27.46h.17zm-34.42 12.88c2.8 0 5.68-.51 8.73-1.53 3.05-1.02 5.76-2.88 8.05-5.43 1.36-1.61 2.37-3.39 2.88-5.43.51-2.03.85-4.49.85-7.37v-3.56c-2.46-.59-5.09-1.1-7.8-1.44-2.71-.34-5.34-.51-7.97-.51-5.68 0-9.83 1.1-12.63 3.39-2.8 2.29-4.15 5.51-4.15 9.75 0 3.98 1.02 6.95 3.14 8.99 2.03 2.12 4.99 3.14 8.9 3.14zm68.07 9.15c-1.53 0-2.54-.25-3.22-.85-.68-.51-1.27-1.7-1.78-3.31L81.12 7.8c-.51-1.7-.76-2.8-.76-3.39 0-1.36.68-2.12 2.03-2.12h8.31c1.61 0 2.71.25 3.31.85.68.51 1.19 1.7 1.7 3.31l14.24 56.12 13.22-56.12c.42-1.7.93-2.8 1.61-3.31.68-.51 1.87-.85 3.39-.85h6.78c1.61 0 2.71.25 3.39.85.68.51 1.27 1.7 1.61 3.31l13.39 56.79 14.66-56.79c.51-1.7 1.1-2.8 1.7-3.31.68-.51 1.78-.85 3.31-.85h7.88c1.36 0 2.12.68 2.12 2.12 0 .42-.08.85-.17 1.36-.08.51-.25 1.19-.59 2.12l-20.43 65.53c-.51 1.7-1.1 2.8-1.78 3.31-.68.51-1.78.85-3.22.85h-7.29c-1.61 0-2.71-.25-3.39-.85-.68-.59-1.27-1.7-1.61-3.39l-13.14-54.68-13.05 54.59c-.42 1.7-.93 2.8-1.61 3.39-.68.59-1.87.85-3.39.85h-7.29zm109.93 2.29c-4.41 0-8.81-.51-13.05-1.53-4.24-1.02-7.54-2.12-9.75-3.39-1.36-.76-2.29-1.61-2.63-2.37-.34-.76-.51-1.61-.51-2.37v-4.32c0-1.78.68-2.63 1.95-2.63.51 0 1.02.08 1.53.25.51.17 1.27.51 2.12.85 2.88 1.27 6.02 2.29 9.32 2.97 3.39.68 6.7 1.02 10.09 1.02 5.34 0 9.49-.93 12.37-2.8 2.88-1.86 4.41-4.58 4.41-8.05 0-2.37-.76-4.32-2.29-5.93-1.53-1.61-4.41-3.05-8.56-4.41l-12.29-3.81c-6.19-1.95-10.77-4.83-13.56-8.65-2.8-3.73-4.24-7.88-4.24-12.29 0-3.56.76-6.7 2.29-9.41 1.53-2.71 3.56-5.09 6.1-6.95 2.54-1.95 5.43-3.39 8.81-4.41 3.39-1.02 6.95-1.44 10.68-1.44 1.87 0 3.81.08 5.68.34 1.95.25 3.73.59 5.51.93 1.7.42 3.31.85 4.83 1.36 1.53.51 2.71 1.02 3.56 1.53 1.19.68 2.03 1.36 2.54 2.12.51.68.76 1.61.76 2.8v3.98c0 1.78-.68 2.71-1.95 2.71-.68 0-1.78-.34-3.22-1.02-4.83-2.2-10.25-3.31-16.27-3.31-4.83 0-8.65.76-11.27 2.37-2.63 1.61-3.98 4.07-3.98 7.54 0 2.37.85 4.41 2.54 6.02 1.7 1.61 4.83 3.22 9.32 4.66l12.04 3.81c6.1 1.95 10.51 4.66 13.14 8.14 2.63 3.48 3.9 7.46 3.9 11.87 0 3.64-.76 6.95-2.2 9.83-1.53 2.88-3.56 5.43-6.19 7.46-2.63 2.12-5.76 3.64-9.41 4.75-3.81 1.19-7.8 1.78-12.12 1.78z" fill="#252F3E" fill-rule="nonzero"/><path d="M230.99 120.96c-27.89 20.6-68.41 31.53-103.25 31.53-48.83 0-92.82-18.06-126.05-48.06-2.63-2.37-.25-5.6 2.88-3.73 35.94 20.85 80.28 33.48 126.14 33.48 30.94 0 64.93-6.44 96.21-19.67 4.66-2.12 8.65 3.05 4.07 6.44zm11.61-13.22c-3.56-4.58-23.57-2.2-32.64-1.1-2.71.34-3.14-2.03-.67-3.82 15.94-11.19 42.13-7.97 45.18-4.21 3.05 3.81-.85 30.01-15.77 42.55-2.29 1.95-4.49.93-3.48-1.61 3.39-8.39 10.94-27.3 7.38-31.79z" fill="#FF9900"/></svg>
+          </div>
+          <h3>AWS Transcribe</h3>
+          <p>Real-time cloud speech-to-text with Amazon Transcribe streaming</p>
+        </a>
+<a href="/docs/integrations/stt/azure" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M33.338 3.003h29.591L32.211 94.071a4.712 4.712 0 01-4.47 3.211H4.711a4.71 4.71 0 01-4.464-6.222L28.867 6.211A4.712 4.712 0 0133.337 3v.003z" fill="url(#az1)"/><path d="M87.887 97.283H61.316a4.54 4.54 0 01-.885-.084 4.38 4.38 0 01-.854-.246 4.467 4.467 0 01-.792-.401 4.32 4.32 0 01-.704-.457L27.929 67.849a1.88 1.88 0 011.483-3.276l0 .486 46.923 0 11.549 33.197.003.027z" fill="#0078D4"/><path d="M63.035 3.003L42.321 64.093l33.845-.008 11.61 33.198H61.305a4.7 4.7 0 01-.818-.076 4.56 4.56 0 01-.792-.22 4.56 4.56 0 01-1.42-.786L37.921 77.181l-5.698 16.804a4.71 4.71 0 01-8.005 1.893 4.71 4.71 0 01-.443-.612A4.71 4.71 0 0123.49 93.6a4.71 4.71 0 01.234-2.228L52.344 6.524a4.72 4.72 0 014.48-3.524h6.211z" fill="url(#az2)"/><path d="M99.752 91.061a4.71 4.71 0 01-4.461 6.222H62.311a4.71 4.71 0 004.461-6.222L38.156 6.209A4.72 4.72 0 0142.635 3h24.036a4.72 4.72 0 014.48 3.21l28.62 84.85z" fill="url(#az3)"/><defs><linearGradient id="az1" x1="44.138" y1="9.99" x2="13.386" y2="100.834" gradientUnits="userSpaceOnUse"><stop stop-color="#114A8B"/><stop offset="1" stop-color="#0669BC"/></linearGradient><linearGradient id="az2" x1="53.726" y1="52.318" x2="46.613" y2="54.731" gradientUnits="userSpaceOnUse"><stop stop-opacity="0.3"/><stop offset="0.1" stop-opacity="0.2"/><stop offset="0.3" stop-opacity="0.1"/><stop offset="0.6" stop-opacity="0.1"/><stop offset="1" stop-opacity="0"/></linearGradient><linearGradient id="az3" x1="49.8" y1="7.34" x2="83.553" y2="97.259" gradientUnits="userSpaceOnUse"><stop stop-color="#3CCBF4"/><stop offset="1" stop-color="#2892DF"/></linearGradient></defs></svg>
+          </div>
+          <h3>Azure</h3>
+          <p>Real-time cloud speech-to-text with Azure Speech-to-Text</p>
+        </a>
+<a href="/docs/integrations/stt/deepgram" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="0 0 321 321" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M161.192 261.317H80.2c-2.711 0-4.067-3.272-2.163-5.19L130.209 203.663a3.047 3.047 0 012.163-.898h29.445c22.758 0 42.012-17.793 42.697-40.517.701-23.622-18.325-43.043-41.798-43.043H131.169v38.848a3.044 3.044 0 01-3.047 3.044H75.615a3.044 3.044 0 01-3.047-3.044V63.681a3.044 3.044 0 013.047-3.044h87.101c55.889 0 101.267 45.859 100.414 101.9-.838 55.052-46.825 98.78-101.938 98.78z" fill="currentColor"/></svg>
+          </div>
+          <h3>Deepgram</h3>
+          <p>Real-time cloud speech-to-text with Deepgram's Nova-3 model</p>
+        </a>
+<a href="/docs/integrations/stt/google" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#gc)"><path d="M63.453 32.162h3.052l8.693-8.694.428-3.688C59.45 5.503 34.757 7.041 20.48 23.217c-3.97 4.493-6.849 9.838-8.417 15.622 .968-.398 2.041-.461 3.052-.184l17.382-2.867s.885-1.463 1.341-1.371c7.734-8.492 20.749-9.482 29.677-2.255h-.063z" fill="#EA4335"/><path d="M87.58 38.839c-2-6.356-6.099-12.971-11.804-18.03L63.579 32.007c5.151 4.208 8.085 10.55 7.96 17.203v2.167c6 0 10.856 4.862 10.856 10.856s-4.862 10.856-10.856 10.856H49.822l-2.167 2.197v13.023l2.167 2.167h21.717c12.449.097 23.494-7.972 27.191-19.86 3.688-11.891-.797-24.802-11.108-31.777z" fill="#4285F4"/><path d="M28.076 90.354h21.717V72.972H28.076c-1.547 0-3.077-.331-4.485-.976l-3.052.943-8.752 8.694-.763 3.051c4.909 3.706 10.898 5.697 17.052 5.672z" fill="#34A853"/><path d="M28.076 33.96C16.012 34.031 5.328 41.756 1.48 53.187c-3.848 11.43.098 24.047 9.548 31.4l12.596-12.596c-5.466-2.469-7.893-8.899-5.424-14.365 2.469-5.466 8.899-7.893 14.365-5.424 2.406 1.09 4.334 3.018 5.424 5.424l12.596-12.596c-5.361-7.004-13.69-11.1-22.509-11.07z" fill="#FBBC05"/></g><defs><clipPath id="gc"><rect width="100" height="80.475" fill="white" transform="translate(0 10)"/></clipPath></defs></svg>
+          </div>
+          <h3>Google</h3>
+          <p>Real-time cloud speech-to-text with Google Cloud Speech-to-Text</p>
+        </a>
+<a href="/docs/integrations/stt/mistral-voxtral" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="0 0 162 162" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="162" height="18" fill="#FFD700"/><rect y="36" width="162" height="18" fill="#FFAF00"/><rect y="72" width="162" height="18" fill="#FF8205"/><rect y="108" width="162" height="18" fill="#FA500F"/><rect y="144" width="162" height="18" fill="#E92700"/><rect y="18" width="162" height="18" fill="#FFAF00"/><rect y="54" width="162" height="18" fill="#FF8205"/><rect y="90" width="162" height="18" fill="#FF8205"/><rect y="126" width="162" height="18" fill="#FA500F"/><rect x="36" y="36" width="18" height="18" fill="white"/><rect y="108" width="18" height="18" fill="#F1370A"/><rect y="126" width="18" height="18" fill="#E91E05"/><rect width="18" height="18" fill="#FFD700"/><rect y="144" width="18" height="18" fill="#E10500"/><rect y="18" width="18" height="18" fill="#FEBC03"/><rect x="18" y="126" width="18" height="18" fill="#E91E05"/><rect x="18" width="18" height="18" fill="#FFD700"/><rect x="18" y="144" width="18" height="18" fill="#E10500"/><rect x="18" y="18" width="18" height="18" fill="#FEBC03"/><rect x="36" y="126" width="18" height="18" fill="#E91E05"/><rect x="36" width="18" height="18" fill="#FFD700"/><rect x="36" y="144" width="18" height="18" fill="#E10500"/><rect x="36" y="18" width="18" height="18" fill="#FEBC03"/><rect x="54" y="126" width="18" height="18" fill="#E91E05"/><rect x="54" width="18" height="18" fill="#FFD700"/><rect x="54" y="144" width="18" height="18" fill="#E10500"/><rect x="54" y="18" width="18" height="18" fill="#FEBC03"/><rect x="72" y="126" width="18" height="18" fill="#E91E05"/><rect x="72" width="18" height="18" fill="#FFD700"/><rect x="72" y="144" width="18" height="18" fill="#E10500"/><rect x="72" y="18" width="18" height="18" fill="#FEBC03"/><rect x="90" y="126" width="18" height="18" fill="#E91E05"/><rect x="90" width="18" height="18" fill="#FFD700"/><rect x="90" y="144" width="18" height="18" fill="#E10500"/><rect x="90" y="18" width="18" height="18" fill="#FEBC03"/><rect x="108" y="126" width="18" height="18" fill="#E91E05"/><rect x="108" width="18" height="18" fill="#FFD700"/><rect x="108" y="144" width="18" height="18" fill="#E10500"/><rect x="108" y="18" width="18" height="18" fill="#FEBC03"/><rect x="126" y="126" width="18" height="18" fill="#E91E05"/><rect x="126" width="18" height="18" fill="#FFD700"/><rect x="126" y="144" width="18" height="18" fill="#E10500"/><rect x="126" y="18" width="18" height="18" fill="#FEBC03"/><rect x="144" y="126" width="18" height="18" fill="#E91E05"/><rect x="144" width="18" height="18" fill="#FFD700"/><rect x="144" y="144" width="18" height="18" fill="#E10500"/><rect x="144" y="18" width="18" height="18" fill="#FEBC03"/><rect y="90" width="18" height="18" fill="#FA500F"/><rect x="126" y="90" width="18" height="18" fill="#FA500F"/><rect y="72" width="18" height="18" fill="#FB6B0C"/><rect x="126" y="72" width="18" height="18" fill="#FB6B0C"/><rect y="54" width="18" height="18" fill="#FC8609"/><rect x="126" y="54" width="18" height="18" fill="#FC8609"/><rect y="36" width="18" height="18" fill="#FDA106"/><rect x="126" y="36" width="18" height="18" fill="#FDA106"/><rect x="18" y="90" width="18" height="18" fill="#FA500F"/><rect x="144" y="90" width="18" height="18" fill="#FA500F"/><rect x="144" y="108" width="18" height="18" fill="#F1370A"/><rect x="18" y="72" width="18" height="18" fill="#FB6B0C"/><rect x="144" y="72" width="18" height="18" fill="#FB6B0C"/><rect x="18" y="54" width="18" height="18" fill="#FC8609"/><rect x="144" y="54" width="18" height="18" fill="#FC8609"/><rect x="18" y="36" width="18" height="18" fill="#FDA106"/><rect x="144" y="36" width="18" height="18" fill="#FDA106"/><rect x="54" y="90" width="18" height="18" fill="#FA500F"/><rect x="72" y="108" width="18" height="18" fill="#F1370A"/><rect x="90" y="90" width="18" height="18" fill="#FA500F"/><rect x="72" y="54" width="18" height="18" fill="#FC8609"/><rect x="54" y="36" width="18" height="18" fill="#FDA106"/><rect x="72" y="36" width="18" height="18" fill="#FDA106"/><rect x="90" y="36" width="18" height="18" fill="#FDA106"/><rect x="108" y="36" width="18" height="18" fill="white"/><rect x="72" y="90" width="18" height="18" fill="white"/><rect x="36" y="90" width="18" height="18" fill="white"/><rect x="108" y="90" width="18" height="18" fill="white"/><rect x="36" y="54" width="36" height="18" fill="white"/><rect x="18" y="108" width="54" height="18" fill="white"/><rect x="90" y="108" width="54" height="18" fill="white"/><rect x="36" y="72" width="90" height="18" fill="white"/><rect x="90" y="54" width="36" height="18" fill="white"/></svg>
+          </div>
+          <h3>Mistral</h3>
+          <p>Real-time cloud speech-to-text with Voxtral open-weights model</p>
+        </a>
+<a href="/docs/integrations/stt/openai" class="feature-card cloud" style="text-decoration:none;">
+          <span class="feature-pill cloud">Cloud</span>
+          <div class="feature-icon" style="background:transparent">
+            <svg aria-hidden="true" viewBox="118 120 485 480" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M304.246 295.411V249.828c0-3.839 1.441-6.719 4.798-8.637l91.648-52.779c12.475-7.197 27.35-10.554 42.702-10.554 57.577 0 94.046 44.624 94.046 92.124 0 3.358 0 7.197-.481 11.036l-94.524-55.66c-5.757-3.358-11.517-3.358-17.274 0L304.246 295.411zm213.999 177.534V364.024c0-6.72-2.881-11.517-8.637-14.875L389.174 279.096l39.345-22.553c3.358-1.917 6.238-1.917 9.596 0l91.647 52.78c26.392 15.356 44.143 47.981 44.143 79.648 0 36.465-21.59 70.053-55.66 83.97zM275.937 376.982l-39.345-23.03c-3.357-1.918-4.798-4.798-4.798-8.637V239.756c0-51.34 39.345-90.208 92.606-90.208 20.155 0 38.864 6.72 54.702 18.714l-94.524 54.702c-5.756 3.357-8.636 8.155-8.636 14.874v139.148l-.005-.004zm84.689 48.94l-56.38-31.667V327.083l56.38-31.667 56.376 31.667v67.172l-56.376 31.667zm36.226 145.867c-20.154 0-38.863-6.719-54.701-18.714l94.523-54.701c5.757-3.357 8.637-8.155 8.637-14.875V344.352l39.827 23.03c3.357 1.917 4.798 4.797 4.798 8.636v105.559c0 51.34-39.827 90.208-93.084 90.208v.004zM283.134 464.79l-91.648-52.78c-26.392-15.356-44.143-47.981-44.143-79.648 0-36.946 22.072-70.053 56.137-83.969v109.398c0 6.719 2.881 11.517 8.637 14.874l120.034 69.572-39.345 22.553c-3.357 1.917-6.238 1.917-9.596 0l-.076.004-.004-.008.004.004zm-5.275 78.69c-54.22 0-94.046-40.785-94.046-91.166 0-3.839.481-7.678.958-11.517l94.523 54.701c5.757 3.358 11.517 3.358 17.274 0l120.434-69.571v45.582c0 3.839-1.44 6.719-4.798 8.636l-91.647 52.78c-12.476 7.196-27.351 10.554-42.703 10.554h.005zm118.993 57.096c58.059 0 106.518-41.263 117.558-95.964 53.739-13.916 88.286-64.297 88.286-115.636 0-33.589-14.393-66.214-40.304-89.726 2.399-10.077 3.839-20.154 3.839-30.226 0-68.613-55.66-119.957-119.957-119.957-12.952 0-25.428 1.917-37.904 6.238-21.595-21.113-51.344-34.547-83.974-34.547-58.058 0-106.517 41.262-117.557 95.963-53.739 13.916-88.286 64.297-88.286 115.636 0 33.589 14.393 66.214 40.304 89.726-2.399 10.077-3.839 20.154-3.839 30.226 0 68.613 55.66 119.957 119.957 119.957 12.953 0 25.429-1.917 37.905-6.238 21.59 21.113 51.339 34.548 83.969 34.548z" fill="currentColor"/></svg>
+          </div>
+          <h3>OpenAI</h3>
+          <p>Real-time cloud speech-to-text with OpenAI's Realtime API</p>
+        </a>
+<a href="/docs/integrations/stt/sherpa-onnx" class="feature-card local" style="text-decoration:none;">
+          <span class="feature-pill local">Local</span>
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h3>Sherpa-ONNX</h3>
+          <p>Speech-to-text, keyword spotting, and voice activity detection, all offline</p>
+        </a>
+<a href="/docs/integrations/stt/whisper-cpp" class="feature-card local" style="text-decoration:none;">
+          <span class="feature-pill local">Local</span>
+          <div class="feature-icon">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </div>
+          <h3>Whisper.cpp</h3>
+          <p>Local speech-to-text transcription with OpenAI's Whisper model</p>
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: var(--text-muted); margin-top: 24px;">Decibri outputs raw PCM, the standard format used by Vosk, openWakeWord, and any audio processing engine.</p>
+
+      <div style="margin-top: 24px;">
+        <a href="/docs/" class="btn-secondary" style="display: inline-flex; font-size: 13px; padding: 10px 20px;">View all docs &rarr;</a>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Built with decibri ── -->
+  <div class="container">
+    <section class="fade-in">
+      <div class="section-label">Built with decibri</div>
+      <h2>Products powered by Decibri</h2>
+      <p class="section-desc">Tools that use decibri as their audio capture layer. From voice agents to wake phrase detection.</p>
+
+      <div class="built-with-grid">
+
+        <!-- voxagent -->
+        <a href="https://voxagent.run" class="built-with-card voxagent-card" target="_blank" rel="noopener noreferrer">
+          <div class="built-with-header">
+            <div class="built-with-logo voxagent-logo">
+              <svg width="28" height="28" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <text x="16" y="24" font-family="Outfit, sans-serif" font-size="26" font-weight="700" fill="#e8913a" text-anchor="middle">V</text>
+              </svg>
+            </div>
+            <div class="built-with-name">vox<span class="highlight-amber">agent</span></div>
+          </div>
+          <p class="built-with-desc">Voice-powered terminal agent. Speak commands, get answers. Fully offline using whisper.cpp for local transcription and Ollama for local LLM inference. No cloud, no API keys.</p>
+          <div class="built-with-stack">
+            <span class="stack-tag">decibri</span>
+            <span class="stack-separator">+</span>
+            <span class="stack-tag">whisper.cpp</span>
+            <span class="stack-separator">+</span>
+            <span class="stack-tag">Ollama</span>
+          </div>
+          <div class="built-with-footer">
+            <span class="built-with-url">voxagent.run <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+            <span class="built-with-type type-cli">CLI tool</span>
+          </div>
+        </a>
+
+        <!-- Wake Word -->
+        <a href="https://wakeword.io" class="built-with-card wakeword-card" target="_blank" rel="noopener noreferrer">
+          <div class="built-with-header">
+            <div class="built-with-logo wakeword-logo">
+              <svg viewBox="0 0 1024 1024" width="26" height="26" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="#007CFE" stroke="none">
+                  <path d="M4905 8909 c-22 -4 -91 -15 -154 -24 -79 -10 -128 -23 -160 -40 -25 -14 -76 -34 -112 -45 -37 -11 -73 -27 -80 -37 -8 -9 -41 -29 -74 -45 -76 -36 -153 -97 -271 -215 -104 -104 -164 -178 -209 -258 -16 -29 -38 -62 -47 -72 -10 -11 -26 -44 -37 -74 -10 -30 -30 -77 -44 -105 -14 -28 -31 -82 -38 -120 -6 -38 -21 -103 -33 -144 -21 -74 -21 -88 -24 -1292 -3 -1306 -5 -1232 48 -1517 15 -81 31 -132 56 -178 19 -36 34 -73 34 -83 0 -10 16 -41 36 -69 19 -29 38 -61 42 -72 4 -11 22 -39 40 -62 18 -23 47 -62 65 -86 50 -70 241 -233 326 -281 14 -8 48 -27 76 -43 46 -27 114 -53 270 -105 52 -17 126 -31 330 -63 82 -12 274 -9 355 6 41 8 122 21 180 30 66 10 127 27 165 45 33 15 86 35 117 44 31 9 60 21 64 27 4 6 35 24 70 40 34 16 65 33 69 39 3 6 30 25 59 44 68 43 257 232 300 301 19 29 39 56 45 59 5 4 19 30 30 60 11 29 31 70 45 90 13 20 29 59 35 86 6 28 22 77 36 109 13 33 29 90 35 128 7 46 10 507 8 1418 l-3 1350 -28 75 c-16 41 -37 107 -46 145 -10 39 -29 88 -44 110 -14 22 -32 56 -38 75 -7 19 -24 51 -39 70 -15 19 -33 46 -40 59 -41 78 -235 281 -325 339 -22 15 -57 41 -78 59 -20 18 -43 33 -50 33 -6 0 -41 18 -77 40 -36 22 -73 40 -84 40 -10 0 -55 16 -99 36 -63 29 -104 40 -191 50 -61 8 -133 18 -159 24 -56 12 -294 11 -352 -1z"/>
+                  <path d="M1281 8012 c-36 -37 -78 -88 -94 -112 -15 -25 -37 -60 -50 -78 -61 -91 -85 -131 -101 -172 -10 -25 -26 -54 -37 -65 -10 -12 -27 -46 -38 -77 -11 -32 -31 -76 -45 -100 -13 -24 -30 -65 -37 -93 -7 -27 -24 -75 -40 -105 -15 -31 -33 -85 -40 -120 -7 -36 -24 -96 -39 -135 -17 -42 -34 -119 -44 -190 -9 -66 -26 -158 -37 -204 -25 -106 -39 -273 -39 -464 0 -193 16 -367 45 -492 13 -55 29 -140 35 -190 6 -50 24 -121 40 -160 15 -39 33 -98 40 -130 6 -33 24 -85 40 -115 15 -30 33 -75 40 -100 6 -25 22 -62 36 -82 13 -21 32 -59 42 -85 10 -26 33 -70 50 -97 18 -28 32 -55 32 -61 0 -7 13 -30 29 -52 16 -22 37 -55 46 -74 23 -44 141 -177 180 -201 23 -15 44 -18 92 -16 46 3 70 10 90 26 16 12 45 31 66 42 58 32 135 116 143 156 11 60 -4 122 -40 162 -19 20 -43 56 -55 79 -11 23 -26 45 -31 48 -6 4 -24 32 -39 63 -15 32 -40 75 -54 96 -15 21 -27 45 -27 54 0 8 -17 47 -39 86 -21 39 -42 89 -46 111 -3 22 -18 59 -31 83 -14 23 -36 91 -49 150 -13 59 -33 139 -44 177 -37 122 -51 492 -31 820 7 123 16 180 36 245 14 47 32 122 39 166 7 45 26 110 41 145 15 35 35 94 44 131 10 37 27 79 39 94 12 15 29 52 37 83 9 31 27 70 40 88 13 17 32 51 41 75 20 49 62 119 110 181 42 55 113 192 113 218 0 11 -5 30 -11 41 -26 49 -85 116 -131 148 -89 62 -108 70 -182 70 l-69 0 -66 -68z"/>
+                  <path d="M8694 8062 c-109 -60 -208 -153 -219 -203 -10 -47 3 -114 30 -151 14 -18 33 -46 42 -61 10 -15 35 -51 56 -79 20 -27 37 -56 37 -62 0 -7 16 -35 35 -62 19 -27 40 -65 46 -84 6 -19 24 -55 39 -80 16 -25 34 -65 40 -90 7 -25 25 -67 40 -95 16 -27 32 -68 35 -90 4 -22 22 -78 40 -125 19 -47 39 -124 45 -170 6 -46 13 -87 15 -90 2 -3 15 -61 30 -130 24 -115 26 -144 27 -370 0 -249 -8 -343 -42 -480 -10 -41 -24 -113 -30 -160 -6 -47 -22 -109 -36 -139 -13 -30 -33 -89 -44 -132 -10 -43 -30 -95 -44 -117 -13 -22 -30 -59 -36 -83 -6 -24 -24 -62 -39 -84 -15 -22 -33 -54 -38 -71 -6 -17 -27 -52 -47 -78 -20 -26 -36 -54 -36 -62 0 -8 -15 -31 -34 -51 -36 -41 -86 -132 -86 -158 0 -51 79 -142 184 -213 55 -36 80 -47 122 -50 29 -2 65 -2 79 2 24 6 135 110 135 127 0 4 14 24 30 43 17 18 37 51 46 72 9 22 29 55 44 75 16 19 32 48 36 63 3 15 21 49 40 75 18 27 38 68 44 92 6 24 22 61 36 81 13 20 33 72 45 115 11 43 29 93 41 110 11 18 26 70 34 115 8 46 27 122 43 169 21 59 33 122 40 205 6 65 17 155 24 199 18 121 15 482 -6 655 -9 80 -21 181 -26 226 -6 44 -19 107 -31 140 -12 32 -30 102 -40 156 -10 53 -30 118 -43 145 -13 26 -30 73 -37 103 -7 30 -25 78 -40 105 -16 28 -34 70 -40 95 -7 25 -27 70 -46 100 -19 31 -34 63 -34 72 0 8 -15 38 -33 64 -19 27 -44 69 -55 94 -12 25 -32 59 -45 76 -12 18 -30 45 -39 60 -31 50 -91 120 -141 163 -44 38 -53 41 -105 41 -36 0 -69 -7 -88 -18z"/>
+                  <path d="M2171 7373 c-47 -14 -59 -24 -112 -91 -32 -41 -59 -80 -59 -87 0 -7 -15 -35 -33 -61 -19 -27 -42 -74 -52 -104 -10 -30 -28 -71 -41 -90 -12 -19 -28 -62 -34 -95 -7 -32 -25 -91 -41 -130 -21 -54 -33 -112 -49 -241 -43 -362 -44 -367 -32 -465 56 -467 52 -444 90 -529 10 -25 25 -70 31 -100 6 -30 24 -80 40 -110 16 -30 34 -73 41 -95 7 -22 23 -54 36 -72 14 -18 33 -51 43 -75 11 -24 42 -67 70 -96 l51 -54 88 4 c82 3 93 6 143 38 30 20 66 41 81 49 28 14 78 96 78 127 0 34 -45 149 -72 185 -14 18 -32 54 -38 79 -7 25 -25 70 -41 101 -17 31 -34 85 -40 120 -5 35 -21 105 -35 154 -14 52 -29 147 -36 225 -9 103 -9 166 1 270 6 75 21 164 32 199 11 36 26 103 34 150 9 47 27 108 41 135 15 28 33 73 41 100 8 28 26 66 39 83 14 18 31 51 39 74 8 23 28 60 45 82 57 77 33 143 -92 249 -43 37 -72 52 -129 68 -40 11 -74 20 -74 19 0 0 -24 -8 -54 -16z"/>
+                  <path d="M7875 7363 c-27 -8 -64 -28 -81 -43 -18 -15 -46 -36 -63 -46 -35 -21 -71 -89 -71 -134 0 -40 31 -120 63 -162 15 -19 33 -53 42 -77 8 -23 24 -54 35 -68 11 -14 28 -51 36 -82 9 -31 29 -85 44 -121 16 -36 31 -87 35 -115 4 -27 18 -117 31 -200 13 -82 24 -191 24 -241 0 -50 -9 -152 -20 -225 -12 -74 -25 -168 -31 -209 -6 -41 -23 -104 -39 -140 -16 -36 -36 -90 -44 -121 -9 -31 -25 -67 -36 -82 -30 -38 -83 -167 -83 -203 -1 -42 49 -112 103 -146 89 -56 127 -69 199 -70 37 0 77 3 88 6 27 9 119 133 138 186 8 22 25 55 39 73 14 18 30 54 36 80 5 26 23 71 39 100 16 29 35 81 41 117 6 36 22 99 35 140 14 41 30 111 36 155 16 109 16 625 0 734 -7 46 -23 112 -35 145 -13 34 -29 93 -35 131 -7 39 -23 89 -37 112 -13 23 -33 69 -43 102 -10 32 -28 72 -39 88 -11 16 -32 53 -46 83 -32 66 -84 141 -134 193 -56 57 -129 70 -227 40z"/>
+                  <path d="M2928 6547 c-15 -7 -42 -34 -60 -62 l-33 -50 0 -635 0 -635 28 -210 c23 -166 34 -224 57 -275 15 -36 33 -92 40 -125 6 -33 23 -79 37 -103 13 -24 33 -68 44 -99 10 -31 26 -64 34 -73 8 -9 28 -44 45 -77 16 -34 34 -64 40 -68 6 -3 22 -27 35 -53 65 -120 265 -331 495 -520 19 -16 53 -39 76 -50 22 -11 46 -28 54 -37 7 -9 35 -25 61 -36 26 -12 55 -30 65 -40 10 -11 41 -26 70 -35 28 -8 71 -28 95 -43 24 -16 69 -34 99 -40 30 -7 80 -24 110 -38 31 -15 102 -34 162 -44 59 -10 126 -23 150 -28 24 -6 64 -13 89 -16 29 -4 54 -14 65 -26 18 -20 19 -52 22 -635 2 -604 2 -614 -18 -634 -20 -20 -31 -20 -610 -20 -437 0 -596 -3 -615 -12 -18 -8 -40 -37 -63 -83 -35 -67 -37 -75 -37 -171 0 -92 3 -105 30 -160 26 -51 38 -63 84 -86 l55 -28 1474 0 c1631 0 1498 -5 1579 65 l38 33 3 134 c3 81 -1 151 -8 177 -6 25 -28 61 -50 85 l-39 41 -594 5 c-567 5 -596 6 -616 24 -21 19 -21 22 -21 627 l0 607 31 26 c17 14 34 26 37 26 4 0 50 9 102 19 52 11 133 25 180 31 48 7 113 24 150 40 36 15 93 35 126 43 34 9 79 27 99 41 21 14 56 31 78 37 22 6 62 26 89 45 28 19 56 34 63 34 8 0 34 15 58 34 25 19 60 42 79 52 45 23 157 117 261 219 119 116 287 321 287 348 0 7 16 31 35 55 18 24 39 60 46 80 6 20 24 55 40 77 15 22 35 67 44 100 9 33 25 74 36 91 11 18 28 72 38 120 11 49 31 123 45 166 40 119 47 286 44 1024 l-3 651 -27 35 c-15 19 -43 43 -63 52 -30 15 -60 17 -170 14 -116 -3 -137 -6 -161 -24 -15 -11 -37 -33 -48 -48 -21 -27 -21 -40 -26 -744 l-5 -717 -27 -80 c-15 -44 -32 -111 -39 -150 -6 -39 -24 -92 -39 -120 -16 -27 -34 -70 -40 -95 -7 -25 -24 -61 -40 -80 -15 -19 -31 -45 -34 -58 -4 -12 -23 -42 -41 -66 -19 -25 -41 -58 -49 -75 -20 -39 -246 -267 -306 -309 -25 -17 -67 -44 -94 -59 -27 -16 -63 -40 -80 -54 -17 -14 -51 -33 -76 -41 -25 -8 -62 -27 -83 -41 -21 -14 -63 -31 -93 -37 -31 -7 -83 -24 -117 -40 -42 -19 -92 -32 -157 -40 -52 -6 -131 -18 -175 -28 -117 -24 -438 -23 -559 1 -49 10 -127 23 -173 28 -56 6 -102 18 -136 35 -28 15 -81 35 -118 45 -37 10 -84 30 -104 43 -20 14 -53 30 -73 37 -20 6 -48 22 -62 35 -14 12 -43 30 -65 40 -22 9 -57 32 -78 50 -20 19 -41 34 -46 34 -15 0 -258 246 -284 287 -14 21 -32 45 -42 53 -9 8 -27 37 -39 65 -13 27 -30 56 -39 63 -9 8 -26 39 -37 70 -12 32 -31 72 -43 91 -11 19 -30 70 -43 115 -12 45 -31 106 -42 137 -12 32 -27 104 -33 160 -7 61 -14 373 -18 754 l-6 651 -38 46 c-21 26 -52 51 -69 57 -42 15 -266 13 -300 -2z"/>
+                </g>
+              </svg>
+            </div>
+            <div class="built-with-name">Wake <span class="highlight-blue">Word</span></div>
+          </div>
+          <p class="built-with-desc">Voice activation for code editors. Say "Hey Claude" and Claude opens. Say "Hey Copilot" and Copilot opens. Fully local wake phrase detection using sherpa-onnx. Zero config.</p>
+          <div class="built-with-stack">
+            <span class="stack-tag">decibri</span>
+            <span class="stack-separator">+</span>
+            <span class="stack-tag">sherpa-onnx</span>
+            <span class="stack-separator">+</span>
+            <span class="stack-tag">VS Code API</span>
+          </div>
+          <div class="built-with-footer">
+            <span class="built-with-url">wakeword.io <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+            <span class="built-with-type type-extension">VS Code extension</span>
+          </div>
+        </a>
+
+      </div>
+
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── FAQ ── -->
+  <div class="container">
+    <section id="faq" class="fade-in">
+      <div class="section-label">FAQ</div>
+      <h2>Common questions</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What audio format does decibri output?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">16-bit signed integer PCM, little-endian by default. A 32-bit float format is also available. The default is the raw format expected by most speech and wake-word engines including Vosk, sherpa-onnx, and whisper.cpp.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does decibri require any system audio tools?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">No. Decibri uses cpal for direct OS audio access. There are no system audio libraries to install.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Do I need build tools to install decibri?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">No. Pre-built binaries ship with the package on every supported platform: Python (wheels), Node.js (optional platform packages), and Rust (compiled at install time via cargo). No compilers, no node-gyp, no Visual Studio Build Tools, no Xcode required.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does decibri work in the browser?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Yes. Decibri works in both Node.js and the browser from a single package. When bundled for the browser (webpack, vite, etc.), conditional exports serve the browser implementation automatically. No separate package needed. See the <a href="/docs/apis/browser" style="color: var(--accent);">browser documentation</a>.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Can I select a specific microphone?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Yes. Use Decibri.devices() to list available input devices, then pass the device index or a name substring to the constructor options.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What Node.js versions are supported?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Node.js 18 and above.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What license is decibri released under?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Apache-2.0.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What Python versions are supported?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, and Windows x64.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does decibri support asyncio?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Yes. Decibri ships AsyncMicrophone, AsyncSpeaker, and async_record_to_file() as proper async classes that work as async context managers with async for iteration. Audio capture runs on a separate thread, so the event loop isn't blocked. The recommended pattern is async with await decibri.AsyncMicrophone.open(...) as mic: async for chunk in mic: ... The open() factory dispatches the optional Silero VAD model load off the event loop.</p></div></div>
+        </div>
+        <div class="faq-item">
+          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Why is decibri written in Rust?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Rust gives decibri direct OS audio access via cpal, a cross-platform Rust audio library. The Rust core compiles to native code on every supported platform, so the same audio engine powers the Python, Node.js, and Rust packages. Memory safety enables real-time audio code without manual buffer management. The result: predictable low-latency audio with zero system dependencies.</p></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Final CTA ── -->
+  <div class="container">
+    <section class="final-cta fade-in">
+      <h2>Start streaming audio in minutes</h2>
+      <p>One install. One import. Real-time microphone audio.</p>
+      <div class="cta-group">
+        <a href="https://decibri.com/docs/" class="btn-primary">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Get Started
+        </a>
+      </div>
+      <div class="cta-group" style="margin-top: 20px; gap: 10px;">
+        <a href="https://pypi.org/project/decibri/" class="btn-secondary" target="_blank" rel="noopener noreferrer" style="font-size: 13px; padding: 10px 20px;">
+          View on PyPI
+        </a>
+        <a href="https://www.npmjs.com/package/decibri" class="btn-secondary" target="_blank" rel="noopener noreferrer" style="font-size: 13px; padding: 10px 20px;">
+          View on npm
+        </a>
+        <a href="https://crates.io/crates/decibri" class="btn-secondary" target="_blank" rel="noopener noreferrer" style="font-size: 13px; padding: 10px 20px;">
+          View on crates.io
+        </a>
+      </div>
+    </section>
+  </div>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <p>&copy; Copyright 2026 <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">Decibri</a></p>
+    </div>
+  </footer>
+
+  <!-- Tabbed code blocks: shared component, also used across docs pages -->
   <script src="/docs/code-tabs.js"></script>
+
+  <script>
+    // Enable fade-in animations (content stays visible without JS)
+    document.documentElement.classList.add('js-loaded');
+
+    // Theme toggle with persistence
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('decibri-theme', next);
+    }
+
+    // Mobile menu
+    function toggleMobileMenu() {
+      document.querySelector('.mobile-menu').classList.toggle('open');
+      document.querySelector('.mobile-menu-overlay').classList.toggle('open');
+    }
+
+    // FAQ accordion
+    function toggleFaq(el) {
+      const item = el.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('button[aria-expanded]')?.setAttribute('aria-expanded', 'false');
+      });
+      if (!wasOpen) {
+        item.classList.add('open');
+        el.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts.
+    function copyHeroCode(el) {
+      const tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      const panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      const pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      const flash = () => {
+        el.classList.add('copied');
+        setTimeout(() => el.classList.remove('copied'), 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy install command to clipboard.
+    //   - Hero pill passes `this`: gets the icon-swap (copy → green tick) feedback.
+    //   - Bottom CTA pill calls without args: keeps the original tooltip flash
+    //     (out of scope for the hero rebuild).
+    function copyInstall(el) {
+      const cmd = document.getElementById('install-cmd').textContent;
+      const flash = () => {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(() => el.classList.remove('copied'), 1500);
+        } else {
+          document.querySelectorAll('.tooltip').forEach(t => {
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 1500);
+          });
+        }
+      };
+      navigator.clipboard.writeText(cmd).then(flash).catch(flash);
+    }
+
+    // Install pill follows the hero code tabs. /docs/code-tabs.js dispatches
+    // a bubbling 'code-tabs:change' event whenever a tab becomes active
+    // (including on initial load from the localStorage preference).
+    (function () {
+      const installCommands = {
+        python: 'pip install decibri',
+        node: 'npm install decibri',
+        rust: 'cargo add decibri'
+      };
+      function syncInstallPill(lang) {
+        const cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        const btn = document.querySelector('.hero-code-tabs .code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
