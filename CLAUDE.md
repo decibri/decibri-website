@@ -8,20 +8,52 @@ Runnable code snippets in the documentation are inline in the HTML files under `
 
 ## The API source of truth
 
-This repo does NOT define the decibri API. The decibri code repository does. The decibri repo is checked out locally at:
+This repo does NOT define the decibri API or the decibri-cli command surface. Two upstream code repositories do, and you must read them before writing or editing code examples, command documentation, or capability claims here.
 
-  `C:\development\decibri\rust\decibri\repository\decibri`
+Both paths below are machine-specific. If either repo is moved, or if this file is used on another machine, update the path under that repo's heading.
 
-This path is machine-specific. If the decibri repo is moved, or if this file is used on another machine, update the path above.
+### decibri (core library, Node, Python, browser, Rust crate)
 
-Before writing or editing any code example in this repo, read the actual API from the decibri repo. Do not write API examples from memory or assumption.
+Local path: `C:\development\decibri\rust\decibri\repository\decibri`
 
-Authoritative files to read in the decibri repo:
+This repo is authoritative for the core library and all language bindings: Node.js, Python, browser, and the underlying Rust crate. Authoritative subpaths to read:
 
-- `bindings/node` and `npm/decibri` for the Node.js API surface.
-- `bindings/python` for the Python API surface (type stubs).
-- `crates/decibri` for the underlying Rust behaviour.
-- `README.md` for the documented API tables.
+- `bindings/node` and `npm/decibri` for the Node.js API surface
+- `bindings/python` for the Python API surface, especially the type stubs under `bindings/python/python/`
+- `crates/decibri` for the underlying Rust behaviour
+- `README.md` for the documented API tables
+- `CHANGELOG.md` and `bindings/python/CHANGELOG.md` for recent shipped changes
+- The decibri repo's own `CLAUDE.md` for upstream project rules (frozen Node API, code-quality gates)
+
+### decibri-cli (the Decibri command-line tool)
+
+Local path: `C:\development\decibri\rust\decibri-cli\repository\decibri-cli`
+
+This repo is authoritative for the Decibri CLI: commands, flags, exit codes, JSON output schemas, install methods, and release artifacts. Authoritative subpaths to read:
+
+- `src/main.rs` for the top-level clap `Cli`/`Commands` enum, global flags (`--json`, `--quiet`), and exit-code wiring
+- `src/commands/` for per-subcommand modules (`version.rs`, `devices.rs`, `capture.rs`, `play.rs`)
+- `src/device_resolve.rs` for the shared `--device` parser
+- `src/exit.rs` for exit-code definitions and the `classify()` mapping
+- `Cargo.toml` for the canonical CLI version and the `[[bin]]` definition
+- `npm/decibri-cli/package.json` for the npm wrapper version (must be kept in sync with `Cargo.toml`)
+- `npm/decibri-cli/` for the npm install/uninstall scripts and platform tests
+- `README.md` for the documented CLI surface
+- `CHANGELOG.md` for shipped CLI changes
+- `BUILD-PLAN.md` as the canonical architectural reference (treated as authoritative per the decibri-cli repo's own `CLAUDE.md`)
+- The decibri-cli repo's own `CLAUDE.md` for guardrails, code-quality gates, and the API-stability contract
+- `.github/workflows/build-release.yml` for release artifacts, SHA256SUMS generation, and SLSA provenance (only read when verifying release-artifact claims)
+- `tests/snapshots/` for the JSON schema snapshot tests (especially `version_snapshot__version_json_schema_locked.snap`)
+
+**JSON schema stability**: only `version --json` is contractually locked at v0.1.0 per the decibri-cli repo's own `CLAUDE.md`. The schemas for `devices --json`, `capture --json` completion, and `play --json` completion are explicitly unstable until v1.0.0. Any documentation claiming a single "stable JSON output schema" across the whole CLI overstates the actual contract. When verifying CLI JSON claims, read the decibri-cli `CLAUDE.md` for the current stability status.
+
+### Which repo to read
+
+- When writing or verifying **API reference content** (the Node, Python, browser API pages, integration pages, getting-started, and marketing-landing claims about platforms, formats, or VAD), read the decibri repo.
+- When writing or verifying **CLI content** (`docs/cli/`, `docs/docs/apis/cli.html`, the CLI section of `docs/llms.txt`, and CLI-related sitemap entries), read the decibri-cli repo.
+- Some pages (the marketing landing, `apis.html` overview, `llms.txt`) make claims spanning both repos and require reading both.
+
+Before writing or editing any code example, command documentation, or capability claim in this repo, read the actual source from whichever upstream repo owns the claim. Do not write API examples or CLI command descriptions from memory or assumption.
 
 ## Upstream rules pointer
 
