@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <!--
+  ============================================================
+    Decibri integration provider page template
+  ============================================================
+
+    PURPOSE
+      Starting point for a new integration provider page. Copy this file,
+      replace placeholders, ship.
+
+    HOW TO USE
+      1. Copy this file to docs/docs/integrations/<TYPE>/<SLUG>.html where:
+           <TYPE> is one of: stt, tts, vad, kws
+           <SLUG> is the provider slug. Lowercase, hyphen-separated, no
+                  spaces (e.g. openai, aws-transcribe, mistral-voxtral).
+      2. Replace every [[PLACEHOLDER]] token below with the matching content.
+      3. Add a card for this page in docs/docs/integrations/<TYPE>.html in
+         the correct alphabetical position relative to existing entries.
+      4. Add a <url> entry in docs/sitemap.xml in the correct alphabetical
+         position. Documented URLs have no trailing slash.
+      5. Verify every code identifier against the actual Decibri API at
+         https://github.com/decibri/decibri.
+      6. Open a pull request. The PR template will pre-populate a checklist.
+
+      You can keep this comment block in the shipped file or delete it
+      after replacing placeholders. It does not render. The full
+      contributor checklist lives in CONTRIBUTING.md.
+
+    PLACEHOLDER TOKENS
+
+    Routing
+      [[INTEGRATION_TYPE]]
+          Folder slug. Use exactly one of: stt | tts | vad | kws.
+      [[INTEGRATION_TYPE_NAME]]
+          Full human-readable type name shown in the breadcrumb. Use
+          exactly one of:
+            Speech-to-text (STT)
+            Text-to-speech (TTS)
+            Voice activity detection (VAD)
+            Keyword spotting (KWS)
+      [[PROVIDER_NAME]]
+          Human-readable provider name (e.g. OpenAI, Deepgram, AWS Transcribe).
+
+      Note: the provider slug is not a placeholder in the body of this
+      file. It is the filename you save this as and the last segment of
+      [[CANONICAL_URL]]. Pick it once and keep it consistent.
+
+    SEO and metadata
+      [[CANONICAL_URL]]
+          Full canonical URL, no trailing slash. Format:
+            https://decibri.com/docs/integrations/<TYPE>/<SLUG>
+          Substituted into both the og:url meta and the canonical link.
+      [[PAGE_TITLE]]
+          <title> text. Convention: "Provider Name | decibri docs".
+      [[META_DESCRIPTION]]
+          One-sentence meta description used for the SERP snippet.
+      [[OG_TITLE]]
+          Open Graph title. Usually identical to [[PAGE_TITLE]].
+      [[OG_DESCRIPTION]]
+          Open Graph description. Usually identical to [[META_DESCRIPTION]].
+      [[JSONLD_HOWTO_NAME]]
+          schema.org HowTo "name". A short title for the page as a how-to,
+          e.g. "How to transcribe microphone audio with Deepgram in Node.js".
+      [[JSONLD_HOWTO_DESCRIPTION]]
+          schema.org HowTo "description". One sentence summarising the page.
+
+      Note: the steps array ships as a literal "step": []. Populate by
+      following the pattern in any existing provider page; an empty step
+      array is acceptable for a v1 page.
+
+    Content
+      [[H1]]
+          Main page heading text (e.g. "OpenAI", "Silero VAD").
+      [[LEAD]]
+          One-sentence lead paragraph displayed under the H1, rendered with
+          the CSS class "lead". Provide just the sentence text, no <p> tags.
+      [[WHAT_THIS_DOES]]
+          HTML for the "What this does" section body. One or two <p>
+          paragraphs explaining what the integration does end-to-end.
+      [[INSTALL_COMMAND]]
+          The exact install command, e.g. "npm install decibri ws dotenv".
+          Substituted into both the clipboard onclick attribute and the
+          visible label inside the install-cmd block.
+      [[CODE_WALKTHROUGH_BODY]]
+          HTML for the body of the "Code walkthrough" section. The
+          established pattern is numbered <h3> sub-headings, each followed
+          by an explanatory paragraph and a code-tabs block. See any
+          existing provider page for the structure to copy.
+      [[CODE_EXAMPLE]]
+          The complete runnable code as a single block of JavaScript,
+          inserted inside the <details> "Full example" code-tabs block. Do
+          not include surrounding <pre><code> tags; just the code body.
+      [[CONFIGURATION_OPTIONS_BODY]]
+          <tr> rows for the configuration options table. Format:
+            <tr><td><code>option</code></td><td><code>default</code></td><td>description</td></tr>
+          If your integration has no configurable options worth tabulating,
+          delete the entire "Configuration options" <h2> section.
+      [[RELATED_LINKS_BODY]]
+          <li>...</li> entries for the "Related" list. At minimum include a
+          link to the integration type overview (/docs/integrations/<TYPE>),
+          the Node.js API reference (/docs/apis/node), and the provider's
+          own documentation.
+
+    RULES (see CONTRIBUTING.md for the full set)
+      1. Use Decibri capitalised in user-facing prose, not decibri. The
+         footer attribution link text remains lowercase to match the rest
+         of the site.
+      2. No em dashes. Use periods, commas, colons, or parentheses instead.
+      3. No commercial claims. No "best", "fastest", "industry-leading",
+         "trusted by", "production-ready" without qualification, and no
+         comparative claims against other libraries.
+      4. Code examples must match the actual Decibri API at
+         https://github.com/decibri/decibri. Class names, method signatures,
+         option names, event names, property names, and error message
+         strings must be copied from source, not written from memory.
+  ============================================================
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>[[PAGE_TITLE]]</title>
+  <meta name="description" content="[[META_DESCRIPTION]]">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="[[OG_TITLE]]">
+  <meta property="og:description" content="[[OG_DESCRIPTION]]">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="[[CANONICAL_URL]]">
+  <link rel="canonical" href="[[CANONICAL_URL]]">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "[[JSONLD_HOWTO_NAME]]",
+    "description": "[[JSONLD_HOWTO_DESCRIPTION]]",
+    "step": []
+  }
+  </script>
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations">Integrations</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations/[[INTEGRATION_TYPE]]">[[INTEGRATION_TYPE_NAME]]</a>
+        <span class="sep">/</span>
+        <span class="current">[[PROVIDER_NAME]]</span>
+      </div>
+
+      <h1>[[H1]]</h1>
+      <p class="lead">[[LEAD]]</p>
+
+      <h2>What this does</h2>
+      [[WHAT_THIS_DOES]]
+
+      <h2>Prerequisites</h2>
+
+      <h3>Install packages</h3>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('[[INSTALL_COMMAND]]')" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd">[[INSTALL_COMMAND]]</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+
+      <h2>Code walkthrough</h2>
+      [[CODE_WALKTHROUGH_BODY]]
+
+      <h2>Full example</h2>
+      <details>
+        <summary>View complete code</summary>
+        <div class="code-tabs" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist">
+            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+            <pre><code class="language-javascript">[[CODE_EXAMPLE]]</code></pre>
+          </div>
+        </div>
+      </details>
+
+      <h2>Configuration options</h2>
+      <p>Tune the integration's behaviour through these options:</p>
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          [[CONFIGURATION_OPTIONS_BODY]]
+        </tbody>
+      </table>
+      </div>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          [[RELATED_LINKS_BODY]]
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>
