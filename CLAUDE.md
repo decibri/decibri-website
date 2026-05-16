@@ -10,13 +10,13 @@ Runnable code snippets in the documentation are inline in the HTML files under `
 
 This repo does NOT define the decibri API or the decibri-cli command surface. Two upstream code repositories do, and you must read them before writing or editing code examples, command documentation, or capability claims here.
 
-Both paths below are machine-specific. If either repo is moved, or if this file is used on another machine, update the path under that repo's heading.
+If you have a local checkout of these repositories configured (see CLAUDE.local.md), prefer it. If you have neither a working local checkout nor the ability to fetch the public URLs, stop and ask the maintainer rather than writing API or CLI content from memory or by trusting the current page.
 
 ### decibri (core library, Node, Python, browser, Rust crate)
 
-Local path: `C:\development\decibri\rust\decibri\repository\decibri`
+Repository: <https://github.com/decibri/decibri>
 
-This repo is authoritative for the core library and all language bindings: Node.js, Python, browser, and the underlying Rust crate. Authoritative subpaths to read:
+Verify against this public repository when writing or editing content about the core library or any language binding: Node.js, Python, browser, and the underlying Rust crate. Authoritative subpaths to read:
 
 - `bindings/node` and `npm/decibri` for the Node.js API surface
 - `bindings/python` for the Python API surface, especially the type stubs under `bindings/python/python/`
@@ -27,9 +27,9 @@ This repo is authoritative for the core library and all language bindings: Node.
 
 ### decibri-cli (the Decibri command-line tool)
 
-Local path: `C:\development\decibri\rust\decibri-cli\repository\decibri-cli`
+Repository: <https://github.com/decibri/decibri-cli>
 
-This repo is authoritative for the Decibri CLI: commands, flags, exit codes, JSON output schemas, install methods, and release artifacts. Authoritative subpaths to read:
+Verify against this public repository for the Decibri CLI: commands, flags, exit codes, JSON output schemas, install methods, and release artifacts. Authoritative subpaths to read:
 
 - `src/main.rs` for the top-level clap `Cli`/`Commands` enum, global flags (`--json`, `--quiet`), and exit-code wiring
 - `src/commands/` for per-subcommand modules (`version.rs`, `devices.rs`, `capture.rs`, `play.rs`)
@@ -40,7 +40,6 @@ This repo is authoritative for the Decibri CLI: commands, flags, exit codes, JSO
 - `npm/decibri-cli/` for the npm install/uninstall scripts and platform tests
 - `README.md` for the documented CLI surface
 - `CHANGELOG.md` for shipped CLI changes
-- `BUILD-PLAN.md` as the canonical architectural reference (treated as authoritative per the decibri-cli repo's own `CLAUDE.md`)
 - The decibri-cli repo's own `CLAUDE.md` for guardrails, code-quality gates, and the API-stability contract
 - `.github/workflows/build-release.yml` for release artifacts, SHA256SUMS generation, and SLSA provenance (only read when verifying release-artifact claims)
 - `tests/snapshots/` for the JSON schema snapshot tests (especially `version_snapshot__version_json_schema_locked.snap`)
@@ -57,7 +56,7 @@ Before writing or editing any code example, command documentation, or capability
 
 ## Upstream rules pointer
 
-The decibri repo's own CLAUDE.md at `C:\development\decibri\rust\decibri\repository\decibri\CLAUDE.md` is the upstream source of project rules (frozen Node API, code-quality gates, etc.). Read that file first rather than relying on rules re-listed here, which the upstream may evolve.
+The decibri repo's own CLAUDE.md at <https://github.com/decibri/decibri/blob/main/CLAUDE.md> is the upstream source of project rules (frozen Node API, code-quality gates, etc.). Read that file first rather than relying on rules re-listed here, which the upstream may evolve.
 
 ## Documentation accuracy
 
@@ -69,10 +68,9 @@ The decibri repo's own CLAUDE.md at `C:\development\decibri\rust\decibri\reposit
 
 ## Site structure rules
 
-- Static HTML only. There is no build step. Do not introduce one without explicit approval.
+- Static HTML only. There is no build step. Do not introduce one.
 - Do not rename or move `docs/docs/` or `docs/cli/`. Their paths map directly to live URLs; renaming them breaks those URLs.
-- The three shared assets `docs/docs/code-tabs.js`, `docs/docs/nav.js`, and `docs/docs/styles.css` are load-bearing. Every page imports them via absolute paths starting with `/docs/`. Do not rename, move, or restructure them.
-- `docs/CNAME` must stay in the `docs/` folder. It binds the custom domain.
+- `docs/CNAME`, `docs/docs/code-tabs.js`, `docs/docs/nav.js`, and `docs/docs/styles.css` are load-bearing, maintainer-only files. Do not modify, rename, move, or restructure them. They must not be changed in integration provider page PRs or by integration contributors. Changes to these files are made only by the maintainer. `docs/CNAME` binds the custom domain; the three shared assets are imported by every page via absolute paths.
 - The sitemap at `docs/sitemap.xml` is hand-maintained. Any new page requires a `<url>` entry in the correct alphabetical position. Any removed page requires deleting its entry.
 - SEO metadata in every page (`<link rel="canonical">`, `<meta property="og:image">`, `<meta name="twitter:image">`, and the OG and Twitter title and description tags) is hardcoded absolute to `https://decibri.com/...`. Any rename, removal, or relocation of a page or asset must update these tags atomically in the same commit.
 
@@ -94,5 +92,5 @@ The decibri repo's own CLAUDE.md at `C:\development\decibri\rust\decibri\reposit
 
 ## Git workflow
 
-- Stage changes with `git add` only. Do not run `git commit`, `git push`, create tags, or push to any remote. Commits are made manually in VS Code.
+- Stage changes with `git add` only. Do not run `git commit`, `git push`, create tags, or push to any remote. Commits are made manually by a human after review.
 - This is a standalone repository. All git operations apply only to this repo.
