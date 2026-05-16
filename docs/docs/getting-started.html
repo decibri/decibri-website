@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Getting started | decibri docs</title>
-  <meta name="description" content="Get started with decibri. Install the package, capture microphone audio, and build real-time voice applications. Node.js today; browser and CLI runtimes covered in the APIs section; Python on the roadmap.">
+  <meta name="description" content="Get started with Decibri. Install the package, capture microphone audio, and build real-time voice applications in Python or Node.js. Browser and CLI runtimes covered in the APIs section.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Getting started | decibri docs">
-  <meta property="og:description" content="Get started with decibri. Install, capture audio, and build real-time voice applications.">
+  <meta property="og:description" content="Get started with Decibri in Python or Node.js. Install, capture audio, and build real-time voice applications.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/getting-started">
   <link rel="canonical" href="https://decibri.com/docs/getting-started">
@@ -59,23 +59,37 @@
       </div>
 
       <h1>Getting started with Decibri</h1>
-      <p class="lead">Decibri captures audio and exposes it as a standard stream. Install, create a <code>Decibri</code> instance, and start reading PCM chunks. This page walks the Node.js workflow end-to-end; for browser usage see the <a href="/docs/apis/browser">Browser API</a>, and for the command-line tool see <a href="/docs/apis/cli">CLI API</a>.</p>
+      <p class="lead">Decibri captures audio and gives you PCM chunks to work with. Install the package, open a microphone, and read chunks in your language of choice. This page walks the Python and Node.js workflows side by side. Tabs above each code block switch between them. For browser usage see the <a href="/docs/apis/browser">Browser API</a>, and for the command-line tool see <a href="/docs/apis/cli">CLI API</a>.</p>
 
       <h2>Install</h2>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
-        <span class="cmd">npm install decibri</span>
+        <span class="cmd" id="install-cmd">pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>Pre-built binaries are included for Windows x64, macOS arm64, and Linux x64/arm64. No build tools or system audio libraries are needed.</p>
+      <p>The install command above switches with the language tabs below. Pre-built binaries are included for Windows x64, macOS arm64, and Linux x64/arm64. No build tools or system audio libraries are needed. The Python wheel requires Python 3.10 or newer.</p>
 
       <h2>Quick start</h2>
-      <p>Capture microphone audio and log the buffer size of each chunk:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Capture microphone audio and log the size of each chunk:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(sample_rate=16000, channels=1) as mic:
+    for chunk in mic:
+        # chunk is bytes of 16-bit PCM audio
+        print(f"Received {len(chunk)} bytes")
+        break  # exit after first chunk for demo</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const Decibri = require('decibri');
 const mic = new Decibri({ sampleRate: 16000, channels: 1 });
 
@@ -88,15 +102,25 @@ mic.on('data', (chunk) => {
 setTimeout(() => mic.stop(), 5000);</code></pre>
         </div>
       </div>
-      <p>Each chunk contains 100 ms of audio by default (1,600 frames at 16 kHz). The output format is 16-bit signed integer PCM, little-endian, which is the standard input expected by most speech engines.</p>
+      <p>Each chunk contains 100 ms of audio by default (1,600 frames at 16 kHz). The output format is 16-bit signed integer PCM, little-endian, which is the standard input expected by most speech engines. In Python, iterate the <code>Microphone</code> directly; the <code>with</code> block calls <code>stop()</code> on exit. In Node.js, subscribe to the <code>'data'</code> event and call <code>mic.stop()</code> when you are done.</p>
 
       <h2>Record audio to a file</h2>
-      <p>Because decibri exposes a standard Node.js Readable stream, you can pipe audio directly to a file:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Decibri ships a one-line helper in Python that captures microphone audio straight to a 16-bit PCM WAV file. In Node.js, the <code>Decibri</code> instance is a standard <code>Readable</code> stream, so you can pipe it into any <code>Writable</code> stream including <code>fs.createWriteStream()</code> for a raw PCM file.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+decibri.record_to_file("capture.wav", duration_seconds=10, sample_rate=44100, channels=2)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const Decibri = require('decibri');
 const fs = require('fs');
 
@@ -104,14 +128,33 @@ const mic = new Decibri({ sampleRate: 44100, channels: 2 });
 mic.pipe(fs.createWriteStream('capture.raw'));</code></pre>
         </div>
       </div>
+      <p>The Python helper bounds the recording by <code>duration_seconds</code> and writes a WAV file with header. The Node.js example writes a raw PCM stream that runs until the process exits or the writable stream is closed.</p>
 
       <h2>Select a microphone</h2>
       <p>List available input devices and choose one by index or name:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# List all input devices
+devices = decibri.input_devices()
+print(devices)
+
+# Select by index
+mic = decibri.Microphone(device=2, sample_rate=16000, channels=1)
+
+# Or select by name substring (case-insensitive)
+mic2 = decibri.Microphone(device="USB", sample_rate=16000, channels=1)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const Decibri = require('decibri');
 
 // List all input devices
@@ -127,12 +170,34 @@ const mic2 = new Decibri({ device: 'USB', sampleRate: 16000, channels: 1 });</co
       </div>
 
       <h2>Voice activity detection</h2>
-      <p>Enable the built-in VAD to receive <code>'speech'</code> and <code>'silence'</code> events based on RMS energy thresholding:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Enable the built-in VAD based on RMS energy thresholding. In Python, check the <code>mic.is_speaking</code> property on each chunk; in Node.js, subscribe to the <code>'speech'</code> and <code>'silence'</code> events.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(
+    sample_rate=16000,
+    channels=1,
+    vad="energy",
+    vad_threshold=0.01,
+    vad_holdoff_ms=300,
+) as mic:
+    for chunk in mic:
+        if mic.is_speaking:
+            print(f"Speech detected (score {mic.vad_score:.3f})")
+        else:
+            print("Silence")
+        break  # exit after first chunk for demo</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Decibri({
   sampleRate: 16000,
   channels: 1,
@@ -148,12 +213,32 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <p>For more accurate detection in noisy environments, use the built-in Silero VAD (see below).</p>
 
       <h2>Silero voice activity detection</h2>
-      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Set <code>vadMode: 'silero'</code> for more accurate detection than energy-based VAD, especially in noisy environments. The model runs locally in Rust via ONNX Runtime with no cloud API needed.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vadMode: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(
+    sample_rate=16000,
+    channels=1,
+    vad="silero",
+) as mic:
+    for chunk in mic:
+        if mic.is_speaking:
+            print(f"Speech detected (score {mic.vad_score:.3f})")
+        else:
+            print("Silence")
+        break  # exit after first chunk for demo</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Decibri({
   sampleRate: 16000,
   channels: 1,
@@ -165,16 +250,28 @@ mic.on('speech', () => console.log('Speech detected'));
 mic.on('silence', () => console.log('Silence detected'));</code></pre>
         </div>
       </div>
-      <p>When <code>vadMode</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0–1.0). You can override this by setting <code>vadThreshold</code> explicitly.</p>
-      <p>The bundled model is auto-resolved from the package. If you need a custom model, pass <code>modelPath</code> pointing to your <code>.onnx</code> file.</p>
+      <p>In Silero mode, the default threshold changes from 0.01 to 0.5 (probability scale 0.0 to 1.0). Override it by setting <code>vad_threshold</code> in Python or <code>vadThreshold</code> in Node.js.</p>
+      <p>The bundled model is auto-resolved from the package. To use a custom model, pass <code>model_path</code> (Python) or <code>modelPath</code> (Node.js) pointing to your <code>.onnx</code> file.</p>
 
       <h2>Audio output</h2>
-      <p><code>DecibriOutput</code> is a standard Node.js Writable stream for speaker playback. It uses the same native audio backend as capture.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Decibri's audio output uses the same native audio backend as capture. In Python the class is <code>decibri.Speaker</code>; in Node.js it is <code>DecibriOutput</code>, a standard <code>Writable</code> stream.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Speaker(sample_rate=16000, channels=1) as spk:
+    spk.write(pcm_bytes)
+    spk.drain()  # block until all buffered audio has played</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const Decibri = require('decibri');
 const { DecibriOutput } = Decibri;
 
@@ -183,15 +280,28 @@ speaker.write(pcmBuffer);
 speaker.end(); // plays all remaining audio, then emits 'finish'</code></pre>
         </div>
       </div>
-      <p>The <code>sampleRate</code>, <code>channels</code>, and <code>format</code> options must match the audio data you are writing. Use <code>speaker.stop()</code> to immediately stop playback and discard remaining audio, or <code>speaker.end()</code> to drain the buffer and play everything.</p>
+      <p>The sample rate, channel count, and sample format must match the audio data you are writing. Use <code>stop()</code> to immediately stop playback and discard pending audio. To play everything currently buffered, call <code>drain()</code> in Python (the speaker stays open and can be written to again, and closes at the end of the <code>with</code> block) or <code>end()</code> in Node.js (the stream finishes and emits <code>'finish'</code>).</p>
 
       <h2>Full duplex</h2>
-      <p>Capture and playback simultaneously using standard Node.js pipe:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Capture and play back simultaneously: read from the microphone and write each chunk to the speaker.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.Microphone(sample_rate=16000, channels=1) as mic, \
+     decibri.Speaker(sample_rate=16000, channels=1) as spk:
+    for chunk in mic:
+        spk.write(chunk)  # hear yourself in real time</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const Decibri = require('decibri');
 const { DecibriOutput } = Decibri;
 
@@ -241,27 +351,88 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
       <div class="related-links">
         <h2>Related</h2>
         <ul>
+          <li><a href="/docs/apis/python">Python API</a>: full <code>Microphone</code>, <code>Speaker</code>, <code>AsyncMicrophone</code>, and <code>AsyncSpeaker</code> reference</li>
           <li><a href="/docs/apis/node">Node.js API</a>: full constructor options, methods, events, and audio format details</li>
           <li><a href="/docs/integrations">Integrations</a>: STT, VAD, and KWS providers that consume decibri audio</li>
           <li><a href="/docs/integrations/stt">Speech-to-text overview</a>: compare all STT providers</li>
           <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser via AudioWorklet</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
           <li><a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+          <li><a href="https://pypi.org/project/decibri/" target="_blank" rel="noopener noreferrer">decibri on PyPI</a></li>
           <li><a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">decibri on npm</a></li>
         </ul>
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com/" target="_blank" rel="noopener noreferrer">Decibri</a></p>
       </footer>
 
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // homepage's copyHeroCode helper at docs/index.html.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy the install command currently displayed (which follows the language
+    // tabs below) to the clipboard, flashing the pill briefly on success.
+    function copyInstall(el) {
+      var cmdEl = document.getElementById('install-cmd');
+      if (!cmdEl) return;
+      var flash = function () {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(function () { el.classList.remove('copied'); }, 1500);
+        }
+      };
+      navigator.clipboard.writeText(cmdEl.textContent).then(flash).catch(flash);
+    }
+
+    // Install pill follows the language tabs. /docs/code-tabs.js dispatches a
+    // bubbling 'code-tabs:change' event whenever a tab becomes active,
+    // including on initial load from the localStorage preference. Mirrors the
+    // homepage wiring at docs/index.html.
+    (function () {
+      var installCommands = {
+        python: 'pip install decibri',
+        node: 'npm install decibri'
+      };
+      function syncInstallPill(lang) {
+        var cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        var btn = document.querySelector('.code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+  </script>
   <script src="/docs/code-tabs.js"></script>
 </body>
 </html>
