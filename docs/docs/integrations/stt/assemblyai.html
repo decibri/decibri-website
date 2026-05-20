@@ -13,10 +13,10 @@
     })();
   </script>
   <title>AssemblyAI | decibri docs</title>
-  <meta name="description" content="Real-time cloud speech-to-text transcription using decibri and AssemblyAI in Node.js.">
+  <meta name="description" content="Real-time cloud speech-to-text transcription using decibri and AssemblyAI in Python and Node.js.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="AssemblyAI | decibri docs">
-  <meta property="og:description" content="Real-time cloud speech-to-text transcription using decibri and AssemblyAI in Node.js.">
+  <meta property="og:description" content="Real-time cloud speech-to-text transcription using decibri and AssemblyAI in Python and Node.js.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations/stt/assemblyai">
   <link rel="canonical" href="https://decibri.com/docs/integrations/stt/assemblyai">
@@ -28,17 +28,17 @@
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": "How to transcribe microphone audio with AssemblyAI in Node.js",
+    "name": "How to transcribe microphone audio with AssemblyAI in Python or Node.js",
     "description": "Real-time cloud speech-to-text transcription using decibri and the AssemblyAI SDK. Turn-based results with no model download required.",
     "step": [
       {"@type": "HowToStep", "name": "Get an API key", "text": "Sign up at assemblyai.com and upgrade your account. Streaming requires an upgraded account with a payment method."},
-      {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri assemblyai dotenv"},
-      {"@type": "HowToStep", "name": "Configure the client", "text": "Create an AssemblyAI client with your API key and a streaming transcriber with speechModel and sampleRate."},
-      {"@type": "HowToStep", "name": "Register event handlers", "text": "Register handlers for open, turn, error, and close events before calling connect()."},
-      {"@type": "HowToStep", "name": "Connect and open the microphone", "text": "Call await transcriber.connect(), then create a decibri instance at 16 kHz mono."},
-      {"@type": "HowToStep", "name": "Stream audio", "text": "Send each audio chunk directly to AssemblyAI via transcriber.sendAudio(chunk). No format conversion needed."},
-      {"@type": "HowToStep", "name": "Handle turn-based results", "text": "Listen for turn events. Filter on turn.end_of_turn for final transcripts or show progressive results."},
-      {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() and close with await transcriber.close() on SIGINT."}
+      {"@type": "HowToStep", "name": "Install packages", "text": "Install decibri, the AssemblyAI SDK, and a dotenv helper: pip install decibri assemblyai python-dotenv, or npm install decibri assemblyai dotenv."},
+      {"@type": "HowToStep", "name": "Configure the client", "text": "Create an AssemblyAI client with your API key, and prepare the streaming parameters (speech model and sample rate)."},
+      {"@type": "HowToStep", "name": "Register event handlers", "text": "Register handlers for turn and error events (and on Node also for open and close) before connecting."},
+      {"@type": "HowToStep", "name": "Connect and open the microphone", "text": "Open the AssemblyAI connection, then create a decibri instance at 16 kHz mono."},
+      {"@type": "HowToStep", "name": "Stream audio", "text": "Batch decibri's audio chunks to 100 ms windows (3200 bytes of int16 mono 16 kHz) before sending. AssemblyAI streaming v3 requires chunks between 50 and 1000 ms."},
+      {"@type": "HowToStep", "name": "Handle turn-based results", "text": "Listen for turn events. Filter on the end_of_turn flag for final transcripts, or show progressive results."},
+      {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone and close the AssemblyAI connection on SIGINT."}
     ]
   }
   </script>
@@ -81,10 +81,10 @@
       </div>
 
       <h1>AssemblyAI</h1>
-      <p class="lead">Stream live microphone audio to AssemblyAI for real-time cloud transcription using decibri and the official AssemblyAI SDK.</p>
+      <p class="lead">Stream live microphone audio to AssemblyAI for real-time cloud transcription using decibri with the official AssemblyAI SDK. This page covers both Python and Node.js. Tabs above each code block switch between them.</p>
 
       <h2>What this does</h2>
-      <p>This integration captures live audio from your microphone using decibri and streams it to AssemblyAI's cloud API over a WebSocket. Transcription results return in real-time using a turn-based model, where speech is grouped into natural segments with partial and final results for each turn. There is no model download, no local inference, and no format conversion required.</p>
+      <p>This integration captures live audio from your microphone using decibri and streams it to AssemblyAI's cloud API. Transcription results return in real-time using a turn-based model, where speech is grouped into natural segments with partial and final results for each turn. There is no model download, no local inference, and no format conversion required.</p>
 
       <h2>Cloud vs local</h2>
       <div class="callout">
@@ -100,33 +100,47 @@
         <li>Copy your API key from the dashboard</li>
         <li>Store it in a <code>.env</code> file in your project root:</li>
       </ol>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">ASSEMBLYAI_API_KEY=your_key_here</code></pre>
-        </div>
-      </div>
+      <pre><code class="language-bash">ASSEMBLYAI_API_KEY=your_key_here</code></pre>
 
       <h3>Install packages</h3>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri assemblyai dotenv')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
-        <span class="cmd">npm install decibri assemblyai dotenv</span>
+        <span class="cmd" id="install-cmd">pip install decibri assemblyai python-dotenv</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>The <code>dotenv</code> package loads your API key from the <code>.env</code> file. If you set environment variables another way, you can skip it.</p>
+      <p>The dotenv package (<code>python-dotenv</code> on PyPI, <code>dotenv</code> on npm) loads your API key from the <code>.env</code> file. If you set environment variables another way, you can skip it. The install command above switches with the language tabs in the code blocks below.</p>
       <p>No model download is required. All processing happens in AssemblyAI's cloud.</p>
 
       <h2>Code walkthrough</h2>
 
       <h3>1. Configuration</h3>
       <p>Import decibri, the AssemblyAI SDK, and dotenv. Create a client with your API key.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import os
+from dotenv import load_dotenv
+import decibri
+from assemblyai.streaming.v3 import (
+    StreamingClient,
+    StreamingClientOptions,
+    StreamingEvents,
+    StreamingParameters,
+)
+
+load_dotenv()
+client = StreamingClient(
+    StreamingClientOptions(api_key=os.environ["ASSEMBLYAI_API_KEY"])
+)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
 const Decibri = require('decibri');
@@ -137,12 +151,20 @@ const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });</code
       </div>
 
       <h3>2. Create streaming transcriber</h3>
-      <p>Create a streaming transcriber with audio parameters that match decibri's configuration. The <code>speechModel</code> option is required and has no default. Omitting it will cause the connection to fail.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Configure the streaming session. The speech model is required and has no default; omitting it causes the connection to fail. The Python SDK builds these into a <code>StreamingParameters</code> object passed at connect time; the Node SDK passes them to <code>client.streaming.transcriber()</code>.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">params = StreamingParameters(sample_rate=16000, speech_model="u3-rt-pro")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const transcriber = client.streaming.transcriber({
   speechModel: 'u3-rt-pro',
   sampleRate: 16_000,
@@ -151,12 +173,28 @@ const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });</code
       </div>
 
       <h3>3. Register event handlers</h3>
-      <p>Register event handlers before calling <code>connect()</code>. This ensures no events are missed during the connection handshake.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Register handlers before connecting. This ensures no events are missed during the connection handshake. Both SDKs expose at least <code>turn</code> and <code>error</code> events; the Node SDK additionally exposes <code>open</code> and <code>close</code>.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">def on_turn(client, event):
+    if event.end_of_turn and event.transcript:
+        print(event.transcript)
+
+def on_error(client, error):
+    print(f"AssemblyAI error: {error}")
+
+client.on(StreamingEvents.Turn, on_turn)
+client.on(StreamingEvents.Error, on_error)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">transcriber.on('open', ({ id }) => {
   console.log('Session:', id);
 });
@@ -178,12 +216,24 @@ transcriber.on('close', (code, reason) => {
       </div>
 
       <h3>4. Connect and open microphone</h3>
-      <p>Connect to AssemblyAI, then start the microphone. Audio must only be sent after <code>connect()</code> resolves.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="callout">
+        <strong>Note:</strong> AssemblyAI streaming v3 requires audio chunks between 50 ms and 1000 ms (error 3007 on violation). On Windows, decibri's audio backend may emit chunks shorter than 50 ms regardless of <code>frames_per_buffer</code> / <code>framesPerBuffer</code>. The streaming code block below batches incoming audio into 100 ms (3200 bytes of int16 mono 16 kHz) before forwarding to AssemblyAI, and drops any trailing remainder under 50 ms (1600 bytes).
+      </div>
+      <p>Connect to AssemblyAI, then prepare the microphone. In Python the connect call is synchronous and <code>Microphone</code> is only constructed here; capture starts in the next block when it is opened with a <code>with</code> statement. In Node the connect call returns a promise that must be awaited, and <code>new Decibri(...)</code> begins capture as soon as it is constructed. Audio must only be sent after the connection is established.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">client.connect(params)
+mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">await transcriber.connect();
 
 const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
@@ -191,14 +241,50 @@ const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
       </div>
 
       <h3>5. Stream audio</h3>
-      <p>Send each audio chunk directly to AssemblyAI. No format conversion is needed. Decibri's raw Int16 PCM Buffer is sent as-is via <code>sendAudio()</code>.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Read chunks from decibri and forward them to AssemblyAI. AssemblyAI streaming v3 requires audio in 50 ms to 1000 ms windows; decibri on Windows may emit chunks shorter than 50 ms, so batch incoming audio into 100 ms (3200 bytes of int16 mono at 16 kHz) before forwarding. Drop any trailing remainder under 50 ms (1600 bytes). No format conversion is needed; decibri produces raw int16 PCM which AssemblyAI accepts as-is.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">mic.on('data', (chunk) => {
-  transcriber.sendAudio(chunk);
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms; AssemblyAI streaming v3 minimum
+
+def audio_iter():
+    buffer = bytearray()
+    for chunk in mic:
+        buffer.extend(chunk)
+        while len(buffer) >= BATCH_BYTES:
+            yield bytes(buffer[:BATCH_BYTES])
+            del buffer[:BATCH_BYTES]
+    if len(buffer) >= MIN_BYTES:
+        yield bytes(buffer)
+
+with mic:
+    client.stream(audio_iter())</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms; AssemblyAI streaming v3 minimum
+
+let buffer = Buffer.alloc(0);
+mic.on('data', (chunk) => {
+  buffer = Buffer.concat([buffer, chunk]);
+  while (buffer.length >= BATCH_BYTES) {
+    transcriber.sendAudio(buffer.subarray(0, BATCH_BYTES));
+    buffer = buffer.subarray(BATCH_BYTES);
+  }
+});
+
+mic.on('end', () => {
+  if (buffer.length >= MIN_BYTES) {
+    transcriber.sendAudio(buffer);
+  }
 });</code></pre>
         </div>
       </div>
@@ -206,17 +292,28 @@ const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
       <h3>6. Understanding turn-based results</h3>
       <p>AssemblyAI groups speech into turns, which are natural segments of speech separated by pauses. Each turn emits multiple events as audio is processed:</p>
       <ul>
-        <li><code>turn.end_of_turn === false</code> means the result is partial and still being refined</li>
-        <li><code>turn.end_of_turn === true</code> means the turn is complete with a final transcript</li>
-        <li><code>turn.turn_order</code> increments with each new turn (starting from 0)</li>
-        <li><code>turn.utterance</code> is empty for partial results and contains the final text for completed turns</li>
+        <li>The <code>end_of_turn</code> flag is <code>false</code> while the result is partial and still being refined.</li>
+        <li>The <code>end_of_turn</code> flag is <code>true</code> when the turn is complete with a final transcript.</li>
+        <li>The <code>turn_order</code> index increments with each new turn (starting from 0).</li>
+        <li>The <code>utterance</code> field is empty for partial results and contains the final text for completed turns.</li>
       </ul>
+      <p>The event object exposes the same fields in both SDKs; only the callback parameter name differs (<code>event</code> in Python, <code>turn</code> in Node).</p>
       <p>To show only final results, filter on <code>end_of_turn</code>:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">def on_turn(client, event):
+    if event.end_of_turn and event.transcript:
+        print(event.transcript)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">transcriber.on('turn', (turn) => {
   if (turn.end_of_turn && turn.transcript) {
     console.log(turn.transcript);
@@ -227,11 +324,27 @@ const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
 
       <h3>7. Clean shutdown</h3>
       <p>Stop the microphone and close the AssemblyAI connection when the user presses Ctrl+C.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import signal
+
+def shutdown(signum, frame):
+    print("\nStopping...")
+    mic.stop()
+    client.disconnect(terminate=True)
+    raise SystemExit(0)
+
+signal.signal(signal.SIGINT, shutdown)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">process.on('SIGINT', async () => {
   console.log('\nStopping...');
   mic.stop();
@@ -244,16 +357,82 @@ const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
       <h2>Full example</h2>
       <details>
         <summary>View complete code</summary>
-        <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tabs code-tabs-flat" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+              <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+            <pre><code class="language-python">import os
+import signal
+from dotenv import load_dotenv
+
+import decibri
+from assemblyai.streaming.v3 import (
+    StreamingClient,
+    StreamingClientOptions,
+    StreamingEvents,
+    StreamingParameters,
+)
+
+BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms; AssemblyAI streaming v3 minimum
+
+load_dotenv()
+
+client = StreamingClient(
+    StreamingClientOptions(api_key=os.environ["ASSEMBLYAI_API_KEY"])
+)
+
+def on_turn(client, event):
+    if event.end_of_turn and event.transcript:
+        print(event.transcript)
+
+def on_error(client, error):
+    print(f"AssemblyAI error: {error}")
+
+client.on(StreamingEvents.Turn, on_turn)
+client.on(StreamingEvents.Error, on_error)
+
+client.connect(StreamingParameters(sample_rate=16000, speech_model="u3-rt-pro"))
+
+mic = decibri.Microphone(sample_rate=16000, channels=1)
+
+def shutdown(signum, frame):
+    print("\nStopping...")
+    mic.stop()
+    client.disconnect(terminate=True)
+    raise SystemExit(0)
+
+signal.signal(signal.SIGINT, shutdown)
+
+def audio_iter():
+    buffer = bytearray()
+    for chunk in mic:
+        buffer.extend(chunk)
+        while len(buffer) >= BATCH_BYTES:
+            yield bytes(buffer[:BATCH_BYTES])
+            del buffer[:BATCH_BYTES]
+    if len(buffer) >= MIN_BYTES:
+        yield bytes(buffer)
+
+print("Listening... (Ctrl+C to stop)")
+with mic:
+    client.stream(audio_iter())</code></pre>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const Decibri = require('decibri');
 const { AssemblyAI } = require('assemblyai');
+
+const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms; AssemblyAI streaming v3 minimum
 
 const run = async () => {
   const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });
@@ -285,8 +464,13 @@ const run = async () => {
 
   const mic = new Decibri({ sampleRate: 16000, channels: 1 });
 
+  let buffer = Buffer.alloc(0);
   mic.on('data', (chunk) => {
-    transcriber.sendAudio(chunk);
+    buffer = Buffer.concat([buffer, chunk]);
+    while (buffer.length >= BATCH_BYTES) {
+      transcriber.sendAudio(buffer.subarray(0, BATCH_BYTES));
+      buffer = buffer.subarray(BATCH_BYTES);
+    }
   });
 
   mic.on('error', (err) => {
@@ -296,6 +480,9 @@ const run = async () => {
   process.on('SIGINT', async () => {
     console.log('\nStopping...');
     mic.stop();
+    if (buffer.length >= MIN_BYTES) {
+      transcriber.sendAudio(buffer);
+    }
     await transcriber.close();
     process.exit(0);
   });
@@ -309,7 +496,7 @@ run().catch(console.error);</code></pre>
       </details>
 
       <h2>Configuration options</h2>
-      <p>The transcriber options control how AssemblyAI processes your audio. Here are the key ones:</p>
+      <p>The transcriber options control how AssemblyAI processes your audio. Names differ slightly between SDKs (Python uses snake_case, Node uses camelCase) but the meaning is identical. Here are the key ones:</p>
       <div class="table-wrap">
       <table>
         <thead>
@@ -321,12 +508,12 @@ run().catch(console.error);</code></pre>
         </thead>
         <tbody>
           <tr>
-            <td><code>speechModel</code></td>
+            <td><code>speech_model</code> / <code>speechModel</code></td>
             <td><code>'u3-rt-pro'</code></td>
-            <td>Required. Universal-3 Pro Streaming model for highest accuracy.</td>
+            <td>Required. Universal-3 Pro Streaming model.</td>
           </tr>
           <tr>
-            <td><code>sampleRate</code></td>
+            <td><code>sample_rate</code> / <code>sampleRate</code></td>
             <td><code>16000</code></td>
             <td>Must match decibri's sample rate.</td>
           </tr>
@@ -342,25 +529,87 @@ run().catch(console.error);</code></pre>
           <li><a href="/docs/integrations/stt/deepgram">Deepgram</a>: cloud speech-to-text with an SDK wrapper</li>
           <li><a href="/docs/integrations/stt/sherpa-onnx">Sherpa-ONNX</a>: real-time local transcription, no cloud required</li>
           <li><a href="/docs/integrations/stt/whisper-cpp">Whisper.cpp</a>: local batch transcription with OpenAI's Whisper model</li>
-          <li><a href="/docs/apis/node">API Reference</a>: full decibri API documentation</li>
+          <li><a href="/docs/apis/python">Python API</a>: full decibri Python API documentation</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: full decibri Node.js API documentation</li>
           <li><a href="https://www.assemblyai.com/docs" target="_blank" rel="noopener noreferrer">AssemblyAI developer docs</a></li>
+          <li><a href="https://github.com/AssemblyAI/assemblyai-python-sdk" target="_blank" rel="noopener noreferrer">AssemblyAI Python SDK on GitHub</a></li>
           <li><a href="https://github.com/AssemblyAI/assemblyai-node-sdk" target="_blank" rel="noopener noreferrer">AssemblyAI Node.js SDK on GitHub</a></li>
+          <li><a href="https://pypi.org/project/assemblyai/" target="_blank" rel="noopener noreferrer">assemblyai on PyPI</a></li>
           <li><a href="https://www.npmjs.com/package/assemblyai" target="_blank" rel="noopener noreferrer">assemblyai on npm</a></li>
           <li><a href="https://www.assemblyai.com/dashboard" target="_blank" rel="noopener noreferrer">AssemblyAI dashboard</a></li>
         </ul>
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com/" target="_blank" rel="noopener noreferrer">Decibri</a></p>
       </footer>
 
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // homepage's copyHeroCode helper at docs/index.html.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy the install command currently displayed (which follows the language
+    // tabs below) to the clipboard, flashing the pill briefly on success.
+    function copyInstall(el) {
+      var cmdEl = document.getElementById('install-cmd');
+      if (!cmdEl) return;
+      var flash = function () {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(function () { el.classList.remove('copied'); }, 1500);
+        }
+      };
+      navigator.clipboard.writeText(cmdEl.textContent).then(flash).catch(flash);
+    }
+
+    // Install pill follows the language tabs. /docs/code-tabs.js dispatches a
+    // bubbling 'code-tabs:change' event whenever a tab becomes active,
+    // including on initial load from the localStorage preference. Mirrors the
+    // homepage wiring at docs/index.html.
+    (function () {
+      var installCommands = {
+        python: 'pip install decibri assemblyai python-dotenv',
+        node: 'npm install decibri assemblyai dotenv'
+      };
+      function syncInstallPill(lang) {
+        var cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        var btn = document.querySelector('.code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+  </script>
   <script src="/docs/code-tabs.js"></script>
 </body>
 </html>
