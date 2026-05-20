@@ -38,7 +38,7 @@
       {"@type": "HowToStep", "name": "Connect and open the microphone", "text": "Open the AssemblyAI connection, then create a decibri instance at 16 kHz mono."},
       {"@type": "HowToStep", "name": "Stream audio", "text": "Batch decibri's audio chunks to 100 ms windows (3200 bytes of int16 mono 16 kHz) before sending. AssemblyAI streaming v3 requires chunks between 50 and 1000 ms."},
       {"@type": "HowToStep", "name": "Handle turn-based results", "text": "Listen for turn events. Filter on the end_of_turn flag for final transcripts, or show progressive results."},
-      {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone and close the AssemblyAI connection on SIGINT."}
+      {"@type": "HowToStep", "name": "Stop and clean up", "text": "On Python, catch KeyboardInterrupt around the streaming call and disconnect the client in a finally block; on Node, register a SIGINT handler that stops the microphone and awaits the transcriber close."}
     ]
   }
   </script>
@@ -263,10 +263,7 @@ def audio_iter():
             yield bytes(buffer[:BATCH_BYTES])
             del buffer[:BATCH_BYTES]
     if len(buffer) >= MIN_BYTES:
-        yield bytes(buffer)
-
-with mic:
-    client.stream(audio_iter())</code></pre>
+        yield bytes(buffer)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
@@ -334,15 +331,14 @@ mic.on('end', () => {
           </button>
         </div>
         <div class="code-tab-panel" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import signal
-
-def shutdown(signum, frame):
+          <pre><code class="language-python">print("Listening... (Ctrl+C to stop)")
+try:
+    with mic:
+        client.stream(audio_iter())
+except KeyboardInterrupt:
     print("\nStopping...")
-    mic.stop()
-    client.disconnect(terminate=True)
-    raise SystemExit(0)
-
-signal.signal(signal.SIGINT, shutdown)</code></pre>
+finally:
+    client.disconnect(terminate=True)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">process.on('SIGINT', async () => {
@@ -368,7 +364,6 @@ signal.signal(signal.SIGINT, shutdown)</code></pre>
           </div>
           <div class="code-tab-panel" data-lang="python" role="tabpanel">
             <pre><code class="language-python">import os
-import signal
 from dotenv import load_dotenv
 
 import decibri
@@ -402,14 +397,6 @@ client.connect(StreamingParameters(sample_rate=16000, speech_model="u3-rt-pro"))
 
 mic = decibri.Microphone(sample_rate=16000, channels=1)
 
-def shutdown(signum, frame):
-    print("\nStopping...")
-    mic.stop()
-    client.disconnect(terminate=True)
-    raise SystemExit(0)
-
-signal.signal(signal.SIGINT, shutdown)
-
 def audio_iter():
     buffer = bytearray()
     for chunk in mic:
@@ -421,8 +408,13 @@ def audio_iter():
         yield bytes(buffer)
 
 print("Listening... (Ctrl+C to stop)")
-with mic:
-    client.stream(audio_iter())</code></pre>
+try:
+    with mic:
+        client.stream(audio_iter())
+except KeyboardInterrupt:
+    print("\nStopping...")
+finally:
+    client.disconnect(terminate=True)</code></pre>
           </div>
           <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
