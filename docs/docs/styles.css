@@ -1425,3 +1425,31 @@ body {
   color: #22c55e;
 }
 
+/* ------------------------------------------------------------------
+   Tabbed code blocks inside <details>: strip the outer frame so the
+   tab bar sits flush with the summary the way bare Prism <pre> does
+   via the .doc-content details pre[class*="language-"] rule above.
+   The <details> element already provides the outer rounded frame
+   (border, 10px radius, overflow: hidden); the inner .code-tabs-flat
+   would otherwise draw a second border + radius + 16px top margin
+   inside that frame, leaving a visible gap between the summary's
+   border-bottom and the tab bar plus a doubled-frame look.
+
+   Targets only <details>-internal tabbed blocks. Standalone
+   .code-tabs-flat elsewhere on a doc page is unchanged. Bare
+   <pre class="language-..."> inside <details> still uses the
+   pre[class*="language-"] rule above. Naturally applies to any
+   future provider page using the same <details> > .code-tabs.code-tabs-flat
+   pattern.
+
+   Specificity (0,4,0): .doc-content + details + .code-tabs +
+   .code-tabs-flat. Beats the .code-tabs default (0,1,0) and the
+   .code-tabs.code-tabs-flat border-radius override (0,2,0) without
+   !important.
+   ------------------------------------------------------------------ */
+.doc-content details .code-tabs.code-tabs-flat {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
