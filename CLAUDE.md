@@ -51,8 +51,21 @@ Verify against this public repository for the Decibri CLI: commands, flags, exit
 - When writing or verifying **API reference content** (the Node, Python, browser API pages, integration pages, getting-started, and marketing-landing claims about platforms, formats, or VAD), read the decibri repo.
 - When writing or verifying **CLI content** (`docs/cli/`, `docs/docs/apis/cli.html`, the CLI section of `docs/llms.txt`, and CLI-related sitemap entries), read the decibri-cli repo.
 - Some pages (the marketing landing, `apis.html` overview, `llms.txt`) make claims spanning both repos and require reading both.
+- Provider integration pages (under `docs/docs/integrations/stt/`, `docs/docs/integrations/vad/`, and `docs/docs/integrations/kws/`) additionally require reading the integration test for that provider, not just the decibri repo. See the Integration provider pages subsection below.
 
 Before writing or editing any code example, command documentation, or capability claim in this repo, read the actual source from whichever upstream repo owns the claim. Do not write API examples or CLI command descriptions from memory or assumption.
+
+### Integration provider pages
+
+Pages under `docs/docs/integrations/stt/`, `docs/docs/integrations/vad/`, and `docs/docs/integrations/kws/` document how to wire decibri's audio into specific third-party providers. These pages have a third source of truth beyond the decibri repo: the maintainer's integration test directory, which contains working adapter code for each provider against both the npm and PyPI decibri packages.
+
+The integration tests are authoritative for the provider-specific half of these pages: the third-party API surface (class names, method names, event names, configuration parameters), the working sample rate and encoding for that provider, and any provider-specific constraints (for example, minimum or maximum chunk durations) that the test has had to handle.
+
+The integration test location is configured per-machine in CLAUDE.local.md. If a local checkout is configured, prefer it. If you do not have access to the integration tests for a provider you are documenting, stop and ask the maintainer. Do not write provider API code from memory or by guessing from the provider's marketing docs.
+
+Important rule on what consistency means: docs snippets and integration tests are NOT the same code by design. Integration tests are full working adapters (environment handling, error management, lifecycle orchestration, transcript or result accumulation). Docs snippets are short illustrative examples that demonstrate one concept. They must agree on every API call into both decibri and the provider (class names, methods, parameters, event names, sample rate, encoding, batching constraints, and so on) but they will differ on packaging code. The principle is "same behaviour, same identifiers, no contradictions", not "byte-identical". A docs snippet that inlines a full adapter is wrong, and a test that contains only the docs snippet is also wrong; both have the right job for their own context.
+
+If a provider's docs page and its integration test contradict each other on any API identifier or configuration value, the integration test is correct (because it actually runs against the live provider). The docs page is the bug. Flag and fix.
 
 ## Upstream rules pointer
 
