@@ -292,7 +292,7 @@ mic.on('end', () => {
         <li>The <code>end_of_turn</code> flag is <code>false</code> while the result is partial and still being refined.</li>
         <li>The <code>end_of_turn</code> flag is <code>true</code> when the turn is complete with a final transcript.</li>
         <li>The <code>turn_order</code> index increments with each new turn (starting from 0).</li>
-        <li>The <code>utterance</code> field is empty for partial results and contains the final text for completed turns.</li>
+        <li>The <code>transcript</code> field carries the recognised text. It grows as more words are finalised during the turn and contains the complete final text when <code>end_of_turn</code> is <code>true</code>.</li>
       </ul>
       <p>The event object exposes the same fields in both SDKs; only the callback parameter name differs (<code>event</code> in Python, <code>turn</code> in Node).</p>
       <p>To show only final results, filter on <code>end_of_turn</code>:</p>
