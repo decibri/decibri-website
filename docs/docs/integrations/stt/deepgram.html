@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Deepgram | decibri docs</title>
-  <meta name="description" content="Real-time cloud speech-to-text transcription using decibri and Deepgram in Node.js.">
+  <meta name="description" content="Real-time cloud speech-to-text transcription using decibri and Deepgram in Python and Node.js. Covers Nova-3 (general) and Flux (multi-turn).">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Deepgram | decibri docs">
-  <meta property="og:description" content="Real-time cloud speech-to-text transcription using decibri and Deepgram in Node.js.">
+  <meta property="og:description" content="Real-time cloud speech-to-text transcription using decibri and Deepgram in Python and Node.js. Covers Nova-3 (general) and Flux (multi-turn).">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations/stt/deepgram">
   <link rel="canonical" href="https://decibri.com/docs/integrations/stt/deepgram">
@@ -28,16 +28,17 @@
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": "How to transcribe microphone audio with Deepgram in Node.js",
-    "description": "Real-time cloud speech-to-text transcription using decibri and the Deepgram SDK. No model download required.",
+    "name": "How to transcribe microphone audio with Deepgram (Nova-3 or Flux) in Python or Node.js",
+    "description": "Real-time cloud speech-to-text transcription using decibri and the Deepgram SDK. Covers Nova-3 (single-utterance) and Flux (multi-turn).",
     "step": [
       {"@type": "HowToStep", "name": "Get an API key", "text": "Sign up at console.deepgram.com and create an API key."},
-      {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri @deepgram/sdk dotenv"},
-      {"@type": "HowToStep", "name": "Configure the client", "text": "Create a DeepgramClient with your API key and set up a WebSocket connection with audio parameters matching decibri."},
-      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
-      {"@type": "HowToStep", "name": "Stream audio", "text": "Send each audio chunk directly to Deepgram via socket.sendMedia(chunk). No format conversion needed."},
-      {"@type": "HowToStep", "name": "Handle transcription results", "text": "Listen for message events and extract transcripts from results with data.type === 'Results'."},
-      {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() and close the connection with socket.requestClose() on SIGINT."}
+      {"@type": "HowToStep", "name": "Install packages", "text": "Install decibri, the Deepgram SDK, and a dotenv helper: pip install decibri deepgram-sdk python-dotenv, or npm install decibri @deepgram/sdk dotenv. The same SDK supports both Nova-3 and Flux."},
+      {"@type": "HowToStep", "name": "Configure the client", "text": "Create a DeepgramClient with your API key. The product (Nova-3 or Flux) is selected at connect time, not on the client."},
+      {"@type": "HowToStep", "name": "Connect to a Deepgram product", "text": "For Nova-3, call client.listen.v1.connect with model 'nova-3'. For Flux, call client.listen.v2.connect with model 'flux-general-en'. In Node, include an Authorization header in the connect args; the SDK's auth provider is REST-only for the WebSocket transport."},
+      {"@type": "HowToStep", "name": "Register event handlers", "text": "Register handlers before streaming audio. Nova-3 emits Results events; Flux emits EndOfTurn events. Python v1 messages are Pydantic objects with attribute access; Python v2 messages are dicts."},
+      {"@type": "HowToStep", "name": "Open the microphone and stream audio", "text": "Create a decibri instance at 16 kHz mono. Batch decibri audio into 100 ms windows (3200 bytes of int16 mono 16 kHz) before sending."},
+      {"@type": "HowToStep", "name": "For Nova-3, send Finalize before shutdown", "text": "Call send_finalize (Python) or sendFinalize (Node) after the last chunk to flush any unprocessed audio. Wait around two seconds for the from_finalize Results message before closing."},
+      {"@type": "HowToStep", "name": "Stop and clean up", "text": "In Python, call connection.send_close_stream() then close the underlying websocket so start_listening() returns. In Node, call socket.sendCloseStream({type:'CloseStream'}) then socket.close()."}
     ]
   }
   </script>
@@ -80,15 +81,21 @@
       </div>
 
       <h1>Deepgram</h1>
-      <p class="lead">Stream live microphone audio to Deepgram for real-time cloud transcription using decibri and the official Deepgram SDK.</p>
+      <p class="lead">Stream live microphone audio to Deepgram for real-time cloud transcription using decibri and the official Deepgram SDK. This page covers two Deepgram streaming products, Nova-3 and Flux, in both Python and Node.js. Tabs above each code block switch between languages.</p>
 
       <h2>What this does</h2>
-      <p>This integration captures live audio from your microphone using decibri and streams it to Deepgram's cloud API over a WebSocket. Transcription results return in real-time as you speak. There is no model download, no local inference, and no format conversion required.</p>
+      <p>This integration captures live audio from your microphone using decibri and streams it to Deepgram's cloud API over a WebSocket. Two products are documented here: Nova-3 (single-utterance general transcription) and Flux (multi-turn voice-agent transcription). Both ship in the same SDK packages; pick the one that matches your use case. There is no model download, no local inference, and no format conversion required.</p>
 
       <h2>Cloud vs local</h2>
       <div class="callout">
-        <strong>Note:</strong> Deepgram is a cloud service. Audio is sent to Deepgram's servers for processing. Deepgram does not store audio by default. If your use case requires audio to stay entirely on-device, use the local integrations: <a href="/docs/integrations/stt/sherpa-onnx">sherpa-onnx</a> (real-time streaming) or <a href="/docs/integrations/stt/whisper-cpp">whisper.cpp</a> (batch transcription).
+        <strong>Note:</strong> Deepgram is a cloud service. Audio is sent to Deepgram's servers for processing. If your use case requires audio to stay entirely on-device, use the local integrations: <a href="/docs/integrations/stt/sherpa-onnx">sherpa-onnx</a> (real-time streaming) or <a href="/docs/integrations/stt/whisper-cpp">whisper.cpp</a> (batch transcription).
       </div>
+
+      <h2>Choosing between Nova-3 and Flux</h2>
+      <p>Deepgram offers two streaming speech-to-text products. Both ship in the same SDK packages and both stream live microphone audio over a WebSocket, but they target different shapes of speech and emit different result events.</p>
+      <p>Nova-3 is a general-purpose, single-utterance transcription model on the v1 streaming API. It emits Results events as audio is processed, with an <code>is_final</code> flag separating progressive partials from final transcripts. Pick Nova-3 for dictation, voice notes, captioning, or any flow where the goal is to transcribe one utterance at a time.</p>
+      <p>Flux is a multi-turn, voice-agent oriented model on the v2 streaming API. It emits <code>EndOfTurn</code> events with a turn index, the transcript for that turn, and an end-of-turn confidence score. Turn boundaries are configurable via <code>eot_threshold</code> and <code>eot_timeout_ms</code>. Pick Flux for conversational interfaces, voice agents, or any flow where the application needs to react to natural turn-taking.</p>
+      <p>The walkthroughs below cover both. The Prerequisites section is shared; the Nova-3 and Flux sections are independent and either can be copied on its own.</p>
 
       <h2>Prerequisites</h2>
 
@@ -98,130 +105,545 @@
         <li>Create an API key from the dashboard</li>
         <li>Store it in a <code>.env</code> file in your project root:</li>
       </ol>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
-        </div>
-      </div>
+      <pre><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
 
       <h3>Install packages</h3>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri @deepgram/sdk dotenv')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
-        <span class="cmd">npm install decibri @deepgram/sdk dotenv</span>
+        <span class="cmd" id="install-cmd">pip install decibri deepgram-sdk python-dotenv</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>The <code>dotenv</code> package loads your API key from the <code>.env</code> file. If you set environment variables another way, you can skip it.</p>
-      <p>No model download is required. All processing happens in Deepgram's cloud.</p>
+      <p>The dotenv package (<code>python-dotenv</code> on PyPI, <code>dotenv</code> on npm) loads your API key from the <code>.env</code> file. If you set environment variables another way, you can skip it. The install command above switches with the language tabs in the code blocks below.</p>
+      <p>The same Deepgram SDK package supports both Nova-3 and Flux. No model download is required. All processing happens in Deepgram's cloud.</p>
 
-      <h2>Code walkthrough</h2>
+      <h2>Nova-3 integration</h2>
 
-      <h3>1. Configuration</h3>
-      <p>Import decibri, the Deepgram SDK, and dotenv. Create a Deepgram client with your API key.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <h3>1. Configure the client</h3>
+      <p>Import decibri, the Deepgram SDK, and dotenv. Create a <code>DeepgramClient</code> with your API key. The same <code>DeepgramClient</code> is used for both products; the product is selected at connect time.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import os
+from dotenv import load_dotenv
+import decibri
+from deepgram import DeepgramClient
+from deepgram.core.events import EventType
+
+load_dotenv()
+client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
 const Decibri = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
-const deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
+const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
         </div>
       </div>
 
       <h3>2. Connect to Deepgram</h3>
-      <p>Create a WebSocket connection with audio parameters that match decibri's configuration. The <code>encoding</code>, <code>sample_rate</code>, and <code>channels</code> must match what decibri outputs.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Open a WebSocket to Deepgram and select the Nova-3 model. The audio parameters (<code>encoding</code>, <code>sample_rate</code>) must match what decibri emits.</p>
+      <p>In Python, <code>client.listen.v1.connect(...)</code> returns a context manager; use <code>with ... as connection:</code> so the WebSocket is closed cleanly when the block exits. The remaining Python steps in this walkthrough sit inside that <code>with</code> block.</p>
+      <p>In Node, <code>client.listen.v1.connect(...)</code> returns a promise that resolves to a socket. The socket is built with <code>startClosed: true</code>, so you must call <code>socket.connect()</code> before awaiting <code>socket.waitForOpen()</code>. Without that call, <code>waitForOpen()</code> blocks indefinitely. Wrap <code>waitForOpen()</code> in a <code>Promise.race</code> with a timeout because the SDK's <code>ReconnectingWebSocket</code> retries silently on auth or network failures and would otherwise hang quietly.</p>
+      <div class="callout">
+        <strong>Node Authorization:</strong> the Node connect args must include <code>Authorization: `Token ${KEY}`</code>. The <code>DeepgramClient</code> constructor's <code>apiKey</code> option only flows to REST endpoints; the WebSocket transport ignores it. Omitting the Authorization header in the Node connect args is the single most common reason a Deepgram WebSocket fails to open. The Python SDK wires the constructor's <code>api_key</code> through to the WebSocket transport automatically, so the Python connect args do not need an Authorization entry.
+      </div>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const socket = await deepgram.listen.v1.createConnection({
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with client.listen.v1.connect(
+    model="nova-3",
+    encoding="linear16",
+    sample_rate=16000,
+) as connection:
+    # Register handlers, open the microphone, stream audio, and shut
+    # down inside this block (see steps below).
+    ...</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
+
+const socket = await client.listen.v1.connect({
   model: 'nova-3',
-  language: 'en',
   encoding: 'linear16',
   sample_rate: 16000,
-  channels: 1,
-  punctuate: true,
-  smart_format: true,
+  Authorization: `Token ${KEY}`,
 });
 
 socket.connect();
-await socket.waitForOpen();</code></pre>
-        </div>
-      </div>
-      <p>Audio must only be sent after <code>waitForOpen()</code> resolves. Sending before the WebSocket is open will drop chunks silently.</p>
 
-      <h3>3. Open the microphone</h3>
-      <p>Create a decibri instance at 16 kHz mono. The default format is 16-bit signed integer PCM, which matches Deepgram's <code>linear16</code> encoding directly.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+await Promise.race([
+  socket.waitForOpen(),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Deepgram WebSocket open timeout after 10s')), 10000)
+  ),
+]);</code></pre>
         </div>
       </div>
 
-      <h3>4. Stream audio</h3>
-      <p>Send each audio chunk directly to Deepgram. No format conversion is needed. Decibri's raw Int16 PCM Buffer is sent as-is via <code>sendMedia()</code>.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <h3>3. Register event handlers</h3>
+      <p>Register handlers before streaming audio. Both SDKs deliver each result as one event. In Python, events use the <code>EventType</code> enum from <code>deepgram.core.events</code>; on v1, message payloads are Pydantic <code>ListenV1Results</code> objects accessed with attribute syntax. In Node, the socket exposes string events (<code>'open'</code>, <code>'message'</code>, <code>'error'</code>, <code>'close'</code>); message payloads are plain JS objects with direct property access.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">mic.on('data', (chunk) => {
-  socket.sendMedia(chunk);
-});</code></pre>
-        </div>
-      </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">def on_open(_):
+    print("Deepgram connected.")
 
-      <h3>5. Handle transcription results</h3>
-      <p>Listen for message events on the socket. Results arrive with <code>data.type === 'Results'</code> and contain one or more transcript alternatives.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+def on_message(result):
+    if result.type != "Results" or not result.is_final:
+        return
+    alts = result.channel.alternatives if result.channel else []
+    if not alts:
+        return
+    transcript = alts[0].transcript
+    if transcript:
+        print(transcript)
+
+connection.on(EventType.OPEN, on_open)
+connection.on(EventType.MESSAGE, on_message)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">socket.on('message', (data) => {
-  if (data.type === 'Results' && data.channel?.alternatives?.[0]) {
-    const transcript = data.channel.alternatives[0].transcript;
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">socket.on('open', () => {
+  console.log('Deepgram connected.');
+});
+
+socket.on('message', (msg) => {
+  if (msg && msg.type === 'Results' && msg.is_final) {
+    const alts = (msg.channel && msg.channel.alternatives) || [];
+    const transcript = alts[0] && alts[0].transcript;
     if (transcript) {
       console.log(transcript);
     }
   }
-});</code></pre>
-        </div>
-      </div>
-
-      <h3>6. Clean shutdown</h3>
-      <p>Stop the microphone and close the Deepgram connection when the user presses Ctrl+C.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">socket.on('close', () => {
-  console.log('Connection closed.');
-  process.exit(0);
 });
 
 socket.on('error', (err) => {
   console.error('Deepgram error:', err);
 });
 
-mic.on('error', (err) => {
-  console.error('Mic error:', err.message);
+socket.on('close', () => {
+  console.log('Connection closed.');
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>4. Open the microphone</h3>
+      <p>Create a decibri instance at 16 kHz mono. Decibri's default 16-bit signed integer PCM matches Deepgram's <code>linear16</code> encoding directly. In Python, <code>Microphone</code> is constructed here but capture starts only when the <code>with mic:</code> block is entered (see the shutdown step below). In Node, <code>new Decibri(...)</code> begins capture as soon as it is constructed.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+        </div>
+      </div>
+
+      <h3>5. Stream audio</h3>
+      <p>Read chunks from decibri and forward them to Deepgram. Deepgram recommends streaming buffers between 20 and 100 ms; batching to 100 ms windows (3200 bytes of int16 mono at 16 kHz) gives the most efficient server-side processing. Decibri's live microphone capture delivers audio at real-time pace, and Deepgram processes it as it arrives. Decibri produces raw int16 PCM that Deepgram accepts as-is, so no format conversion is needed.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms tail-drop
+
+def audio_iter():
+    buffer = bytearray()
+    for chunk in mic:
+        buffer.extend(chunk)
+        while len(buffer) >= BATCH_BYTES:
+            yield bytes(buffer[:BATCH_BYTES])
+            del buffer[:BATCH_BYTES]
+    if len(buffer) >= MIN_BYTES:
+        yield bytes(buffer)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms tail-drop
+
+let buffer = Buffer.alloc(0);
+mic.on('data', (chunk) => {
+  buffer = Buffer.concat([buffer, chunk]);
+  while (buffer.length >= BATCH_BYTES) {
+    socket.sendMedia(buffer.subarray(0, BATCH_BYTES));
+    buffer = buffer.subarray(BATCH_BYTES);
+  }
 });
 
-process.on('SIGINT', () => {
+mic.on('error', (err) => {
+  console.error('Mic error:', err.message);
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>6. Send Finalize and handle results</h3>
+      <p>When the audio stream ends, call <code>send_finalize</code> (Python) or <code>sendFinalize</code> (Node) to flush any unprocessed audio in Deepgram's server-side pipeline. Without this, the last few hundred milliseconds of speech can be missed because Deepgram's endpointing has not yet closed the utterance. Finalize emits a final <code>Results</code> message with <code>from_finalize: true</code>. Wait a short grace period (around 2 seconds) for that message to arrive before tearing the connection down.</p>
+      <p>This step is specific to Nova-3 (v1). Flux uses <code>EndOfTurn</code> events for turn boundaries and does not need an explicit Finalize call.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">for chunk in audio_iter():
+    connection.send_media(chunk)
+
+connection.send_finalize()
+time.sleep(2.0)  # grace for the from_finalize Results message</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">if (buffer.length >= MIN_BYTES) {
+  socket.sendMedia(buffer);
+}
+socket.sendFinalize({ type: 'Finalize' });
+await new Promise((r) => setTimeout(r, 2000));  // grace for the from_finalize Results message</code></pre>
+        </div>
+      </div>
+
+      <h3>7. Clean shutdown</h3>
+      <p>Close the WebSocket and stop the microphone when the user presses Ctrl+C. In Python, <code>connection.send_close_stream()</code> tells Deepgram you are done sending audio but does not close the local websocket. The Python SDK does not currently expose a public close method on <code>V1SocketClient</code>, so to break out of <code>start_listening()</code> you must close the underlying websocket directly via <code>connection._websocket.close()</code>. This is a known SDK quirk; future SDK releases may add a public close method.</p>
+      <p>In Node, <code>socket.sendCloseStream({ type: 'CloseStream' })</code> followed by <code>socket.close()</code> is the public API; the <code>'close'</code> event fires once the server has acknowledged.</p>
+      <p>The Python pattern below runs the send-side work on a background thread because <code>connection.start_listening()</code> blocks the main thread until the socket closes. The thread is required to keep audio flowing while the main thread receives events.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import threading
+import time
+
+print("Listening... (Ctrl+C to stop)")
+try:
+    with mic:
+        def stream():
+            try:
+                for chunk in audio_iter():
+                    connection.send_media(chunk)
+                connection.send_finalize()
+                time.sleep(2.0)
+            finally:
+                connection.send_close_stream()
+                # SDK quirk: V1SocketClient has no public close method;
+                # force-close the underlying websocket so start_listening
+                # returns. Future SDK releases may add a public close.
+                connection._websocket.close()
+
+        sender = threading.Thread(target=stream, daemon=True)
+        sender.start()
+        connection.start_listening()  # blocks until the websocket closes
+        sender.join(timeout=7.0)
+except KeyboardInterrupt:
+    print("\nStopping...")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+
+process.on('SIGINT', async () => {
+  console.log('\nStopping...');
   mic.stop();
-  socket.requestClose();
+  if (buffer.length >= MIN_BYTES) {
+    socket.sendMedia(buffer);
+  }
+  socket.sendFinalize({ type: 'Finalize' });
+  await new Promise((r) => setTimeout(r, 2000));
+  socket.sendCloseStream({ type: 'CloseStream' });
+  socket.close();
+  await closed;
+  process.exit(0);
+});
+
+console.log('Listening... (Ctrl+C to stop)');</code></pre>
+        </div>
+      </div>
+
+      <h2>Flux integration</h2>
+
+      <h3>1. Configure the client</h3>
+      <p>Same client construction as Nova-3. The product is selected at connect time, not on the client.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import os
+from dotenv import load_dotenv
+import decibri
+from deepgram import DeepgramClient
+from deepgram.core.events import EventType
+
+load_dotenv()
+client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">require('dotenv').config();
+
+const Decibri = require('decibri');
+const { DeepgramClient } = require('@deepgram/sdk');
+
+const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
+        </div>
+      </div>
+
+      <h3>2. Connect to Deepgram</h3>
+      <p>Open a WebSocket to Deepgram and select the Flux model. The connect args include <code>eot_threshold</code> (end-of-turn probability threshold, default 0.7) and <code>eot_timeout_ms</code> (maximum wait for end-of-turn, default 5000) which configure the turn-detection behaviour.</p>
+      <p>The Wrapped-client and Authorization caveats described in the Nova-3 connect step apply identically here: in Node you must call <code>socket.connect()</code> before awaiting <code>socket.waitForOpen()</code>, you should wrap <code>waitForOpen()</code> in a <code>Promise.race</code> with a timeout, and the connect args must include an <code>Authorization</code> header. The Python connect args do not need one.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with client.listen.v2.connect(
+    model="flux-general-en",
+    eot_threshold=0.7,
+    eot_timeout_ms=5000,
+    encoding="linear16",
+    sample_rate=16000,
+) as connection:
+    # Register handlers, open the microphone, stream audio, and shut
+    # down inside this block (see steps below).
+    ...</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
+
+const socket = await client.listen.v2.connect({
+  model: 'flux-general-en',
+  encoding: 'linear16',
+  sample_rate: 16000,
+  eot_threshold: 0.7,
+  eot_timeout_ms: 5000,
+  Authorization: `Token ${KEY}`,
+});
+
+socket.connect();
+
+await Promise.race([
+  socket.waitForOpen(),
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Deepgram WebSocket open timeout after 10s')), 10000)
+  ),
+]);</code></pre>
+        </div>
+      </div>
+
+      <h3>3. Register event handlers</h3>
+      <p>Register handlers before streaming audio. In Python, Flux's v2 SDK delivers each message as a plain dict (not a Pydantic object as v1 does); use <code>.get(...)</code> rather than attribute access. In Node, messages are plain JS objects with direct property access for both v1 and v2.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">def on_open(_):
+    print("Deepgram (Flux) connected.")
+
+def on_message(result):
+    if result.get("event") != "EndOfTurn":
+        return
+    print(f"[turn {result.get('turn_index')}] {result.get('transcript') or ''} "
+          f"(conf={result.get('end_of_turn_confidence')})")
+
+connection.on(EventType.OPEN, on_open)
+connection.on(EventType.MESSAGE, on_message)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">socket.on('open', () => {
+  console.log('Deepgram (Flux) connected.');
+});
+
+socket.on('message', (msg) => {
+  if (msg && msg.event === 'EndOfTurn') {
+    console.log(`[turn ${msg.turn_index}] ${msg.transcript || ''} (conf=${msg.end_of_turn_confidence})`);
+  }
+});
+
+socket.on('error', (err) => {
+  console.error('Deepgram error:', err);
+});
+
+socket.on('close', () => {
+  console.log('Connection closed.');
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>4. Open the microphone</h3>
+      <p>Same microphone construction as Nova-3. Create a decibri instance at 16 kHz mono.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+        </div>
+      </div>
+
+      <h3>5. Stream audio</h3>
+      <p>Same batching as the Nova-3 walkthrough. Decibri produces raw int16 PCM at the rate Deepgram expects, so no format conversion is needed.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms tail-drop
+
+def audio_iter():
+    buffer = bytearray()
+    for chunk in mic:
+        buffer.extend(chunk)
+        while len(buffer) >= BATCH_BYTES:
+            yield bytes(buffer[:BATCH_BYTES])
+            del buffer[:BATCH_BYTES]
+    if len(buffer) >= MIN_BYTES:
+        yield bytes(buffer)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms tail-drop
+
+let buffer = Buffer.alloc(0);
+mic.on('data', (chunk) => {
+  buffer = Buffer.concat([buffer, chunk]);
+  while (buffer.length >= BATCH_BYTES) {
+    socket.sendMedia(buffer.subarray(0, BATCH_BYTES));
+    buffer = buffer.subarray(BATCH_BYTES);
+  }
+});
+
+mic.on('error', (err) => {
+  console.error('Mic error:', err.message);
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>6. Clean shutdown</h3>
+      <p>Same shutdown shape as Nova-3, minus the Finalize call. Wait a short grace period (around 2 seconds) after the last audio chunk for any late <code>EndOfTurn</code> events to arrive, then close the connection. The Python SDK quirk (no public close on <code>V2SocketClient</code>, requires <code>connection._websocket.close()</code> to break out of <code>start_listening()</code>) applies to v2 as well as v1.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import threading
+import time
+
+print("Listening... (Ctrl+C to stop)")
+try:
+    with mic:
+        def stream():
+            try:
+                for chunk in audio_iter():
+                    connection.send_media(chunk)
+                # Grace for late EndOfTurn events to arrive after the
+                # last audio chunk hits the server.
+                time.sleep(2.0)
+            finally:
+                connection.send_close_stream()
+                # Same SDK quirk as Nova-3: V2SocketClient has no
+                # public close method; force-close the underlying
+                # websocket so start_listening returns.
+                connection._websocket.close()
+
+        sender = threading.Thread(target=stream, daemon=True)
+        sender.start()
+        connection.start_listening()
+        sender.join(timeout=7.0)
+except KeyboardInterrupt:
+    print("\nStopping...")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+
+process.on('SIGINT', async () => {
+  console.log('\nStopping...');
+  mic.stop();
+  if (buffer.length >= MIN_BYTES) {
+    socket.sendMedia(buffer);
+  }
+  // Grace for late EndOfTurn events to arrive after the last audio
+  // chunk hits the server.
+  await new Promise((r) => setTimeout(r, 2000));
+  socket.sendCloseStream({ type: 'CloseStream' });
+  socket.close();
+  await closed;
+  process.exit(0);
 });
 
 console.log('Listening... (Ctrl+C to stop)');</code></pre>
@@ -229,85 +651,352 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
       </div>
 
       <h2>Full example</h2>
+
+      <h3>Nova-3 complete example</h3>
       <details>
         <summary>View complete code</summary>
-        <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tabs code-tabs-flat" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+              <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+            <pre><code class="language-python">import os
+import threading
+import time
+from dotenv import load_dotenv
+
+import decibri
+from deepgram import DeepgramClient
+from deepgram.core.events import EventType
+
+BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms tail-drop
+
+load_dotenv()
+
+client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])
+
+with client.listen.v1.connect(
+    model="nova-3",
+    encoding="linear16",
+    sample_rate=16000,
+) as connection:
+
+    def on_open(_):
+        print("Deepgram connected.")
+
+    def on_message(result):
+        if result.type != "Results" or not result.is_final:
+            return
+        alts = result.channel.alternatives if result.channel else []
+        if not alts:
+            return
+        transcript = alts[0].transcript
+        if transcript:
+            print(transcript)
+
+    connection.on(EventType.OPEN, on_open)
+    connection.on(EventType.MESSAGE, on_message)
+
+    mic = decibri.Microphone(sample_rate=16000, channels=1)
+
+    def audio_iter():
+        buffer = bytearray()
+        for chunk in mic:
+            buffer.extend(chunk)
+            while len(buffer) >= BATCH_BYTES:
+                yield bytes(buffer[:BATCH_BYTES])
+                del buffer[:BATCH_BYTES]
+        if len(buffer) >= MIN_BYTES:
+            yield bytes(buffer)
+
+    print("Listening... (Ctrl+C to stop)")
+    try:
+        with mic:
+            def stream():
+                try:
+                    for chunk in audio_iter():
+                        connection.send_media(chunk)
+                    connection.send_finalize()
+                    time.sleep(2.0)
+                finally:
+                    connection.send_close_stream()
+                    # SDK quirk: V1SocketClient has no public close method.
+                    connection._websocket.close()
+
+            sender = threading.Thread(target=stream, daemon=True)
+            sender.start()
+            connection.start_listening()
+            sender.join(timeout=7.0)
+    except KeyboardInterrupt:
+        print("\nStopping...")</code></pre>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const Decibri = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
-const live = async () => {
-  const deepgram = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });
+const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms tail-drop
 
-  const socket = await deepgram.listen.v1.createConnection({
+const run = async () => {
+  const KEY = process.env.DEEPGRAM_API_KEY;
+  const client = new DeepgramClient({ apiKey: KEY });
+
+  const socket = await client.listen.v1.connect({
     model: 'nova-3',
-    language: 'en',
     encoding: 'linear16',
     sample_rate: 16000,
-    channels: 1,
-    punctuate: true,
-    smart_format: true,
+    Authorization: `Token ${KEY}`,
   });
 
-  socket.on('message', (data) => {
-    if (data.type === 'Results' && data.channel?.alternatives?.[0]) {
-      const transcript = data.channel.alternatives[0].transcript;
+  socket.on('open', () => {
+    console.log('Deepgram connected.');
+  });
+
+  socket.on('message', (msg) => {
+    if (msg && msg.type === 'Results' && msg.is_final) {
+      const alts = (msg.channel && msg.channel.alternatives) || [];
+      const transcript = alts[0] && alts[0].transcript;
       if (transcript) {
         console.log(transcript);
       }
     }
   });
 
-  socket.on('close', () => {
-    console.log('Connection closed.');
-    process.exit(0);
-  });
-
   socket.on('error', (err) => {
     console.error('Deepgram error:', err);
   });
 
+  const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+
   socket.connect();
-  await socket.waitForOpen();
+
+  await Promise.race([
+    socket.waitForOpen(),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Deepgram WebSocket open timeout after 10s')), 10000)
+    ),
+  ]);
 
   const mic = new Decibri({ sampleRate: 16000, channels: 1 });
 
+  let buffer = Buffer.alloc(0);
   mic.on('data', (chunk) => {
-    socket.sendMedia(chunk);
+    buffer = Buffer.concat([buffer, chunk]);
+    while (buffer.length >= BATCH_BYTES) {
+      socket.sendMedia(buffer.subarray(0, BATCH_BYTES));
+      buffer = buffer.subarray(BATCH_BYTES);
+    }
   });
 
   mic.on('error', (err) => {
     console.error('Mic error:', err.message);
   });
 
-  process.on('SIGINT', () => {
+  process.on('SIGINT', async () => {
     console.log('\nStopping...');
     mic.stop();
-    socket.requestClose();
+    if (buffer.length >= MIN_BYTES) {
+      socket.sendMedia(buffer);
+    }
+    socket.sendFinalize({ type: 'Finalize' });
+    await new Promise((r) => setTimeout(r, 2000));
+    socket.sendCloseStream({ type: 'CloseStream' });
+    socket.close();
+    await closed;
+    process.exit(0);
   });
 
-  console.log('Listening... (Ctrl+C to stop)\n');
+  console.log('Listening... (Ctrl+C to stop)');
 };
 
-live().catch(console.error);</code></pre>
+run().catch(console.error);</code></pre>
+          </div>
+        </div>
+      </details>
+
+      <h3>Flux complete example</h3>
+      <details>
+        <summary>View complete code</summary>
+        <div class="code-tabs code-tabs-flat" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+              <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+          </div>
+          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+            <pre><code class="language-python">import os
+import threading
+import time
+from dotenv import load_dotenv
+
+import decibri
+from deepgram import DeepgramClient
+from deepgram.core.events import EventType
+
+BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+MIN_BYTES = 1600     # 50 ms tail-drop
+
+load_dotenv()
+
+client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])
+
+with client.listen.v2.connect(
+    model="flux-general-en",
+    eot_threshold=0.7,
+    eot_timeout_ms=5000,
+    encoding="linear16",
+    sample_rate=16000,
+) as connection:
+
+    def on_open(_):
+        print("Deepgram (Flux) connected.")
+
+    def on_message(result):
+        if result.get("event") != "EndOfTurn":
+            return
+        print(f"[turn {result.get('turn_index')}] {result.get('transcript') or ''} "
+              f"(conf={result.get('end_of_turn_confidence')})")
+
+    connection.on(EventType.OPEN, on_open)
+    connection.on(EventType.MESSAGE, on_message)
+
+    mic = decibri.Microphone(sample_rate=16000, channels=1)
+
+    def audio_iter():
+        buffer = bytearray()
+        for chunk in mic:
+            buffer.extend(chunk)
+            while len(buffer) >= BATCH_BYTES:
+                yield bytes(buffer[:BATCH_BYTES])
+                del buffer[:BATCH_BYTES]
+        if len(buffer) >= MIN_BYTES:
+            yield bytes(buffer)
+
+    print("Listening... (Ctrl+C to stop)")
+    try:
+        with mic:
+            def stream():
+                try:
+                    for chunk in audio_iter():
+                        connection.send_media(chunk)
+                    time.sleep(2.0)
+                finally:
+                    connection.send_close_stream()
+                    connection._websocket.close()
+
+            sender = threading.Thread(target=stream, daemon=True)
+            sender.start()
+            connection.start_listening()
+            sender.join(timeout=7.0)
+    except KeyboardInterrupt:
+        print("\nStopping...")</code></pre>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+            <pre><code class="language-javascript">'use strict';
+require('dotenv').config();
+
+const Decibri = require('decibri');
+const { DeepgramClient } = require('@deepgram/sdk');
+
+const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+const MIN_BYTES = 1600;    // 50 ms tail-drop
+
+const run = async () => {
+  const KEY = process.env.DEEPGRAM_API_KEY;
+  const client = new DeepgramClient({ apiKey: KEY });
+
+  const socket = await client.listen.v2.connect({
+    model: 'flux-general-en',
+    encoding: 'linear16',
+    sample_rate: 16000,
+    eot_threshold: 0.7,
+    eot_timeout_ms: 5000,
+    Authorization: `Token ${KEY}`,
+  });
+
+  socket.on('open', () => {
+    console.log('Deepgram (Flux) connected.');
+  });
+
+  socket.on('message', (msg) => {
+    if (msg && msg.event === 'EndOfTurn') {
+      console.log(`[turn ${msg.turn_index}] ${msg.transcript || ''} (conf=${msg.end_of_turn_confidence})`);
+    }
+  });
+
+  socket.on('error', (err) => {
+    console.error('Deepgram error:', err);
+  });
+
+  const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+
+  socket.connect();
+
+  await Promise.race([
+    socket.waitForOpen(),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Deepgram WebSocket open timeout after 10s')), 10000)
+    ),
+  ]);
+
+  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+
+  let buffer = Buffer.alloc(0);
+  mic.on('data', (chunk) => {
+    buffer = Buffer.concat([buffer, chunk]);
+    while (buffer.length >= BATCH_BYTES) {
+      socket.sendMedia(buffer.subarray(0, BATCH_BYTES));
+      buffer = buffer.subarray(BATCH_BYTES);
+    }
+  });
+
+  mic.on('error', (err) => {
+    console.error('Mic error:', err.message);
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('\nStopping...');
+    mic.stop();
+    if (buffer.length >= MIN_BYTES) {
+      socket.sendMedia(buffer);
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+    socket.sendCloseStream({ type: 'CloseStream' });
+    socket.close();
+    await closed;
+    process.exit(0);
+  });
+
+  console.log('Listening... (Ctrl+C to stop)');
+};
+
+run().catch(console.error);</code></pre>
           </div>
         </div>
       </details>
 
       <h2>Configuration options</h2>
-      <p>The connection options control how Deepgram processes your audio. Here are the most useful ones:</p>
+      <p>The connect args control how Deepgram processes your audio. Each product accepts a different set of options. Names are identical in Python and Node.</p>
+
+      <h3>Nova-3</h3>
       <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>Option</th>
-            <th>Default</th>
+            <th>Value</th>
             <th>Description</th>
           </tr>
         </thead>
@@ -315,12 +1004,22 @@ live().catch(console.error);</code></pre>
           <tr>
             <td><code>model</code></td>
             <td><code>'nova-3'</code></td>
-            <td>Transcription model. Nova-3 is the latest and most accurate.</td>
+            <td>Required. The Nova-3 model selector.</td>
+          </tr>
+          <tr>
+            <td><code>encoding</code></td>
+            <td><code>'linear16'</code></td>
+            <td>Audio encoding. Must match decibri's <code>int16</code> output.</td>
+          </tr>
+          <tr>
+            <td><code>sample_rate</code></td>
+            <td><code>16000</code></td>
+            <td>Audio sample rate. Must match the rate decibri captures at.</td>
           </tr>
           <tr>
             <td><code>language</code></td>
             <td><code>'en'</code></td>
-            <td>Language code. Use <code>'multi'</code> for automatic language detection.</td>
+            <td>Language code. Use <code>'multi'</code> for automatic language detection (subject to model support).</td>
           </tr>
           <tr>
             <td><code>punctuate</code></td>
@@ -330,7 +1029,7 @@ live().catch(console.error);</code></pre>
           <tr>
             <td><code>smart_format</code></td>
             <td><code>false</code></td>
-            <td>Apply formatting for numerals, currency, and dates.</td>
+            <td>Format numerals, currency, and dates.</td>
           </tr>
           <tr>
             <td><code>diarize</code></td>
@@ -340,43 +1039,157 @@ live().catch(console.error);</code></pre>
           <tr>
             <td><code>interim_results</code></td>
             <td><code>false</code></td>
-            <td>Return progressive results that refine as more audio is processed.</td>
+            <td>Emit progressive results that refine as more audio is processed.</td>
           </tr>
           <tr>
             <td><code>endpointing</code></td>
             <td><code>10</code></td>
             <td>Milliseconds of silence before a final result is triggered.</td>
           </tr>
+          <tr>
+            <td><code>Authorization</code></td>
+            <td><code>`Token ${KEY}`</code></td>
+            <td>Required on Node. Pass in the connect args because the SDK's <code>apiKey</code> option flows to REST endpoints only.</td>
+          </tr>
         </tbody>
       </table>
       </div>
-      <p>See the <a href="https://developers.deepgram.com/docs/getting-started-with-live-streaming-audio" target="_blank" rel="noopener noreferrer">Deepgram streaming API reference</a> for the complete list of options.</p>
+      <p>See the <a href="https://developers.deepgram.com/docs/getting-started-with-live-streaming-audio" target="_blank" rel="noopener noreferrer">Deepgram Nova streaming reference</a> for the complete option list.</p>
+
+      <h3>Flux</h3>
+      <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th>Value</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>model</code></td>
+            <td><code>'flux-general-en'</code></td>
+            <td>Required. The Flux model selector.</td>
+          </tr>
+          <tr>
+            <td><code>encoding</code></td>
+            <td><code>'linear16'</code></td>
+            <td>Audio encoding. Must match decibri's <code>int16</code> output.</td>
+          </tr>
+          <tr>
+            <td><code>sample_rate</code></td>
+            <td><code>16000</code></td>
+            <td>Audio sample rate. Must match the rate decibri captures at.</td>
+          </tr>
+          <tr>
+            <td><code>eot_threshold</code></td>
+            <td><code>0.7</code></td>
+            <td>End-of-turn confidence threshold. Higher values require more confident silence detection before closing a turn.</td>
+          </tr>
+          <tr>
+            <td><code>eot_timeout_ms</code></td>
+            <td><code>5000</code></td>
+            <td>Maximum wait in milliseconds before forcing an end of turn even without high confidence.</td>
+          </tr>
+          <tr>
+            <td><code>Authorization</code></td>
+            <td><code>`Token ${KEY}`</code></td>
+            <td>Required on Node. Pass in the connect args because the SDK's <code>apiKey</code> option flows to REST endpoints only.</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+      <p>See the <a href="https://developers.deepgram.com/docs/flux" target="_blank" rel="noopener noreferrer">Deepgram Flux streaming reference</a> for additional options including event filtering and turn-update behaviour.</p>
 
       <div class="related-links">
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/integrations/stt">Speech-to-text overview</a>: compare all STT providers</li>
+          <li><a href="/docs/integrations/stt/assemblyai">AssemblyAI</a>: alternative cloud streaming STT with turn-based results</li>
           <li><a href="/docs/integrations/stt/sherpa-onnx">Sherpa-ONNX</a>: real-time local transcription, no cloud required</li>
           <li><a href="/docs/integrations/stt/whisper-cpp">Whisper.cpp</a>: local batch transcription with OpenAI's Whisper model</li>
-          <li><a href="/docs/apis/node">API Reference</a>: full decibri API documentation</li>
+          <li><a href="/docs/apis/python">Python API</a>: full decibri Python API documentation</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: full decibri Node.js API documentation</li>
           <li><a href="https://developers.deepgram.com" target="_blank" rel="noopener noreferrer">Deepgram developer docs</a></li>
+          <li><a href="https://github.com/deepgram/deepgram-python-sdk" target="_blank" rel="noopener noreferrer">Deepgram Python SDK on GitHub</a></li>
           <li><a href="https://github.com/deepgram/deepgram-js-sdk" target="_blank" rel="noopener noreferrer">Deepgram Node.js SDK on GitHub</a></li>
+          <li><a href="https://pypi.org/project/deepgram-sdk/" target="_blank" rel="noopener noreferrer">deepgram-sdk on PyPI</a></li>
           <li><a href="https://www.npmjs.com/package/@deepgram/sdk" target="_blank" rel="noopener noreferrer">@deepgram/sdk on npm</a></li>
           <li><a href="https://console.deepgram.com" target="_blank" rel="noopener noreferrer">Deepgram console (sign up / API keys)</a></li>
         </ul>
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com/" target="_blank" rel="noopener noreferrer">Decibri</a></p>
       </footer>
 
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // homepage's copyHeroCode helper at docs/index.html.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy the install command currently displayed (which follows the language
+    // tabs below) to the clipboard, flashing the pill briefly on success.
+    function copyInstall(el) {
+      var cmdEl = document.getElementById('install-cmd');
+      if (!cmdEl) return;
+      var flash = function () {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(function () { el.classList.remove('copied'); }, 1500);
+        }
+      };
+      navigator.clipboard.writeText(cmdEl.textContent).then(flash).catch(flash);
+    }
+
+    // Install pill follows the language tabs. /docs/code-tabs.js dispatches a
+    // bubbling 'code-tabs:change' event whenever a tab becomes active,
+    // including on initial load from the localStorage preference. Mirrors the
+    // homepage wiring at docs/index.html.
+    (function () {
+      var installCommands = {
+        python: 'pip install decibri deepgram-sdk python-dotenv',
+        node: 'npm install decibri @deepgram/sdk dotenv'
+      };
+      function syncInstallPill(lang) {
+        var cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        var btn = document.querySelector('.code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+  </script>
   <script src="/docs/code-tabs.js"></script>
 </body>
 </html>
