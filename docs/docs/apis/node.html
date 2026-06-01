@@ -64,7 +64,7 @@
       <p class="lead">Complete reference for the decibri Node.js API. For installation and basic usage, see <a href="/docs/getting-started">Getting started</a>.</p>
 
       <h2>Constructor</h2>
-      <h3><code>new Decibri(options?)</code></h3>
+      <h3><code>new Microphone(options?)</code></h3>
       <p>Creates a Node.js Readable stream that captures raw PCM audio from the system microphone.</p>
 
       <div class="table-wrap">
@@ -100,19 +100,19 @@
               <td><code>device</code></td>
               <td><code>number | string</code></td>
               <td>system default</td>
-              <td>Device index from <code>Decibri.devices()</code> or case-insensitive name substring</td>
+              <td>Device index from <code>Microphone.devices()</code> or case-insensitive name substring</td>
             </tr>
             <tr>
-              <td><code>format</code></td>
+              <td><code>dtype</code></td>
               <td><code>'int16' | 'float32'</code></td>
               <td><code>'int16'</code></td>
               <td>Sample encoding format</td>
             </tr>
             <tr>
               <td><code>vad</code></td>
-              <td><code>boolean</code></td>
+              <td><code>false | 'energy' | 'silero'</code></td>
               <td><code>false</code></td>
-              <td>Enable built-in voice activity detection</td>
+              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v5 ONNX model for ML-based detection</td>
             </tr>
             <tr>
               <td><code>vadThreshold</code></td>
@@ -127,37 +127,31 @@
               <td>Milliseconds of sub-threshold audio before <code>'silence'</code> is emitted</td>
             </tr>
             <tr>
-              <td><code>vadMode</code></td>
-              <td><code>'energy' | 'silero'</code></td>
-              <td><code>'energy'</code></td>
-              <td>VAD engine. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v5 ONNX model for ML-based detection</td>
-            </tr>
-            <tr>
               <td><code>modelPath</code></td>
               <td><code>string</code></td>
               <td>(bundled)</td>
-              <td>Path to a custom Silero VAD ONNX model. Only used when <code>vadMode</code> is <code>'silero'</code>. When omitted, uses the model bundled with the package</td>
+              <td>Path to a custom Silero VAD ONNX model. Only used when <code>vad</code> is <code>'silero'</code>. When omitted, uses the model bundled with the package</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted.</p>
-      <p>When <code>vadMode</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0–1.0). If you explicitly set <code>vadThreshold</code>, your value is used regardless of mode.</p>
+      <p>When <code>vad</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0 to 1.0). If you explicitly set <code>vadThreshold</code>, your value is used regardless of mode.</p>
 
       <h2>Methods</h2>
 
       <h3><code>mic.stop()</code></h3>
       <p>Stops microphone capture and ends the stream. Safe to call multiple times; subsequent calls are no-ops.</p>
 
-      <h3><code>Decibri.devices()</code></h3>
+      <h3><code>Microphone.devices()</code></h3>
       <p>Returns an array of available audio input devices on the system.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const devices = Decibri.devices();
+          <pre><code class="language-javascript">const devices = Microphone.devices();
 console.log(devices);
 // [
 //   { index: 0, name: 'Built-in Microphone', maxInputChannels: 1,
@@ -207,15 +201,15 @@ console.log(devices);
         </table>
       </div>
 
-      <h3><code>Decibri.version()</code></h3>
-      <p>Returns version information for decibri and the audio backend. The <code>portaudio</code> key is kept for backward compatibility but the value is the cpal version.</p>
+      <h3><code>Microphone.version()</code></h3>
+      <p>Returns version information for decibri and the audio backend. The <code>audioBackend</code> field reports the cpal version, and the <code>binding</code> field reports the npm package version.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">Decibri.version();
-// { decibri: '3.0.0', portaudio: 'cpal 0.17' }</code></pre>
+          <pre><code class="language-javascript">Microphone.version();
+// { decibri: '4.0.1', audioBackend: 'cpal 0.17', binding: '4.2.0' }</code></pre>
         </div>
       </div>
 
@@ -227,7 +221,7 @@ console.log(devices);
       <h2>Events</h2>
 
       <h3>Stream events</h3>
-      <p>Decibri extends Node.js <code>Readable</code>, so all standard stream events are available:</p>
+      <p>Microphone extends Node.js <code>Readable</code>, so all standard stream events are available:</p>
       <ul>
         <li><code>'data'</code>: emitted when audio data is available (callback receives <code>Buffer</code>)</li>
         <li><code>'end'</code>: emitted when the stream ends (after <code>stop()</code>)</li>
@@ -249,17 +243,17 @@ console.log(devices);
       </div>
 
       <h3><code>'speech'</code></h3>
-      <p>Requires <code>vad: true</code>. Emitted when the RMS energy of an audio chunk crosses the <code>vadThreshold</code>.</p>
+      <p>Requires <code>vad</code> to be enabled. Emitted when the RMS energy of an audio chunk crosses the <code>vadThreshold</code>.</p>
 
       <h3><code>'silence'</code></h3>
-      <p>Requires <code>vad: true</code>. Emitted when audio stays below <code>vadThreshold</code> for <code>vadHoldoff</code> milliseconds after a speech period.</p>
+      <p>Requires <code>vad</code> to be enabled. Emitted when audio stays below <code>vadThreshold</code> for <code>vadHoldoff</code> milliseconds after a speech period.</p>
 
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1, vad: true });
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'energy' });
 
 mic.on('speech', () => console.log('Speech detected'));
 mic.on('silence', () => console.log('Silence detected'));</code></pre>
@@ -288,7 +282,7 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1, format: 'float32' });
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, dtype: 'float32' });
 
 mic.on('data', (chunk) => {
   const samples = new Float32Array(chunk.buffer, chunk.byteOffset, chunk.length / 4);
@@ -296,19 +290,18 @@ mic.on('data', (chunk) => {
         </div>
       </div>
 
-      <h2>DecibriOutput</h2>
+      <h2>Speaker</h2>
 
-      <h3><code>new DecibriOutput(options?)</code></h3>
+      <h3><code>new Speaker(options?)</code></h3>
       <p>Creates a Node.js Writable stream for speaker playback. Extends <code>Writable</code> from the <code>stream</code> module.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
-const { DecibriOutput } = Decibri;
+          <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
-const speaker = new DecibriOutput(options?);</code></pre>
+const speaker = new Speaker(options?);</code></pre>
         </div>
       </div>
 
@@ -336,7 +329,7 @@ const speaker = new DecibriOutput(options?);</code></pre>
               <td>Number of output channels (1 to 32)</td>
             </tr>
             <tr>
-              <td><code>format</code></td>
+              <td><code>dtype</code></td>
               <td><code>'int16' | 'float32'</code></td>
               <td><code>'int16'</code></td>
               <td>Encoding of incoming PCM data</td>
@@ -372,16 +365,16 @@ const speaker = new DecibriOutput(options?);</code></pre>
 
       <h3>Static methods</h3>
 
-      <h3><code>DecibriOutput.devices()</code></h3>
+      <h3><code>Speaker.devices()</code></h3>
       <p>Returns an array of available audio output devices on the system.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { DecibriOutput } = require('decibri');
+          <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
-const devices = DecibriOutput.devices();
+const devices = Speaker.devices();
 console.log(devices);
 // [
 //   { index: 0, name: 'Speakers', maxOutputChannels: 2,
@@ -431,8 +424,8 @@ console.log(devices);
         </table>
       </div>
 
-      <h3><code>DecibriOutput.version()</code></h3>
-      <p>Returns version information. Same as <code>Decibri.version()</code>.</p>
+      <h3><code>Speaker.version()</code></h3>
+      <p>Returns version information. Same as <code>Microphone.version()</code>.</p>
 
       <h3>Properties</h3>
 
