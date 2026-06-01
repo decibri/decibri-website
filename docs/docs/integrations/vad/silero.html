@@ -32,7 +32,7 @@
     "description": "Detect speech and silence with decibri's bundled Silero VAD v5 neural model. Runs entirely offline, no API key, no extra dependencies.",
     "step": [
       {"@type": "HowToStep", "name": "Install decibri", "text": "npm install decibri"},
-      {"@type": "HowToStep", "name": "Enable Silero VAD", "text": "Create a Decibri instance with vad: true and vadMode: 'silero': new Decibri({ sampleRate: 16000, channels: 1, vad: true, vadMode: 'silero' })"},
+      {"@type": "HowToStep", "name": "Enable Silero VAD", "text": "Create a Decibri instance with vad: 'silero': new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' })"},
       {"@type": "HowToStep", "name": "Listen for speech and silence events", "text": "Register 'speech' and 'silence' event handlers to react to voice activity."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() on SIGINT."}
     ]
@@ -77,14 +77,14 @@
       </div>
 
       <h1>Silero VAD</h1>
-      <p class="lead">Decibri ships Silero VAD v5 bundled. Set <code>vadMode: 'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required.</p>
+      <p class="lead">Decibri ships Silero VAD v5 bundled. Set <code>vad: 'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required.</p>
 
       <h2>What this does</h2>
       <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships with the decibri npm package.</p>
-      <p>Decibri offers two VAD implementations out of the box: an <strong>RMS energy detector</strong> (the default, <code>vadMode: 'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>vadMode: 'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with much higher accuracy.</p>
+      <p>Decibri offers two VAD implementations out of the box: an <strong>RMS energy detector</strong> (the default, <code>vad: 'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>vad: 'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with much higher accuracy.</p>
 
       <div class="callout">
-        <strong>When to use which:</strong> Use the default RMS VAD for clean-audio scenarios and minimal CPU overhead. Use <code>vadMode: 'silero'</code> for noisy environments, background music, or any case where accuracy matters more than CPU budget.
+        <strong>When to use which:</strong> Use the default RMS VAD for clean-audio scenarios and minimal CPU overhead. Use <code>vad: 'silero'</code> for noisy environments, background music, or any case where accuracy matters more than CPU budget.
       </div>
 
       <h2>Prerequisites</h2>
@@ -100,19 +100,18 @@
       <h2>Code walkthrough</h2>
 
       <h3>1. Create a Decibri instance with Silero VAD</h3>
-      <p>Set <code>vad: true</code> to enable voice activity detection, and <code>vadMode: 'silero'</code> to use the neural model instead of the default RMS detector.</p>
+      <p>Set <code>vad: 'silero'</code> to enable voice activity detection with the neural model instead of the default RMS detector.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
-const mic = new Decibri({
+const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: true,
-  vadMode: 'silero',
+  vad: 'silero',
 });</code></pre>
         </div>
       </div>
@@ -164,13 +163,12 @@ mic.on('data', (chunk) => {
           <div class="code-tab-panel" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">'use strict';
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 
-const mic = new Decibri({
+const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: true,
-  vadMode: 'silero',
+  vad: 'silero',
 });
 
 mic.on('speech', () => console.log('[speech start]'));
@@ -204,12 +202,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
           <tr>
             <td><code>vad</code></td>
             <td><code>false</code></td>
-            <td>Enable voice activity detection. When true, decibri emits <code>'speech'</code> and <code>'silence'</code> events.</td>
-          </tr>
-          <tr>
-            <td><code>vadMode</code></td>
-            <td><code>'energy'</code></td>
-            <td>Detector to use. <code>'energy'</code> is the built-in RMS threshold. <code>'silero'</code> uses the bundled Silero v5 neural model.</td>
+            <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses the built-in RMS threshold. <code>'silero'</code> uses the bundled Silero v5 neural model. When enabled, decibri emits <code>'speech'</code> and <code>'silence'</code> events.</td>
           </tr>
           <tr>
             <td><code>vadThreshold</code></td>
@@ -237,11 +230,10 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({
+          <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: true,
-  vadMode: 'silero',
+  vad: 'silero',
   modelPath: './my-silero-v6.onnx',
 });</code></pre>
         </div>
@@ -276,7 +268,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const config = {
@@ -293,7 +285,7 @@ const config = {
 };
 
 const vad = new sherpa.Vad(config);
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
 const windowSize = 512;
 let speechActive = false;
@@ -342,7 +334,7 @@ console.log('Listening for speech... (Ctrl+C to stop)');</code></pre>
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/integrations/vad">Voice activity detection overview</a>: compare VAD options in decibri</li>
-          <li><a href="/docs/apis/node">API Reference</a>: full VAD option documentation (<code>vad</code>, <code>vadMode</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>)</li>
+          <li><a href="/docs/apis/node">API Reference</a>: full VAD option documentation (<code>vad</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>)</li>
           <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of VAD-gated audio</li>
           <li><a href="/docs/integrations/kws/sherpa-onnx">Sherpa-ONNX Keyword Spotting</a>: sibling neural model for wake-word detection</li>
           <li><a href="https://github.com/snakers4/silero-vad" target="_blank" rel="noopener noreferrer">Silero VAD on GitHub</a></li>

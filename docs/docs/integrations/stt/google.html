@@ -82,7 +82,7 @@
       <p class="lead">Stream live microphone audio to Google Cloud Speech-to-Text using decibri and a single <code>pipe()</code> call.</p>
 
       <h2>What this does</h2>
-      <p>This is the simplest cloud integration in the decibri docs. Google's <code>streamingRecognize()</code> returns a standard Node.js writable stream. Decibri is a Readable stream. The entire integration is one line:</p>
+      <p>This is the simplest cloud integration in the decibri docs. Google's <code>streamingRecognize()</code> returns a standard Node.js writable stream. Microphone is a Readable stream. The entire integration is one line:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
@@ -172,7 +172,7 @@
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const speech = require('@google-cloud/speech');
 
 const client = new speech.SpeechClient();</code></pre>
@@ -231,7 +231,7 @@ const client = new speech.SpeechClient();</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 mic.pipe(recognizeStream);</code></pre>
         </div>
       </div>
@@ -269,7 +269,7 @@ mic.pipe(recognizeStream);</code></pre>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const speech = require('@google-cloud/speech');
 
 async function main() {
@@ -303,7 +303,7 @@ async function main() {
     });
 
   // Open microphone and pipe to Google
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
   mic.pipe(recognizeStream);
 
   console.log('Google Speech-to-Text streaming test');

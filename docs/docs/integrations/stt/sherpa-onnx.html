@@ -34,7 +34,7 @@
       {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri sherpa-onnx"},
       {"@type": "HowToStep", "name": "Download a streaming ASR model", "text": "Download a streaming model from the sherpa-onnx releases page, for example the Zipformer transducer model."},
       {"@type": "HowToStep", "name": "Configure the recognizer", "text": "Define model file paths and create a sherpa-onnx OnlineRecognizer with your configuration."},
-      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
+      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Microphone({ sampleRate: 16000, channels: 1 })"},
       {"@type": "HowToStep", "name": "Process audio", "text": "Convert each Int16 PCM chunk to Float32 and feed it to the recognizer. Print partial results as they arrive."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() and free the recognizer resources on SIGINT."}
     ]
@@ -115,7 +115,7 @@ tar xvf sherpa-onnx-streaming-zipformer-en-20M-2023-02-17.tar.bz2</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-streaming-zipformer-en-20M-2023-02-17';
@@ -156,7 +156,7 @@ const stream = recognizer.createStream();</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -221,7 +221,7 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
             <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">const Decibri = require('decibri');
+            <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-streaming-zipformer-en-20M-2023-02-17';
@@ -243,7 +243,7 @@ const config = {
 
 const recognizer = new sherpa.OnlineRecognizer(config);
 const stream = recognizer.createStream();
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
 let lastText = '';
 

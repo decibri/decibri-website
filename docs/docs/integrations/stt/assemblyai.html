@@ -143,7 +143,7 @@ client = StreamingClient(
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { AssemblyAI } = require('assemblyai');
 
 const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });</code></pre>
@@ -219,7 +219,7 @@ transcriber.on('close', (code, reason) => {
       <div class="callout">
         <strong>Note:</strong> AssemblyAI streaming v3 requires audio chunks between 50 ms and 1000 ms (error 3007 on violation). On Windows, decibri's audio backend may emit chunks shorter than 50 ms regardless of <code>frames_per_buffer</code> / <code>framesPerBuffer</code>. The streaming code block below batches incoming audio into 100 ms (3200 bytes of int16 mono 16 kHz) before forwarding to AssemblyAI, and drops any trailing remainder under 50 ms (1600 bytes).
       </div>
-      <p>Connect to AssemblyAI, then prepare the microphone. In Python the connect call is synchronous and <code>Microphone</code> is only constructed here; capture starts in the next block when it is opened with a <code>with</code> statement. In Node the connect call returns a promise that must be awaited, and <code>new Decibri(...)</code> begins capture as soon as it is constructed. Audio must only be sent after the connection is established.</p>
+      <p>Connect to AssemblyAI, then prepare the microphone. In Python the connect call is synchronous and <code>Microphone</code> is only constructed here; capture starts in the next block when it is opened with a <code>with</code> statement. In Node the connect call returns a promise that must be awaited, and <code>new Microphone(...)</code> begins capture as soon as it is constructed. Audio must only be sent after the connection is established.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -236,7 +236,7 @@ mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">await transcriber.connect();
 
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -420,7 +420,7 @@ finally:
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { AssemblyAI } = require('assemblyai');
 
 const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
@@ -454,7 +454,7 @@ const run = async () => {
 
   await transcriber.connect();
 
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
   let buffer = Buffer.alloc(0);
   mic.on('data', (chunk) => {

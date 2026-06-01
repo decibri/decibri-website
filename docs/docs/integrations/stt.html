@@ -152,7 +152,7 @@
 
       <h2>Troubleshooting</h2>
       <p><strong>Garbled transcripts.</strong> Almost always a sample-rate mismatch. Decibri defaults to 16 kHz mono 16-bit PCM, which matches what every provider here expects, except OpenAI Realtime, which defaults to 24 kHz. If the transcript looks scrambled, verify both sides agree on sample rate and that you haven't accidentally passed 48 kHz (the browser default) to a 16 kHz API.</p>
-      <p><strong>Silent transcripts.</strong> Microphone permission not granted (browser), or the wrong input device is selected (Node.js). Check <code>Decibri.devices()</code> and confirm <code>isDefault</code> points at the mic you expect. Run <code>decibri-cli capture -o test.wav -d 5</code> to verify the mic works outside of any STT pipeline.</p>
+      <p><strong>Silent transcripts.</strong> Microphone permission not granted (browser), or the wrong input device is selected (Node.js). Check <code>Microphone.devices()</code> and confirm <code>isDefault</code> points at the mic you expect. Run <code>decibri-cli capture -o test.wav -d 5</code> to verify the mic works outside of any STT pipeline.</p>
       <p><strong>API key errors.</strong> Each provider has its own env-var convention. See the provider's page for the exact variable name and where to put it.</p>
       <p><strong>Cloud-provider-specific errors.</strong> See the &ldquo;Related&rdquo; callout on each provider page. Every page links to the upstream provider's troubleshooting docs and console.</p>
 

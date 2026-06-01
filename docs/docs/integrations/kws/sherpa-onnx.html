@@ -34,7 +34,7 @@
       {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri sherpa-onnx"},
       {"@type": "HowToStep", "name": "Download a keyword spotting model", "text": "Download a keyword spotting model from the sherpa-onnx releases page."},
       {"@type": "HowToStep", "name": "Configure the keyword spotter", "text": "Define model file paths and create a sherpa-onnx KeywordSpotter with your configuration and keywords file."},
-      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
+      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Microphone({ sampleRate: 16000, channels: 1 })"},
       {"@type": "HowToStep", "name": "Process audio", "text": "Convert each Int16 PCM chunk to Float32 and feed it to the keyword spotter. Print detected keywords as they are recognized."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() and free resources on SIGINT."}
     ]
@@ -115,7 +115,7 @@ tar xvf sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2</code></pr
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01';
@@ -160,7 +160,7 @@ const stream = kws.createStream();</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -220,7 +220,7 @@ console.log('Listening for keywords... (Ctrl+C to stop)');</code></pre>
             <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">const Decibri = require('decibri');
+            <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01';
@@ -242,7 +242,7 @@ const config = {
 
 const kws = new sherpa.KeywordSpotter(config);
 const stream = kws.createStream();
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
 mic.on('data', (chunk) => {
   const int16 = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);

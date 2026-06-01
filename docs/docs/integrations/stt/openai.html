@@ -138,7 +138,7 @@
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const WebSocket = require('ws');
 
 const API_KEY = process.env.OPENAI_API_KEY;
@@ -199,7 +199,7 @@ const WS_URL = 'wss://api.openai.com/v1/realtime?intent=transcription';</code></
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 24000, channels: 1 });
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 24000, channels: 1 });
 
 mic.on('data', (chunk) => {
   // Base64-encode PCM16 data before sending
@@ -280,7 +280,7 @@ process.on('SIGINT', () => {
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const WebSocket = require('ws');
 
 const API_KEY = process.env.OPENAI_API_KEY;
@@ -320,7 +320,7 @@ const run = async () => {
     console.log('Session configured. Opening microphone...\n');
 
     // Important: 24000 Hz, not 16000 Hz. OpenAI Realtime API defaults to 24 kHz.
-    const mic = new Decibri({ sampleRate: 24000, channels: 1 });
+    const mic = new Microphone({ sampleRate: 24000, channels: 1 });
 
     mic.on('data', (chunk) => {
       ws.send(JSON.stringify({

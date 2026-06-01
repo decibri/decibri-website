@@ -142,7 +142,7 @@ client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
 const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
@@ -250,7 +250,7 @@ socket.on('close', () => {
       </div>
 
       <h3>4. Open the microphone</h3>
-      <p>Create a decibri instance at 16 kHz mono. Decibri's default 16-bit signed integer PCM matches Deepgram's <code>linear16</code> encoding directly. In Python, <code>Microphone</code> is constructed here but capture starts only when the <code>with mic:</code> block is entered (see the shutdown step below). In Node, <code>new Decibri(...)</code> begins capture as soon as it is constructed.</p>
+      <p>Create a decibri instance at 16 kHz mono. Decibri's default 16-bit signed integer PCM matches Deepgram's <code>linear16</code> encoding directly. In Python, <code>Microphone</code> is constructed here but capture starts only when the <code>with mic:</code> block is entered (see the shutdown step below). In Node, <code>new Microphone(...)</code> begins capture as soon as it is constructed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -264,7 +264,7 @@ socket.on('close', () => {
           <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -427,7 +427,7 @@ client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
 const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</code></pre>
@@ -541,7 +541,7 @@ socket.on('close', () => {
           <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -740,7 +740,7 @@ with client.listen.v1.connect(
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
 const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
@@ -786,7 +786,7 @@ const run = async () => {
     ),
   ]);
 
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
   let buffer = Buffer.alloc(0);
   mic.on('data', (chunk) => {
@@ -907,7 +907,7 @@ with client.listen.v2.connect(
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
 
 const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
@@ -951,7 +951,7 @@ const run = async () => {
     ),
   ]);
 
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
   let buffer = Buffer.alloc(0);
   mic.on('data', (chunk) => {
