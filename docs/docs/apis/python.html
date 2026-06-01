@@ -219,7 +219,7 @@ asyncio.run(main())</code></pre>
               <td><code>device</code></td>
               <td><code>int | str | None</code></td>
               <td>system default</td>
-              <td>Device index from <code>Microphone.input_devices()</code> or case-insensitive name substring.</td>
+              <td>Device index from <code>Microphone.devices()</code> or case-insensitive name substring.</td>
             </tr>
             <tr>
               <td><code>vad</code></td>
@@ -326,14 +326,14 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
 
       <h3>Static methods</h3>
 
-      <h4><code>Microphone.input_devices()</code></h4>
-      <p>Returns a list of <code>DeviceInfo</code> objects describing every input device recognised by the operating system.</p>
+      <h4><code>Microphone.devices()</code></h4>
+      <p>Returns a list of <code>MicrophoneInfo</code> objects describing every input device recognised by the operating system.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">for d in decibri.Microphone.input_devices():
+          <pre><code class="language-python">for d in decibri.Microphone.devices():
     print(d.index, d.name, d.default_sample_rate)</code></pre>
         </div>
       </div>
@@ -394,7 +394,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
               <td><code>device</code></td>
               <td><code>int | str | None</code></td>
               <td>system default</td>
-              <td>Device index from <code>Speaker.output_devices()</code> or case-insensitive name substring.</td>
+              <td>Device index from <code>Speaker.devices()</code> or case-insensitive name substring.</td>
             </tr>
           </tbody>
         </table>
@@ -438,8 +438,8 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
 
       <h3>Static methods</h3>
 
-      <h4><code>Speaker.output_devices()</code></h4>
-      <p>Returns a list of <code>OutputDeviceInfo</code> objects describing every output device recognised by the operating system.</p>
+      <h4><code>Speaker.devices()</code></h4>
+      <p>Returns a list of <code>SpeakerInfo</code> objects describing every output device recognised by the operating system.</p>
 
       <h2 id="async-microphone">AsyncMicrophone</h2>
 
@@ -541,8 +541,8 @@ async with mic:
 
       <h3>Static methods</h3>
 
-      <h4><code>await AsyncMicrophone.input_devices()</code></h4>
-      <p>Async parallel of <code>Microphone.input_devices()</code>. Returns a list of <code>DeviceInfo</code>.</p>
+      <h4><code>await AsyncMicrophone.devices()</code></h4>
+      <p>Async parallel of <code>Microphone.devices()</code>. Returns a list of <code>MicrophoneInfo</code>.</p>
 
       <h4><code>AsyncMicrophone.version()</code></h4>
       <p>Synchronous (see the callout above). Returns a <code>VersionInfo</code> for the Rust core, the audio backend, and the binding wheel.</p>
@@ -607,14 +607,14 @@ async with mic:
 
       <h3>Static methods</h3>
 
-      <h4><code>await AsyncSpeaker.output_devices()</code></h4>
-      <p>Async parallel of <code>Speaker.output_devices()</code>.</p>
+      <h4><code>await AsyncSpeaker.devices()</code></h4>
+      <p>Async parallel of <code>Speaker.devices()</code>.</p>
 
       <h2 id="helpers">Module-level helpers</h2>
       <p>Convenience entry points exposed directly on the <code>decibri</code> module.</p>
 
       <h3><code>decibri.input_devices()</code></h3>
-      <p>Module-level shortcut for <code>Microphone.input_devices()</code>. Returns a list of <code>DeviceInfo</code>.</p>
+      <p>Module-level shortcut for <code>Microphone.devices()</code>. Returns a list of <code>MicrophoneInfo</code>.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -626,7 +626,7 @@ async with mic:
       </div>
 
       <h3><code>decibri.output_devices()</code></h3>
-      <p>Module-level shortcut for <code>Speaker.output_devices()</code>. Returns a list of <code>OutputDeviceInfo</code>.</p>
+      <p>Module-level shortcut for <code>Speaker.devices()</code>. Returns a list of <code>SpeakerInfo</code>.</p>
 
       <h3><code>decibri.version()</code></h3>
       <p>Returns a <code>VersionInfo</code> for the Rust core, the audio backend, and the binding wheel.</p>
@@ -706,8 +706,8 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </table>
       </div>
 
-      <h3><code>DeviceInfo</code></h3>
-      <p>Returned by <code>Microphone.input_devices()</code>, <code>decibri.input_devices()</code>, and <code>await AsyncMicrophone.input_devices()</code>.</p>
+      <h3><code>MicrophoneInfo</code></h3>
+      <p>Returned by <code>Microphone.devices()</code>, <code>decibri.input_devices()</code>, and <code>await AsyncMicrophone.devices()</code>.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -752,8 +752,8 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </table>
       </div>
 
-      <h3><code>OutputDeviceInfo</code></h3>
-      <p>Returned by <code>Speaker.output_devices()</code>, <code>decibri.output_devices()</code>, and <code>await AsyncSpeaker.output_devices()</code>.</p>
+      <h3><code>SpeakerInfo</code></h3>
+      <p>Returned by <code>Speaker.devices()</code>, <code>decibri.output_devices()</code>, and <code>await AsyncSpeaker.devices()</code>.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1018,12 +1018,12 @@ chunk = mic.read()
               <td>The operating system denied microphone access. Message includes platform-specific guidance.</td>
             </tr>
             <tr>
-              <td><code>CaptureStreamClosed</code></td>
+              <td><code>MicrophoneStreamClosed</code></td>
               <td><code>DecibriError</code></td>
               <td>Read attempted on a closed capture stream (often a mid-stream device disconnect).</td>
             </tr>
             <tr>
-              <td><code>OutputStreamClosed</code></td>
+              <td><code>SpeakerStreamClosed</code></td>
               <td><code>DecibriError</code></td>
               <td>Write attempted on a closed output stream.</td>
             </tr>
@@ -1043,12 +1043,12 @@ chunk = mic.read()
               <td>Linux only. The current process inherited an ORT session from its parent across <code>fork()</code>. See <a href="#multiprocessing">Multiprocessing and asyncio caveats</a>.</td>
             </tr>
             <tr>
-              <td><code>DeviceNotFound</code></td>
+              <td><code>MicrophoneNotFound</code></td>
               <td><code>DeviceError</code></td>
               <td>The named input device does not match any device on the system.</td>
             </tr>
             <tr>
-              <td><code>OutputDeviceNotFound</code></td>
+              <td><code>SpeakerNotFound</code></td>
               <td><code>DeviceError</code></td>
               <td>The named output device does not match any device on the system.</td>
             </tr>
@@ -1068,7 +1068,7 @@ chunk = mic.read()
               <td>The system reports zero input devices.</td>
             </tr>
             <tr>
-              <td><code>NoOutputDeviceFound</code></td>
+              <td><code>NoSpeakerFound</code></td>
               <td><code>DeviceError</code></td>
               <td>The system reports zero output devices.</td>
             </tr>

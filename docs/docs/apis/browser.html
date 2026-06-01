@@ -102,9 +102,9 @@
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">import { Decibri } from 'decibri';
+          <pre><code class="language-javascript">import { Microphone } from 'decibri';
 
-const mic = new Decibri({ sampleRate: 16000 });
+const mic = new Microphone({ sampleRate: 16000 });
 
 mic.on('data', (chunk) => {
   console.log(`Received ${chunk.length} samples`);
@@ -120,7 +120,7 @@ await mic.start();</code></pre>
       <ul>
         <li>If the user denies permission, <code>start()</code> rejects with <code>Error('Microphone permission denied')</code></li>
         <li>The <code>'error'</code> event also fires with the same error</li>
-        <li>Device labels from <code>Decibri.devices()</code> may be empty before permission is granted</li>
+        <li>Device labels from <code>Microphone.devices()</code> may be empty before permission is granted</li>
       </ul>
 
       <h3>Stopping and cleanup</h3>
@@ -151,12 +151,12 @@ await mic.start();</code></pre>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
 await mic.start();
-const devices = await Decibri.devices();
+const devices = await Microphone.devices();
 console.log(devices);
 // [{ deviceId: 'abc123', label: 'Built-in Microphone', groupId: 'g1' }, ...]
 
 // Use a specific device
-const usbMic = new Decibri({ device: devices[1].deviceId });
+const usbMic = new Microphone({ device: devices[1].deviceId });
 await usbMic.start();</code></pre>
         </div>
       </div>
@@ -168,13 +168,13 @@ await usbMic.start();</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
-const mic = new Decibri({ format: 'int16' });
+const mic = new Microphone({ dtype: 'int16' });
 mic.on('data', (chunk) => {
   // chunk is an Int16Array
 });
 
 // Float32 - native browser format, no conversion
-const mic2 = new Decibri({ format: 'float32' });
+const mic2 = new Microphone({ dtype: 'float32' });
 mic2.on('data', (chunk) => {
   // chunk is a Float32Array
 });</code></pre>
@@ -188,9 +188,9 @@ mic2.on('data', (chunk) => {
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({
+          <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
-  vad: true,
+  vad: 'energy',
   vadThreshold: 0.01,
   vadHoldoff: 300,
 });
@@ -209,7 +209,7 @@ await mic.start();</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
-const mic = new Decibri({ sampleRate: 16000, format: 'int16' });
+const mic = new Microphone({ sampleRate: 16000, dtype: 'int16' });
 
 mic.on('data', (chunk) => {
   if (ws.readyState === WebSocket.OPEN) {
@@ -268,7 +268,7 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({
+          <pre><code class="language-javascript">const mic = new Microphone({
   workletUrl: '/static/decibri-worklet.js',
 });</code></pre>
         </div>
@@ -278,15 +278,15 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       
       <h2>API reference</h2>
       <h3>Constructor</h3>
-      <h4><code>new Decibri(options?)</code></h4>
+      <h4><code>new Microphone(options?)</code></h4>
       <p>Creates a new capture instance. Does not start capture. Call <code>start()</code> to begin.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">import { Decibri } from 'decibri';
-const mic = new Decibri(options?);</code></pre>
+          <pre><code class="language-javascript">import { Microphone } from 'decibri';
+const mic = new Microphone(options?);</code></pre>
         </div>
       </div>
 
@@ -323,19 +323,19 @@ const mic = new Decibri(options?);</code></pre>
               <td><code>device</code></td>
               <td><code>string</code></td>
               <td>system default</td>
-              <td><code>deviceId</code> string from <code>Decibri.devices()</code></td>
+              <td><code>deviceId</code> string from <code>Microphone.devices()</code></td>
             </tr>
             <tr>
-              <td><code>format</code></td>
+              <td><code>dtype</code></td>
               <td><code>'int16' | 'float32'</code></td>
               <td><code>'int16'</code></td>
               <td>Sample encoding format</td>
             </tr>
             <tr>
               <td><code>vad</code></td>
-              <td><code>boolean</code></td>
+              <td><code>false | 'energy'</code></td>
               <td><code>false</code></td>
-              <td>Enable voice activity detection</td>
+              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding</td>
             </tr>
             <tr>
               <td><code>vadThreshold</code></td>
@@ -386,14 +386,14 @@ const mic = new Decibri(options?);</code></pre>
 
       <h3>Static methods</h3>
 
-      <h4><code>Decibri.devices()</code></h4>
-      <p>Returns <code>Promise&lt;DeviceInfo[]&gt;</code>. Lists available audio input devices. Labels may be empty before microphone permission is granted.</p>
+      <h4><code>Microphone.devices()</code></h4>
+      <p>Returns <code>Promise&lt;MicrophoneInfo[]&gt;</code>. Lists available audio input devices. Labels may be empty before microphone permission is granted.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const devices = await Decibri.devices();
+          <pre><code class="language-javascript">const devices = await Microphone.devices();
 console.log(devices);
 // [
 //   { deviceId: 'abc123', label: 'Built-in Microphone', groupId: 'g1' },
@@ -402,15 +402,15 @@ console.log(devices);
         </div>
       </div>
 
-      <h4><code>Decibri.version()</code></h4>
+      <h4><code>Microphone.version()</code></h4>
       <p>Returns version information for decibri.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">Decibri.version();
-// { decibri: '3.0.0' }</code></pre>
+          <pre><code class="language-javascript">Microphone.version();
+// { decibri: '4.2.0' }</code></pre>
         </div>
       </div>
 
@@ -429,7 +429,7 @@ console.log(devices);
             <tr>
               <td><code>'data'</code></td>
               <td><code>Int16Array</code> or <code>Float32Array</code></td>
-              <td>Audio chunk. Format depends on <code>format</code> option. Emitted ~10 times/sec at default settings.</td>
+              <td>Audio chunk. Format depends on <code>dtype</code> option. Emitted ~10 times/sec at default settings.</td>
             </tr>
             <tr>
               <td><code>'error'</code></td>
@@ -449,12 +449,12 @@ console.log(devices);
             <tr>
               <td><code>'speech'</code></td>
               <td>(none)</td>
-              <td>VAD: RMS energy crossed threshold. Requires <code>vad: true</code>.</td>
+              <td>VAD: RMS energy crossed threshold. Requires <code>vad</code> to be enabled.</td>
             </tr>
             <tr>
               <td><code>'silence'</code></td>
               <td>(none)</td>
-              <td>VAD: sub-threshold audio for <code>vadHoldoff</code> ms. Requires <code>vad: true</code>.</td>
+              <td>VAD: sub-threshold audio for <code>vadHoldoff</code> ms. Requires <code>vad</code> to be enabled.</td>
             </tr>
           </tbody>
         </table>
@@ -466,7 +466,7 @@ console.log(devices);
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">// DeviceInfo
+          <pre><code class="language-javascript">// MicrophoneInfo
 {
   deviceId: string,
   label: string,
@@ -480,7 +480,7 @@ console.log(devices);
         </div>
       </div>
 
-      <h3>Differences from Decibri (Node.js)</h3>
+      <h3>Differences from the Node.js API</h3>
       <div class="table-wrap">
         <table>
           <thead>
@@ -494,8 +494,8 @@ console.log(devices);
           <tbody>
             <tr>
               <td>Class name</td>
-              <td><code>Decibri</code></td>
-              <td><code>Decibri</code></td>
+              <td><code>Microphone</code></td>
+              <td><code>Microphone</code></td>
               <td>Identical</td>
             </tr>
             <tr>
@@ -524,7 +524,7 @@ console.log(devices);
             </tr>
             <tr>
               <td><code>version()</code></td>
-              <td><code>{ decibri, portaudio }</code> (portaudio key kept for compat)</td>
+              <td><code>{ decibri, audioBackend, binding }</code></td>
               <td><code>{ decibri }</code></td>
               <td>Different runtime info</td>
             </tr>
@@ -559,7 +559,7 @@ console.log(devices);
               <td>Same behavior</td>
             </tr>
             <tr>
-              <td><code>format</code></td>
+              <td><code>dtype</code></td>
               <td><code>'int16'</code> or <code>'float32'</code></td>
               <td><code>'int16'</code> or <code>'float32'</code></td>
               <td>Identical</td>
