@@ -29,8 +29,8 @@
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": "Decibri Documentation",
-    "description": "Decibri docs. Getting started, integrations (speech-to-text, voice activity detection, keyword spotting), and API reference for Python, Node.js, browsers, and the decibri-cli command-line tool.",
-    "numberOfItems": 21,
+    "description": "Decibri docs. Getting started, integrations (speech-to-text, text-to-speech, voice activity detection, keyword spotting), and API reference for Python, Node.js, browsers, and the decibri-cli command-line tool.",
+    "numberOfItems": 23,
     "itemListElement": [
       {"@type": "ListItem", "position": 1,  "name": "Getting started",                     "url": "https://decibri.com/docs/getting-started"},
       {"@type": "ListItem", "position": 2,  "name": "Integrations",                        "url": "https://decibri.com/docs/integrations"},
@@ -48,11 +48,13 @@
       {"@type": "ListItem", "position": 14, "name": "Silero VAD",                          "url": "https://decibri.com/docs/integrations/vad/silero"},
       {"@type": "ListItem", "position": 15, "name": "Keyword spotting (KWS)",              "url": "https://decibri.com/docs/integrations/kws"},
       {"@type": "ListItem", "position": 16, "name": "Sherpa-ONNX Keyword Spotting",        "url": "https://decibri.com/docs/integrations/kws/sherpa-onnx"},
-      {"@type": "ListItem", "position": 17, "name": "APIs",                                "url": "https://decibri.com/docs/apis"},
-      {"@type": "ListItem", "position": 18, "name": "Python API",                          "url": "https://decibri.com/docs/apis/python"},
-      {"@type": "ListItem", "position": 19, "name": "Node.js API",                         "url": "https://decibri.com/docs/apis/node"},
-      {"@type": "ListItem", "position": 20, "name": "Browser API",                         "url": "https://decibri.com/docs/apis/browser"},
-      {"@type": "ListItem", "position": 21, "name": "CLI API",                             "url": "https://decibri.com/docs/apis/cli"}
+      {"@type": "ListItem", "position": 17, "name": "Text-to-speech (TTS)",                "url": "https://decibri.com/docs/integrations/tts"},
+      {"@type": "ListItem", "position": 18, "name": "Sherpa-ONNX",                         "url": "https://decibri.com/docs/integrations/tts/sherpa-onnx"},
+      {"@type": "ListItem", "position": 19, "name": "APIs",                                "url": "https://decibri.com/docs/apis"},
+      {"@type": "ListItem", "position": 20, "name": "Python API",                          "url": "https://decibri.com/docs/apis/python"},
+      {"@type": "ListItem", "position": 21, "name": "Node.js API",                         "url": "https://decibri.com/docs/apis/node"},
+      {"@type": "ListItem", "position": 22, "name": "Browser API",                         "url": "https://decibri.com/docs/apis/browser"},
+      {"@type": "ListItem", "position": 23, "name": "CLI API",                             "url": "https://decibri.com/docs/apis/cli"}
     ]
   }
   </script>
@@ -107,7 +109,7 @@
       </div>
 
       <h2>Integrations</h2>
-      <p>Decibri ships audio to three kinds of integrations: speech-to-text, voice activity detection, and keyword spotting. Nine STT providers are supported today (seven cloud, two local), plus built-in VAD and a local KWS engine.</p>
+      <p>Decibri ships audio to four kinds of integrations: speech-to-text, text-to-speech, voice activity detection, and keyword spotting. Nine STT providers are supported today (seven cloud, two local), plus a local TTS provider, built-in VAD, and a local KWS engine.</p>
 
       <h3>Speech-to-text (STT)</h3>
       <div class="cards-grid">
@@ -146,6 +148,14 @@
         <a href="/docs/integrations/stt/whisper-cpp" class="doc-card">
           <h3>Whisper.cpp</h3>
           <p>Local buffered transcription with OpenAI's Whisper model via a native addon. No API key, no network.</p>
+        </a>
+      </div>
+
+      <h3>Text-to-speech (TTS)</h3>
+      <div class="cards-grid">
+        <a href="/docs/integrations/tts/sherpa-onnx" class="doc-card">
+          <h3>Sherpa-ONNX</h3>
+          <p>Local text-to-speech with the Kokoro model. Generate speech offline and play it through decibri's Speaker. No API key, no network.</p>
         </a>
       </div>
 
