@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Integrations | decibri docs</title>
-  <meta name="description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting providers that consume decibri's audio stream.">
+  <meta name="description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting consume decibri's capture stream; text-to-speech generates speech that decibri plays.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Integrations | decibri docs">
-  <meta property="og:description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting providers that consume decibri's audio stream.">
+  <meta property="og:description" content="Decibri integrations. Speech-to-text, voice activity detection, and keyword spotting consume decibri's capture stream; text-to-speech generates speech that decibri plays.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations">
   <link rel="canonical" href="https://decibri.com/docs/integrations">
@@ -58,7 +58,7 @@
       </div>
 
       <h1>Integrations</h1>
-      <p class="lead">Decibri ships audio to integrations. The three categories are Speech-to-text (STT), Voice activity detection (VAD), and Keyword spotting (KWS). Pick the category, then pick the provider that fits your accuracy, cost, and offline requirements.</p>
+      <p class="lead">Decibri connects audio to integrations. Speech-to-text (STT), Voice activity detection (VAD), and Keyword spotting (KWS) consume decibri's capture stream. Text-to-speech (TTS) runs in the other direction: it generates speech that decibri plays through the speaker. Pick the category, then pick the provider that fits your accuracy, cost, and offline requirements.</p>
 
       <div class="cards-grid">
         <a href="/docs/integrations/stt" class="doc-card">
@@ -72,6 +72,10 @@
         <a href="/docs/integrations/kws" class="doc-card">
           <h3>Keyword spotting (KWS)</h3>
           <p>Wake words and voice command triggers. Cheaper than full STT when you only need to catch specific phrases. Sherpa-ONNX runs entirely on-device.</p>
+        </a>
+        <a href="/docs/integrations/tts" class="doc-card">
+          <h3>Text-to-speech (TTS)</h3>
+          <p>Generate speech and play it through decibri's Speaker. Sherpa-ONNX runs the Kokoro model entirely on-device, no API key and no network dependency.</p>
         </a>
       </div>
 

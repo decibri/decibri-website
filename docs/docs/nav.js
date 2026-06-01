@@ -79,12 +79,14 @@
 
   var vadChildren = link('/docs/integrations/vad/silero', 'Silero');
   var kwsChildren = link('/docs/integrations/kws/sherpa-onnx', 'Sherpa-ONNX');
+  var ttsChildren = link('/docs/integrations/tts/sherpa-onnx', 'Sherpa-ONNX');
 
-  // Nested subsections (STT/VAD/KWS) use a smaller label style.
+  // Nested subsections (STT/TTS/VAD/KWS) use a smaller label style.
   var subsectionStyle = ' style="font-size:10px;letter-spacing:1px"';
 
   var integrationsChildren =
       group('/docs/integrations/stt', 'Speech-to-text (STT)',         sttChildren, 'sidebar-subsection-title-link', subsectionStyle)
+    + group('/docs/integrations/tts', 'Text-to-speech (TTS)',         ttsChildren, 'sidebar-subsection-title-link', subsectionStyle)
     + group('/docs/integrations/vad', 'Voice activity detection (VAD)', vadChildren, 'sidebar-subsection-title-link', subsectionStyle)
     + group('/docs/integrations/kws', 'Keyword spotting (KWS)',       kwsChildren, 'sidebar-subsection-title-link', subsectionStyle);
 
@@ -168,9 +170,11 @@
 
   var mVadChildren = mlink('/docs/integrations/vad/silero', 'Silero');
   var mKwsChildren = mlink('/docs/integrations/kws/sherpa-onnx', 'Sherpa-ONNX');
+  var mTtsChildren = mlink('/docs/integrations/tts/sherpa-onnx', 'Sherpa-ONNX');
 
   var mIntegrationsChildren =
       mgroup('/docs/integrations/stt', 'Speech-to-text (STT)',         mSttChildren, 'mobile-menu-subsection-link')
+    + mgroup('/docs/integrations/tts', 'Text-to-speech (TTS)',         mTtsChildren, 'mobile-menu-subsection-link')
     + mgroup('/docs/integrations/vad', 'Voice activity detection (VAD)', mVadChildren, 'mobile-menu-subsection-link')
     + mgroup('/docs/integrations/kws', 'Keyword spotting (KWS)',       mKwsChildren, 'mobile-menu-subsection-link');
 

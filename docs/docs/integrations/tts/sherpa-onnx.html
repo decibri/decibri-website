@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Sherpa-ONNX (Kokoro) | decibri docs</title>
+  <meta name="description" content="Local text-to-speech using decibri and sherpa-onnx running the Kokoro model in Python and Node.js. Generate speech offline and play it through decibri's Speaker. No API key required.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Sherpa-ONNX (Kokoro) | decibri docs">
+  <meta property="og:description" content="Local text-to-speech using decibri and sherpa-onnx running the Kokoro model in Python and Node.js. Generate speech offline and play it through decibri's Speaker.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/integrations/tts/sherpa-onnx">
+  <link rel="canonical" href="https://decibri.com/docs/integrations/tts/sherpa-onnx">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to generate speech with Kokoro and play it through decibri using sherpa-onnx",
+    "description": "Local text-to-speech using decibri and sherpa-onnx running the Kokoro model. Generates speech offline with no API key and plays it through decibri's Speaker.",
+    "step": [
+      {"@type": "HowToStep", "name": "Install packages", "text": "Install decibri and the sherpa-onnx runtime: pip install decibri sherpa-onnx, or npm install decibri sherpa-onnx-node."},
+      {"@type": "HowToStep", "name": "Download the Kokoro model", "text": "Download the kokoro-en-v0_19 release from the sherpa-onnx TTS models and extract it. The archive bundles its own espeak-ng-data directory."},
+      {"@type": "HowToStep", "name": "Build the TTS engine", "text": "Construct a sherpa-onnx OfflineTts engine pointed at the Kokoro model.onnx, voices.bin, tokens.txt, and espeak-ng-data directory."},
+      {"@type": "HowToStep", "name": "Generate speech", "text": "Call generate() with your text and a speaker id. Kokoro returns float32 samples in the range -1.0 to 1.0 at 24000 Hz mono, plus the sample rate."},
+      {"@type": "HowToStep", "name": "Play through decibri's Speaker", "text": "Create a decibri Speaker with dtype float32 at the model's reported sample rate and write the float32 samples straight to it, with no int16 conversion."}
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations">Integrations</a>
+        <span class="sep">/</span>
+        <a href="/docs/integrations/tts">Text-to-speech (TTS)</a>
+        <span class="sep">/</span>
+        <span class="current">Sherpa-ONNX (Kokoro)</span>
+      </div>
+
+      <h1>Sherpa-ONNX (Kokoro)</h1>
+      <p class="lead">Local text-to-speech using decibri and sherpa-onnx running the Kokoro model. Generates speech on your machine and plays it through decibri's Speaker. Runs entirely offline with no API key, no cloud service, and no network dependency.</p>
+
+      <h2>What this does</h2>
+      <p>This integration is the output side of the pipeline. Instead of capturing audio, it generates it: sherpa-onnx runs the Kokoro model to synthesize speech from text, and decibri plays the resulting audio through your system speaker. Everything runs locally on your machine, with no API key and no network call.</p>
+      <p>Three roles, kept distinct: Kokoro is the text-to-speech model (created by hexgrad), sherpa-onnx is the runtime that loads and runs it, and decibri plays the generated audio through the system Speaker.</p>
+      <p>The Kokoro release from k2-fsa bundles its own <code>espeak-ng-data</code> directory, so no separate espeak-ng system install is required. Other local Kokoro paths need a manual espeak-ng install; this one does not.</p>
+
+      <h2>Prerequisites</h2>
+
+      <h3>Install packages</h3>
+      <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
+        <span class="dollar">$</span>
+        <span class="cmd" id="install-cmd">pip install decibri sherpa-onnx</span>
+        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </div>
+      <p>Install decibri and the sherpa-onnx runtime for your language. The install command above switches with the language tabs in the code blocks below. On Python, numpy is pulled in transitively by sherpa-onnx, so the numpy import in the code below needs no separate install. There is no model download from a package manager; the model files are fetched in the next step.</p>
+
+      <h3>Download the Kokoro model</h3>
+      <p>sherpa-onnx loads a pre-trained model. Download the Kokoro English release from the <a href="https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models" target="_blank" rel="noopener noreferrer">sherpa-onnx TTS models</a> and extract it:</p>
+      <pre><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-en-v0_19.tar.bz2
+tar xvf kokoro-en-v0_19.tar.bz2</code></pre>
+      <p>This produces a <code>kokoro-en-v0_19/</code> directory containing <code>model.onnx</code>, <code>voices.bin</code>, <code>tokens.txt</code>, and an <code>espeak-ng-data/</code> directory. The model is about 345 MB. It covers English with 11 speakers, selected by speaker id (<code>sid</code>): 0 = af, 1 = af_bella, 2 = af_nicole, 3 = af_sarah, 4 = af_sky, 5 = am_adam, 6 = am_michael, 7 = bf_emma, 8 = bf_isabella, 9 = bm_george, 10 = bm_lewis.</p>
+
+      <h2>Code walkthrough</h2>
+      <p>Build the Kokoro TTS engine, generate speech from text, and play the result through decibri's Speaker. Kokoro outputs float32 samples in the range -1.0 to 1.0 at 24000 Hz mono. Decibri's Speaker accepts float32 directly when constructed with <code>dtype</code> float32, so the audio flows straight from Kokoro to playback with no int16 conversion and no rescaling. Construct the Speaker at the sample rate the model reports (read it from the generated audio rather than hardcoding it), so swapping in another model stays correct.</p>
+
+      <h3>1. Build the TTS engine</h3>
+      <p>Construct the engine once and reuse it for every clip you synthesise. The config points sherpa-onnx at the four pieces of the Kokoro release: the ONNX model, the voices file, the tokens file, and the bundled <code>espeak-ng-data</code> directory. Python config keys are snake_case; the Node config uses the camelCase equivalents.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import numpy as np
+import sherpa_onnx
+import decibri
+
+# Build the TTS engine (Kokoro). Config keys are snake_case.
+config = sherpa_onnx.OfflineTtsConfig(
+    model=sherpa_onnx.OfflineTtsModelConfig(
+        kokoro=sherpa_onnx.OfflineTtsKokoroModelConfig(
+            model="./kokoro-en-v0_19/model.onnx",
+            voices="./kokoro-en-v0_19/voices.bin",
+            tokens="./kokoro-en-v0_19/tokens.txt",
+            data_dir="./kokoro-en-v0_19/espeak-ng-data",
+        ),
+        num_threads=2,
+    ),
+)
+tts = sherpa_onnx.OfflineTts(config)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const sherpa = require("sherpa-onnx-node");
+const decibri = require("decibri");
+
+// Build the TTS engine (Kokoro). Config keys are camelCase.
+const tts = new sherpa.OfflineTts({
+  model: {
+    kokoro: {
+      model: "./kokoro-en-v0_19/model.onnx",
+      voices: "./kokoro-en-v0_19/voices.bin",
+      tokens: "./kokoro-en-v0_19/tokens.txt",
+      dataDir: "./kokoro-en-v0_19/espeak-ng-data",
+    },
+    numThreads: 2,
+  },
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>2. Generate speech from text</h3>
+      <p>Call <code>generate()</code> with the text and a speaker id (<code>sid</code>, 0 to 10). It returns the audio as a float32 sample buffer plus the sample rate it was produced at (24000 Hz for Kokoro). This example generates the full clip and then plays it. sherpa-onnx can also emit audio in chunks as it generates, which would allow playback to start sooner; that callback-based path is an available enhancement.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python"># Generate speech. Returns a GeneratedAudio with .samples (float32) and .sample_rate.
+audio = tts.generate(text="A demonstration of decibri as the audio-output layer for text-to-speech: Kokoro generates the speech, and decibri plays it through the system speaker in real time.", sid=0, speed=1.0)
+samples = np.asarray(audio.samples, dtype=np.float32)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">// Generate speech. generate() takes an options object; returns { samples: Float32Array, sampleRate }.
+const audio = tts.generate({
+  text: "A demonstration of decibri as the audio-output layer for text-to-speech: Kokoro generates the speech, and decibri plays it through the system speaker in real time.",
+  sid: 0,      // speaker id 0-10
+  speed: 1.0,
+});</code></pre>
+        </div>
+      </div>
+
+      <h3>3. Play through decibri's Speaker</h3>
+      <p>Construct the Speaker at the sample rate the audio reports, with <code>dtype</code> float32 so the samples pass straight through with no conversion. The two tabs differ on the playback API, and that difference is deliberate: the Python <code>Speaker</code> is a method object (<code>start()</code>, <code>write()</code>, <code>drain()</code>, <code>stop()</code>), while the Node <code>Speaker</code> is a Node.js Writable stream where construction opens the device, then <code>writeAsync()</code> takes a <code>Buffer</code> over the float32 bytes, <code>drainAsync()</code> waits for playback to finish, and <code>stop()</code> releases the device. There is no <code>start()</code> on the Node Speaker. Each tab uses the idiom native to its ecosystem.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python"># Play through decibri's Speaker.
+# Note: Python Speaker is a method object: start/write/drain/stop.
+speaker = decibri.Speaker(sample_rate=audio.sample_rate, channels=1, dtype="float32")
+try:
+    speaker.start()
+    speaker.write(samples)  # float32 ndarray accepted directly with dtype="float32"
+    speaker.drain()         # blocks until playback finishes
+finally:
+    speaker.stop()</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">// Play through decibri's Speaker.
+// Note: Node Speaker is a Writable stream. No start(); construction opens it.
+// write takes bytes, so wrap the Float32Array in a Buffer over the same bytes.
+const speaker = new decibri.Speaker({
+  sampleRate: audio.sampleRate, // 24000 for Kokoro
+  channels: 1,
+  dtype: "float32",
+});
+const buf = Buffer.from(audio.samples.buffer, audio.samples.byteOffset, audio.samples.byteLength);
+await speaker.writeAsync(buf); // not write()
+await speaker.drainAsync();    // waits for playback to finish; not drain()
+speaker.stop();                // sync; releases the device</code></pre>
+        </div>
+      </div>
+
+      <h2>Full example</h2>
+      <details>
+        <summary>View complete code</summary>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import numpy as np
+import sherpa_onnx
+import decibri
+
+# Build the TTS engine (Kokoro). Config keys are snake_case.
+config = sherpa_onnx.OfflineTtsConfig(
+    model=sherpa_onnx.OfflineTtsModelConfig(
+        kokoro=sherpa_onnx.OfflineTtsKokoroModelConfig(
+            model="./kokoro-en-v0_19/model.onnx",
+            voices="./kokoro-en-v0_19/voices.bin",
+            tokens="./kokoro-en-v0_19/tokens.txt",
+            data_dir="./kokoro-en-v0_19/espeak-ng-data",
+        ),
+        num_threads=2,
+    ),
+)
+tts = sherpa_onnx.OfflineTts(config)
+
+# Generate speech. Returns a GeneratedAudio with .samples (float32) and .sample_rate.
+audio = tts.generate(text="A demonstration of decibri as the audio-output layer for text-to-speech: Kokoro generates the speech, and decibri plays it through the system speaker in real time.", sid=0, speed=1.0)
+samples = np.asarray(audio.samples, dtype=np.float32)
+
+# Play through decibri's Speaker.
+# Note: Python Speaker is a method object: start/write/drain/stop.
+speaker = decibri.Speaker(sample_rate=audio.sample_rate, channels=1, dtype="float32")
+try:
+    speaker.start()
+    speaker.write(samples)  # float32 ndarray accepted directly with dtype="float32"
+    speaker.drain()         # blocks until playback finishes
+finally:
+    speaker.stop()</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const sherpa = require("sherpa-onnx-node");
+const decibri = require("decibri");
+
+// Build the TTS engine (Kokoro). Config keys are camelCase.
+const tts = new sherpa.OfflineTts({
+  model: {
+    kokoro: {
+      model: "./kokoro-en-v0_19/model.onnx",
+      voices: "./kokoro-en-v0_19/voices.bin",
+      tokens: "./kokoro-en-v0_19/tokens.txt",
+      dataDir: "./kokoro-en-v0_19/espeak-ng-data",
+    },
+    numThreads: 2,
+  },
+});
+
+// Generate speech. generate() takes an options object; returns { samples: Float32Array, sampleRate }.
+const audio = tts.generate({
+  text: "A demonstration of decibri as the audio-output layer for text-to-speech: Kokoro generates the speech, and decibri plays it through the system speaker in real time.",
+  sid: 0,      // speaker id 0-10
+  speed: 1.0,
+});
+
+// Play through decibri's Speaker.
+// Note: Node Speaker is a Writable stream. No start(); construction opens it.
+// write takes bytes, so wrap the Float32Array in a Buffer over the same bytes.
+const speaker = new decibri.Speaker({
+  sampleRate: audio.sampleRate, // 24000 for Kokoro
+  channels: 1,
+  dtype: "float32",
+});
+const buf = Buffer.from(audio.samples.buffer, audio.samples.byteOffset, audio.samples.byteLength);
+await speaker.writeAsync(buf); // not write()
+await speaker.drainAsync();    // waits for playback to finish; not drain()
+speaker.stop();                // sync; releases the device</code></pre>
+        </div>
+      </div>
+      </details>
+
+      <h2>Attribution</h2>
+      <p>Kokoro is the text-to-speech model, created by hexgrad and released under the Apache-2.0 licence. It has 82 million parameters and is built on the StyleTTS 2 architecture. sherpa-onnx, from the k2-fsa project, is the runtime that loads and runs the Kokoro model; it is not Kokoro itself, and it is not an official Kokoro package. Decibri's role is the final step: it plays the audio that Kokoro generates. See the <a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener noreferrer">Kokoro model page</a> for model details, voices, and licence.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/integrations/tts">Text-to-speech overview</a>: the TTS category and its providers</li>
+          <li><a href="/docs/integrations/stt/sherpa-onnx">Sherpa-ONNX speech-to-text</a>: the input counterpart of the same decibri and sherpa-onnx local story. That page captures microphone audio; this one plays generated speech</li>
+          <li><a href="/docs/integrations">Integrations overview</a>: STT, VAD, KWS, and TTS at a glance</li>
+          <li><a href="/docs/apis/python">Python API</a>: full decibri Python API documentation</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: full decibri Node.js API documentation</li>
+          <li><a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener noreferrer">Kokoro on Hugging Face</a></li>
+          <li><a href="https://github.com/k2-fsa/sherpa-onnx" target="_blank" rel="noopener noreferrer">sherpa-onnx on GitHub</a></li>
+          <li><a href="https://k2-fsa.github.io/sherpa/onnx/index.html" target="_blank" rel="noopener noreferrer">sherpa-onnx documentation</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // Deepgram page's copyTabCode helper.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy the install command currently displayed (which follows the language
+    // tabs below) to the clipboard, flashing the pill briefly on success.
+    function copyInstall(el) {
+      var cmdEl = document.getElementById('install-cmd');
+      if (!cmdEl) return;
+      var flash = function () {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(function () { el.classList.remove('copied'); }, 1500);
+        }
+      };
+      navigator.clipboard.writeText(cmdEl.textContent).then(flash).catch(flash);
+    }
+
+    // Install pill follows the language tabs. /docs/code-tabs.js dispatches a
+    // bubbling 'code-tabs:change' event whenever a tab becomes active,
+    // including on initial load from the localStorage preference.
+    (function () {
+      var installCommands = {
+        python: 'pip install decibri sherpa-onnx',
+        node: 'npm install decibri sherpa-onnx-node'
+      };
+      function syncInstallPill(lang) {
+        var cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        var btn = document.querySelector('.code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+  </script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>
