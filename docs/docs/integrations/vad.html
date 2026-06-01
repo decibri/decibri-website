@@ -65,8 +65,8 @@
 
       <h2>What&rsquo;s built in</h2>
       <ol>
-        <li><strong>RMS energy detector (default).</strong> Fast, minimal CPU, works well for clean audio. Enable with <code>{ vad: true }</code>. Defaults to <code>vadMode: 'energy'</code>.</li>
-        <li><strong>Silero v5 neural model (bundled).</strong> Significantly more accurate in noisy environments, background music, or multi-speaker scenarios. Enable with <code>{ vad: true, vadMode: 'silero' }</code>.</li>
+        <li><strong>RMS energy detector (default).</strong> Fast, minimal CPU, works well for clean audio. Enable with <code>{ vad: 'energy' }</code>.</li>
+        <li><strong>Silero v5 neural model (bundled).</strong> Significantly more accurate in noisy environments, background music, or multi-speaker scenarios. Enable with <code>{ vad: 'silero' }</code>.</li>
       </ol>
       <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri npm package. No separate download, no <code>sherpa-onnx</code> dependency.</p>
 
@@ -76,13 +76,13 @@
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 // Default RMS detector. Fast, clean-audio use cases.
-const micRms = new Decibri({ vad: true });
+const micRms = new Microphone({ vad: 'energy' });
 
 // Silero neural model. Better accuracy under noise / music / multi-speaker.
-const micSilero = new Decibri({ vad: true, vadMode: 'silero' });
+const micSilero = new Microphone({ vad: 'silero' });
 
 // Both emit the same events.
 micSilero.on('speech',  () =&gt; console.log('[speech start]'));
@@ -98,7 +98,7 @@ micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
         </a>
       </div>
 
-      <p>VAD configuration options (<code>vad</code>, <code>vadMode</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>) are documented in the <a href="/docs/apis/node">Node.js API reference</a>.</p>
+      <p>VAD configuration options (<code>vad</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>) are documented in the <a href="/docs/apis/node">Node.js API reference</a>.</p>
 
       <div class="related-links">
         <h2>Related</h2>
