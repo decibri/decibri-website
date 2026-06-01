@@ -131,7 +131,7 @@
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">import 'dotenv/config';
-import Decibri from 'decibri';
+import { Microphone } from 'decibri';
 import { RealtimeTranscription, AudioEncoding } from '@mistralai/mistralai/extra/realtime';
 
 const API_KEY = process.env.MISTRAL_API_KEY;
@@ -153,7 +153,7 @@ const audioFormat = {
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">async function* createAudioStream() {
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
   console.log('Listening... Speak into your microphone. (Ctrl+C to stop)');
 
   try {
@@ -237,7 +237,7 @@ for await (const event of client.transcribeStream(
           </div>
           <div class="code-tab-panel" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">import 'dotenv/config';
-import Decibri from 'decibri';
+import { Microphone } from 'decibri';
 import { RealtimeTranscription, AudioEncoding } from '@mistralai/mistralai/extra/realtime';
 
 const API_KEY = process.env.MISTRAL_API_KEY;
@@ -249,7 +249,7 @@ const audioFormat = {
 };
 
 async function* createAudioStream() {
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
   console.log('Listening... Speak into your microphone. (Ctrl+C to stop)');
 
   try {

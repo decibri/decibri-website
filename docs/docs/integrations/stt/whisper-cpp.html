@@ -34,7 +34,7 @@
       {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri @kutalia/whisper-node-addon"},
       {"@type": "HowToStep", "name": "Download a Whisper model", "text": "Download a GGML model file, for example: curl -L -o ggml-tiny.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin"},
       {"@type": "HowToStep", "name": "Configure the transcriber", "text": "Set the model path, buffer duration, and sample rate. The addon accepts Float32 PCM audio at 16 kHz."},
-      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
+      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Microphone({ sampleRate: 16000, channels: 1 })"},
       {"@type": "HowToStep", "name": "Buffer and transcribe audio", "text": "Accumulate audio chunks, convert Int16 PCM to Float32, and call transcribe() with the pcmf32 buffer when the target duration is reached."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() and process any remaining buffered audio on SIGINT."}
     ]
@@ -176,7 +176,7 @@
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const { transcribe } = require('@kutalia/whisper-node-addon');
 
 const MODEL_PATH = './ggml-tiny.en.bin';
@@ -192,7 +192,7 @@ const BUFFER_SECONDS = 5; // shorter = faster feedback, longer = better accuracy
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: SAMPLE_RATE, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: SAMPLE_RATE, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -288,14 +288,14 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
             <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">const Decibri = require('decibri');
+            <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const { transcribe } = require('@kutalia/whisper-node-addon');
 
 const MODEL_PATH = './ggml-tiny.en.bin';
 const SAMPLE_RATE = 16000;
 const BUFFER_SECONDS = 5; // shorter = faster feedback, longer = better accuracy
 
-const mic = new Decibri({ sampleRate: SAMPLE_RATE, channels: 1 });
+const mic = new Microphone({ sampleRate: SAMPLE_RATE, channels: 1 });
 
 const chunks = [];
 let bufferedSamples = 0;

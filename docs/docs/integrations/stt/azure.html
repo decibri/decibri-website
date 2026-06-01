@@ -151,7 +151,7 @@ export AZURE_SPEECH_REGION=australiaeast</code></pre>
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const sdk = require('microsoft-cognitiveservices-speech-sdk');
 
 const speechConfig = sdk.SpeechConfig.fromSubscription(
@@ -182,7 +182,7 @@ const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);</code></
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 mic.on('data', (chunk) => {
   pushStream.write(chunk.buffer.slice(
     chunk.byteOffset,
@@ -266,7 +266,7 @@ recognizer.canceled = (s, e) => {
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const sdk = require('microsoft-cognitiveservices-speech-sdk');
 
 async function main() {
@@ -282,7 +282,7 @@ async function main() {
   const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
 
   // Open microphone and push audio to Azure
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
   mic.on('data', (chunk) => {
     pushStream.write(chunk.buffer.slice(
       chunk.byteOffset,

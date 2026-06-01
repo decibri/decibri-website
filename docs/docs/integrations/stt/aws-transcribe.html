@@ -34,7 +34,7 @@
       {"@type": "HowToStep", "name": "Set up AWS credentials", "text": "Create an IAM user with transcribe:StartStreamTranscription permission and configure credentials via environment variables or AWS credentials file."},
       {"@type": "HowToStep", "name": "Install packages", "text": "npm install decibri @aws-sdk/client-transcribe-streaming dotenv"},
       {"@type": "HowToStep", "name": "Create the audio stream generator", "text": "Build an async iterator that wraps decibri's data events as AWS AudioEvent objects."},
-      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Decibri({ sampleRate: 16000, channels: 1 })"},
+      {"@type": "HowToStep", "name": "Open the microphone", "text": "Create a decibri instance at 16 kHz mono: new Microphone({ sampleRate: 16000, channels: 1 })"},
       {"@type": "HowToStep", "name": "Start transcription", "text": "Send a StartStreamTranscriptionCommand with PCM encoding at 16000 Hz."},
       {"@type": "HowToStep", "name": "Handle results", "text": "Process partial and final transcription results from the TranscriptResultStream."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone and exit on SIGINT."}
@@ -179,7 +179,7 @@ AWS_REGION=us-east-1</code></pre>
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const {
   TranscribeStreamingClient,
   StartStreamTranscriptionCommand,
@@ -245,7 +245,7 @@ const client = new TranscribeStreamingClient({
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Decibri({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -322,7 +322,7 @@ const response = await client.send(command);</code></pre>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 const {
   TranscribeStreamingClient,
   StartStreamTranscriptionCommand,
@@ -373,7 +373,7 @@ async function main() {
     region: process.env.AWS_REGION || 'us-east-1',
   });
 
-  const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+  const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
   console.log('Starting transcription. Speak into your microphone...');
   console.log('Press Ctrl+C to stop.\n');
