@@ -90,8 +90,8 @@ with decibri.Microphone(sample_rate=16000, channels=1) as mic:
         break  # exit after first chunk for demo</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const Decibri = require('decibri');
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
 mic.on('data', (chunk) => {
   // chunk is a Buffer of 16-bit PCM audio
@@ -105,7 +105,7 @@ setTimeout(() => mic.stop(), 5000);</code></pre>
       <p>Each chunk contains 100 ms of audio by default (1,600 frames at 16 kHz). The output format is 16-bit signed integer PCM, little-endian, which is the standard input expected by most speech engines. In Python, iterate the <code>Microphone</code> directly; the <code>with</code> block calls <code>stop()</code> on exit. In Node.js, subscribe to the <code>'data'</code> event and call <code>mic.stop()</code> when you are done.</p>
 
       <h2>Record audio to a file</h2>
-      <p>Decibri ships a one-line helper in Python that captures microphone audio straight to a 16-bit PCM WAV file. In Node.js, the <code>Decibri</code> instance is a standard <code>Readable</code> stream, so you can pipe it into any <code>Writable</code> stream including <code>fs.createWriteStream()</code> for a raw PCM file.</p>
+      <p>Decibri ships a one-line helper in Python that captures microphone audio straight to a 16-bit PCM WAV file. In Node.js, the <code>Microphone</code> instance is a standard <code>Readable</code> stream, so you can pipe it into any <code>Writable</code> stream including <code>fs.createWriteStream()</code> for a raw PCM file.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -121,10 +121,10 @@ setTimeout(() => mic.stop(), 5000);</code></pre>
 decibri.record_to_file("capture.wav", duration_seconds=10, sample_rate=44100, channels=2)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const fs = require('fs');
 
-const mic = new Decibri({ sampleRate: 44100, channels: 2 });
+const mic = new Microphone({ sampleRate: 44100, channels: 2 });
 mic.pipe(fs.createWriteStream('capture.raw'));</code></pre>
         </div>
       </div>
@@ -155,17 +155,17 @@ mic = decibri.Microphone(device=2, sample_rate=16000, channels=1)
 mic2 = decibri.Microphone(device="USB", sample_rate=16000, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const Decibri = require('decibri');
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 // List all input devices
-const devices = Decibri.devices();
+const devices = Microphone.devices();
 console.log(devices);
 
 // Select by index
-const mic = new Decibri({ device: 2, sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ device: 2, sampleRate: 16000, channels: 1 });
 
 // Or select by name substring (case-insensitive)
-const mic2 = new Decibri({ device: 'USB', sampleRate: 16000, channels: 1 });</code></pre>
+const mic2 = new Microphone({ device: 'USB', sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -198,10 +198,10 @@ with decibri.Microphone(
         break  # exit after first chunk for demo</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Decibri({
+          <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: true,
+  vad: 'energy',
   vadThreshold: 0.01,
   vadHoldoff: 300,
 });
@@ -213,7 +213,7 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <p>For more accurate detection in noisy environments, use the built-in Silero VAD (see below).</p>
 
       <h2>Silero voice activity detection</h2>
-      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vadMode: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
+      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vad: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -239,11 +239,10 @@ with decibri.Microphone(
         break  # exit after first chunk for demo</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Decibri({
+          <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: true,
-  vadMode: 'silero',
+  vad: 'silero',
 });
 
 mic.on('speech', () => console.log('Speech detected'));
@@ -254,7 +253,7 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <p>The bundled model is auto-resolved from the package. To use a custom model, pass <code>model_path</code> (Python) or <code>modelPath</code> (Node.js) pointing to your <code>.onnx</code> file.</p>
 
       <h2>Audio output</h2>
-      <p>Decibri's audio output uses the same native audio backend as capture. In Python the class is <code>decibri.Speaker</code>; in Node.js it is <code>DecibriOutput</code>, a standard <code>Writable</code> stream.</p>
+      <p>Decibri's audio output uses the same native audio backend as capture. In Python the class is <code>decibri.Speaker</code>; in Node.js it is <code>Speaker</code>, a standard <code>Writable</code> stream.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -272,10 +271,9 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
     spk.drain()  # block until all buffered audio has played</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const Decibri = require('decibri');
-const { DecibriOutput } = Decibri;
+          <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
-const speaker = new DecibriOutput({ sampleRate: 16000, channels: 1 });
+const speaker = new Speaker({ sampleRate: 16000, channels: 1 });
 speaker.write(pcmBuffer);
 speaker.end(); // plays all remaining audio, then emits 'finish'</code></pre>
         </div>
@@ -302,11 +300,10 @@ with decibri.Microphone(sample_rate=16000, channels=1) as mic, \
         spk.write(chunk)  # hear yourself in real time</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const Decibri = require('decibri');
-const { DecibriOutput } = Decibri;
+          <pre><code class="language-javascript">const { Microphone, Speaker } = require('decibri');
 
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
-const speaker = new DecibriOutput({ sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
+const speaker = new Speaker({ sampleRate: 16000, channels: 1 });
 mic.pipe(speaker); // hear yourself in real time</code></pre>
         </div>
       </div>
