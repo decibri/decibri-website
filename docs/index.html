@@ -106,7 +106,7 @@
         "name": "Can I select a specific microphone?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. Use Decibri.devices() to list available input devices, then pass the device index or a name substring to the constructor options."
+          "text": "Yes. Use Microphone.devices() to list available input devices, then pass the device index or a name substring to the constructor options."
         }
       },
       {
@@ -188,12 +188,12 @@
       {
         "@type": "HowToStep",
         "name": "Import",
-        "text": "const Decibri = require('decibri');"
+        "text": "const { Microphone } = require('decibri');"
       },
       {
         "@type": "HowToStep",
         "name": "Create stream",
-        "text": "const mic = new Decibri({ sampleRate: 16000, channels: 1 });"
+        "text": "const mic = new Microphone({ sampleRate: 16000, channels: 1 });"
       },
       {
         "@type": "HowToStep",
@@ -1663,15 +1663,15 @@
     <span class="kw">for</span> <span class="param">chunk</span> <span class="kw">in</span> <span class="obj">mic</span>:
         <span class="fn">print</span>(<span class="str">f"Got {len(chunk)} bytes"</span>)
         <span class="kw">break</span></pre></div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> { <span class="obj">Microphone</span> } = <span class="fn">require</span>(<span class="str">'decibri'</span>);
 
-<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
+<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Microphone</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
 <span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Got ${chunk.length} bytes`</span>));
 <span class="fn">setTimeout</span>(() =&gt; <span class="obj">mic</span>.<span class="fn">stop</span>(), <span class="const">5000</span>);</pre></div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">capture</span>::{<span class="obj">AudioCapture</span>, <span class="obj">CaptureConfig</span>};
+        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 
 <span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
-    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">AudioCapture</span>::<span class="fn">new</span>(<span class="obj">CaptureConfig</span>::<span class="fn">default</span>())?;
+    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">Microphone</span>::<span class="fn">new</span>(<span class="obj">MicrophoneConfig</span>::<span class="fn">default</span>())?;
     <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
     <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
         <span class="fn">println!</span>(<span class="str">"Got {} bytes"</span>, <span class="param">chunk</span>.<span class="param">data</span>.<span class="fn">len</span>());
@@ -1857,21 +1857,21 @@
         </div>
 
         <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden>
-<pre><span class="kw">const</span> <span class="obj">Decibri</span> = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+<pre><span class="kw">const</span> { <span class="obj">Microphone</span> } = <span class="fn">require</span>(<span class="str">'decibri'</span>);
 <span class="kw">const</span> <span class="obj">fs</span> = <span class="fn">require</span>(<span class="str">'fs'</span>);
 
-<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Decibri</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span>, <span class="param">channels</span>: <span class="const">1</span> });
+<span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Microphone</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span>, <span class="param">channels</span>: <span class="const">1</span> });
 <span class="obj">mic</span>.<span class="fn">pipe</span>(<span class="obj">fs</span>.<span class="fn">createWriteStream</span>(<span class="str">'capture.raw'</span>));</pre>
         </div>
 
         <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden>
-<pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">capture</span>::{<span class="obj">AudioCapture</span>, <span class="obj">CaptureConfig</span>};
+<pre><span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 <span class="kw">use</span> <span class="obj">std</span>::<span class="obj">fs</span>::<span class="obj">File</span>;
 <span class="kw">use</span> <span class="obj">std</span>::<span class="obj">io</span>::<span class="obj">Write</span>;
 
 <span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
     <span class="kw">let</span> <span class="kw">mut</span> <span class="param">file</span> = <span class="obj">File</span>::<span class="fn">create</span>(<span class="str">"capture.raw"</span>)?;
-    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">AudioCapture</span>::<span class="fn">new</span>(<span class="obj">CaptureConfig</span>::<span class="fn">default</span>())?;
+    <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">Microphone</span>::<span class="fn">new</span>(<span class="obj">MicrophoneConfig</span>::<span class="fn">default</span>())?;
     <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
     <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
         <span class="param">file</span>.<span class="fn">write_all</span>(&amp;<span class="param">chunk</span>.<span class="param">data</span>)?;
@@ -2094,7 +2094,7 @@
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Can I select a specific microphone?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
-          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Yes. Use Decibri.devices() to list available input devices, then pass the device index or a name substring to the constructor options.</p></div></div>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Yes. Use Microphone.devices() to list available input devices, then pass the device index or a name substring to the constructor options.</p></div></div>
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What Node.js versions are supported?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
