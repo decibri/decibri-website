@@ -225,7 +225,7 @@ console.log(devices);
       <ul>
         <li><code>'data'</code>: emitted when audio data is available (callback receives <code>Buffer</code>)</li>
         <li><code>'end'</code>: emitted when the stream ends (after <code>stop()</code>)</li>
-        <li><code>'error'</code>: emitted on microphone errors</li>
+        <li><code>'error'</code>: emitted on microphone errors, including device disconnection (for example unplugging the microphone). When a device fails, <code>isOpen</code> becomes <code>false</code> and the <code>'error'</code> event fires, rather than capture freezing silently.</li>
         <li><code>'close'</code>: emitted when the stream is closed</li>
       </ul>
 
