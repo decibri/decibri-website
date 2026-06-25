@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Silero VAD | decibri docs</title>
-  <meta name="description" content="Detect speech and silence in Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
+  <meta name="description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Silero VAD | decibri docs">
-  <meta property="og:description" content="Detect speech and silence in Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
+  <meta property="og:description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations/vad/silero">
   <link rel="canonical" href="https://decibri.com/docs/integrations/vad/silero">
@@ -28,18 +28,24 @@
   {
     "@context": "https://schema.org",
     "@type": "HowTo",
-    "name": "How to detect speech with Silero VAD in Node.js",
-    "description": "Detect speech and silence with decibri's bundled Silero VAD v5 neural model. Runs entirely offline, no API key, no extra dependencies.",
+    "name": "How to detect speech with Silero VAD in Python or Node.js",
+    "description": "Detect speech and silence with decibri's bundled Silero VAD v5 neural model in Python or Node.js. Runs entirely offline, no API key, no extra dependencies.",
     "step": [
-      {"@type": "HowToStep", "name": "Install decibri", "text": "npm install decibri"},
-      {"@type": "HowToStep", "name": "Enable Silero VAD", "text": "Create a Decibri instance with vad: 'silero': new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' })"},
-      {"@type": "HowToStep", "name": "Listen for speech and silence events", "text": "Register 'speech' and 'silence' event handlers to react to voice activity."},
-      {"@type": "HowToStep", "name": "Stop and clean up", "text": "Stop the microphone with mic.stop() on SIGINT."}
+      {"@type": "HowToStep", "name": "Install decibri", "text": "Install decibri with pip install decibri (Python) or npm install decibri (Node.js). The Silero v5 ONNX model ships bundled in both packages."},
+      {"@type": "HowToStep", "name": "Enable Silero VAD", "text": "Create a Microphone with the 'silero' shorthand: decibri.Microphone(vad='silero') in Python, or new Microphone({ vad: 'silero' }) in Node.js. To tune detection, pass a config object: decibri.Vad(model='silero', threshold=0.6, holdoff_ms=200) in Python, or { model: 'silero', threshold: 0.6, holdoffMs: 200 } in Node.js."},
+      {"@type": "HowToStep", "name": "Detect speech", "text": "In Python, read mic.is_speaking and mic.vad_score in the chunk loop. In Node.js, listen for the 'speech' and 'silence' events and read mic.vadScore."},
+      {"@type": "HowToStep", "name": "Stop and clean up", "text": "In Python the with-block stops capture on exit; in Node.js call mic.stop() on SIGINT."}
     ]
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+  <style>
+    /* Scoped presentation for the Configuration options tabs (config-tabs only).
+       The code-example tabs elsewhere on the page keep their grey bar. */
+    .config-tabs .code-tab-bar { background: transparent; }
+    .config-tabs .code-tab-panel { padding-top: 12px; }
+  </style>
 </head>
 <body>
 
@@ -77,52 +83,106 @@
       </div>
 
       <h1>Silero VAD</h1>
-      <p class="lead">Decibri ships Silero VAD v5 bundled. Set <code>vad: 'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required.</p>
+      <p class="lead">Decibri ships Silero VAD v5 bundled. Set the VAD mode to <code>'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required. This page covers both Python and Node.js. Tabs above each code block switch between languages.</p>
 
       <h2>What this does</h2>
-      <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships with the decibri npm package.</p>
-      <p>Decibri offers two VAD implementations out of the box: an <strong>RMS energy detector</strong> (the default, <code>vad: 'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>vad: 'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with much higher accuracy.</p>
+      <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships inside the decibri package on both PyPI and npm.</p>
+      <p>Decibri offers two VAD modes out of the box: an <strong>RMS energy detector</strong> (<code>'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with higher accuracy. The model set is exactly these two.</p>
 
       <div class="callout">
-        <strong>When to use which:</strong> Use the default RMS VAD for clean-audio scenarios and minimal CPU overhead. Use <code>vad: 'silero'</code> for noisy environments, background music, or any case where accuracy matters more than CPU budget.
+        <strong>When to use which:</strong> Use the RMS energy detector for clean-audio scenarios and minimal CPU overhead. Use <code>'silero'</code> for noisy environments, background music, or any case where accuracy matters more than CPU budget.
       </div>
 
       <h2>Prerequisites</h2>
 
       <h3>Install Decibri</h3>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
-        <span class="cmd">npm install decibri</span>
+        <span class="cmd" id="install-cmd">pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>The Silero v5 ONNX model is bundled. No separate download, no sherpa-onnx needed.</p>
+      <p>The Silero v5 ONNX model is bundled in both the PyPI and npm packages. No separate download, no sherpa-onnx needed. The install command above switches with the language tabs in the code blocks below.</p>
 
       <h2>Code walkthrough</h2>
 
-      <h3>1. Create a Decibri instance with Silero VAD</h3>
-      <p>Set <code>vad: 'silero'</code> to enable voice activity detection with the neural model instead of the default RMS detector.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <h3>1. Create a Microphone with Silero VAD</h3>
+      <p>Set the VAD mode to <code>'silero'</code> to enable voice activity detection with the neural model instead of the RMS energy detector. The bare string shorthand uses the mode defaults: a <code>0.5</code> probability threshold for Silero and a <code>300</code> ms holdoff.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
+const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });</code></pre>
+        </div>
+      </div>
+      <p>To tune the detection threshold or the holdoff, pass a <code>Vad</code> config object instead of the bare string. In Python that is <code>decibri.Vad(model=, threshold=, holdoff_ms=)</code>; in Node.js it is a <code>{ model, threshold, holdoffMs }</code> object. The <code>'energy'</code> mode is configured the same way.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# Override the threshold and holdoff with a Vad config object.
+mic = decibri.Microphone(
+    sample_rate=16000,
+    channels=1,
+    vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200),
+)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+
+// Override the threshold and holdoff with a Vad config object.
 const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: 'silero',
+  vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 },
 });</code></pre>
         </div>
       </div>
 
-      <h3>2. Listen for speech and silence events</h3>
-      <p>Decibri emits <code>'speech'</code> when voice activity is detected and <code>'silence'</code> when audio falls below the threshold for <code>vadHoldoff</code> milliseconds. Both events fire alongside the regular <code>'data'</code> stream. You can segment the raw audio using these markers, or ignore them and consume only the gated regions.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <h3>2. React to speech and silence</h3>
+      <p>The two bindings expose voice activity differently. In Node.js, decibri emits a <code>'speech'</code> event when voice activity starts and a <code>'silence'</code> event when audio stays below the threshold for the holdoff window (the <code>holdoffMs</code> field, default <code>300</code> ms); read the latest score from <code>mic.vadScore</code>. In Python there are no events: read <code>mic.is_speaking</code> and <code>mic.vad_score</code> as properties in the chunk loop, and detect the transitions yourself. Both patterns ride alongside the regular audio stream.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">prev_speaking = False
+
+with mic:
+    for chunk in mic:
+        if mic.is_speaking and not prev_speaking:
+            print("[speech started]")
+        elif not mic.is_speaking and prev_speaking:
+            print("[speech ended]")
+        prev_speaking = mic.is_speaking
+        # chunk is int16 PCM bytes; mic.vad_score is the latest Silero probability</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">mic.on('speech', () => {
   console.log('[speech started]');
 });
@@ -132,19 +192,31 @@ mic.on('silence', () => {
 });
 
 mic.on('data', (chunk) => {
-  // Audio data arrives continuously.
-  // Use 'speech' / 'silence' events to segment into utterances.
+  // Audio arrives continuously. mic.vadScore is the latest Silero probability.
 });</code></pre>
         </div>
       </div>
 
       <h3>3. Clean shutdown</h3>
-      <p>Stop the microphone when the user presses Ctrl+C.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Stop the microphone when the user presses Ctrl+C. In Python the <code>with</code> block stops capture on exit, so catching <code>KeyboardInterrupt</code> is enough. In Node.js, call <code>mic.stop()</code> from a SIGINT handler.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">try:
+    with mic:
+        for chunk in mic:
+            ...  # detect speech as shown above
+except KeyboardInterrupt:
+    print("\nStopping...")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   mic.stop();
@@ -156,20 +228,40 @@ mic.on('data', (chunk) => {
       <h2>Full example</h2>
       <details>
         <summary>View complete code</summary>
-        <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tabs code-tabs-flat" data-tab-group="code">
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+              <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+            <pre><code class="language-python">import decibri
+
+mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")
+
+print("Listening for speech... (Ctrl+C to stop)\n")
+prev_speaking = False
+try:
+    with mic:
+        for chunk in mic:
+            if mic.is_speaking and not prev_speaking:
+                print("[speech start]")
+            elif not mic.is_speaking and prev_speaking:
+                print("[speech end]")
+            prev_speaking = mic.is_speaking
+            # mic.vad_score is the latest Silero probability (0.0 to 1.0)
+except KeyboardInterrupt:
+    print("\nStopping...")</code></pre>
+          </div>
+          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 
 const { Microphone } = require('decibri');
 
-const mic = new Microphone({
-  sampleRate: 16000,
-  channels: 1,
-  vad: 'silero',
-});
+const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });
 
 mic.on('speech', () => console.log('[speech start]'));
 mic.on('silence', () => console.log('[speech end]'));
@@ -188,153 +280,99 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
       </details>
 
       <h2>Configuration options</h2>
-      <p>VAD behaviour is controlled through Decibri constructor options. See the <a href="/docs/apis/node">Node.js API reference</a> for the full option surface.</p>
-      <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Option</th>
-            <th>Default</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>vad</code></td>
-            <td><code>false</code></td>
-            <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses the built-in RMS threshold. <code>'silero'</code> uses the bundled Silero v5 neural model. When enabled, decibri emits <code>'speech'</code> and <code>'silence'</code> events.</td>
-          </tr>
-          <tr>
-            <td><code>vadThreshold</code></td>
-            <td><code>0.01</code></td>
-            <td>Detection threshold. For <code>'silero'</code>, interpret as the speech-probability cutoff (0&ndash;1).</td>
-          </tr>
-          <tr>
-            <td><code>vadHoldoff</code></td>
-            <td><code>300</code></td>
-            <td>Milliseconds of sub-threshold audio before <code>'silence'</code> fires. Tune higher to tolerate brief pauses within speech.</td>
-          </tr>
-          <tr>
-            <td><code>modelPath</code></td>
-            <td>bundled Silero v5</td>
-            <td>Path to a custom Silero ONNX build. Use for benchmarking alternate versions or loading a fine-tuned model.</td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <h2>Advanced: custom Silero model</h2>
-      <p>Decibri ships with Silero v5 by default. To use a different ONNX Silero build (for benchmarking an older version, or loading a fine-tune), pass the <code>modelPath</code> option.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <p>Voice activity detection is off unless you enable it. There are two ways to turn it on.</p>
+      <div class="config-tabs" data-config-tabs>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
+          <pre><code class="language-python">mic = decibri.Microphone(vad="silero")   # or "energy"</code></pre>
+          <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
+          <pre><code class="language-python">mic = decibri.Microphone(
+    vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200)
+)</code></pre>
+          <p>The config object's fields:</p>
+          <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>model</code></td>
+                <td><code>'silero'</code></td>
+                <td><code>'silero'</code> (bundled Silero v5 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
+              </tr>
+              <tr>
+                <td><code>threshold</code></td>
+                <td><code>0.5</code> silero, <code>0.01</code> energy</td>
+                <td>Speech-probability cutoff, range 0 to 1. Out-of-range values raise an error.</td>
+              </tr>
+              <tr>
+                <td><code>holdoff_ms</code></td>
+                <td><code>300</code></td>
+                <td>Milliseconds of sub-threshold audio before speech is considered ended. Higher tolerates brief pauses.</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p>To use a custom Silero ONNX build instead of the bundled v5, pass <code>model_path</code> alongside the <code>'silero'</code> mode.</p>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
+          <pre><code class="language-javascript">const mic = new Microphone({ vad: 'silero' });   // or 'energy'</code></pre>
+          <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
           <pre><code class="language-javascript">const mic = new Microphone({
-  sampleRate: 16000,
-  channels: 1,
-  vad: 'silero',
-  modelPath: './my-silero-v6.onnx',
+  vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 }
 });</code></pre>
+          <p>The config object's fields:</p>
+          <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>model</code></td>
+                <td>required</td>
+                <td><code>'silero'</code> (bundled Silero v5 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
+              </tr>
+              <tr>
+                <td><code>threshold</code></td>
+                <td><code>0.5</code> silero, <code>0.01</code> energy</td>
+                <td>Speech-probability cutoff, range 0 to 1. Out-of-range values raise an error.</td>
+              </tr>
+              <tr>
+                <td><code>holdoffMs</code></td>
+                <td><code>300</code></td>
+                <td>Milliseconds of sub-threshold audio before speech is considered ended. Higher tolerates brief pauses.</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p>To use a custom Silero ONNX build instead of the bundled v5, pass <code>modelPath</code> alongside the <code>'silero'</code> mode.</p>
         </div>
       </div>
-
-      <h2>Alternative approach: sherpa-onnx as a standalone library</h2>
-      <p>For sample-level speech-segment timestamps, explicit <code>isSpeechDetected()</code> polling, or segment draining with <code>front()</code> / <code>pop()</code>, you can use <code>sherpa-onnx</code> as a standalone library alongside decibri. In this pattern decibri provides only the microphone audio; sherpa-onnx handles the VAD entirely on its own API surface. It is not a decibri mode or option; the two packages run side by side. This was the recommended pattern before decibri v3 bundled Silero natively. Prefer the decibri-native approach above unless you specifically need the sherpa-onnx API.</p>
-
-      <h3>Install packages</h3>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install decibri sherpa-onnx')" role="button" tabindex="0" aria-label="Copy install command">
-        <span class="dollar">$</span>
-        <span class="cmd">npm install decibri sherpa-onnx</span>
-        <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      </div>
-
-      <h3>Download the Silero VAD model</h3>
-      <p>Download the Silero VAD ONNX model from the <a href="https://github.com/k2-fsa/sherpa-onnx/releases" target="_blank" rel="noopener noreferrer">sherpa-onnx releases</a>:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/silero_vad.onnx</code></pre>
-        </div>
-      </div>
-      <p>This is a single ~2.3 MB file. Note that this is a separate copy of the Silero model from the one decibri bundles; it is here so sherpa-onnx can find it at the path you configure.</p>
-
-      <h3>Full sherpa-onnx example</h3>
-      <p>Configure the sherpa-onnx VAD with the model path and detection parameters, then feed audio in 512-sample windows and drain completed speech segments.</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
-const sherpa = require('sherpa-onnx');
-
-const config = {
-  sileroVad: {
-    model: './silero_vad.onnx',
-    threshold: 0.5,
-    minSilenceDuration: 0.25,
-    minSpeechDuration: 0.25,
-    windowSize: 512,
-  },
-  sampleRate: 16000,
-  debug: false,
-  bufferSizeInSeconds: 60,
-};
-
-const vad = new sherpa.Vad(config);
-const mic = new Microphone({ sampleRate: 16000, channels: 1 });
-
-const windowSize = 512;
-let speechActive = false;
-
-mic.on('data', (chunk) => {
-  const int16 = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
-  const float32 = new Float32Array(int16.length);
-  for (let i = 0; i < int16.length; i++) {
-    float32[i] = int16[i] / 32768;
-  }
-
-  for (let offset = 0; offset + windowSize <= float32.length; offset += windowSize) {
-    const window = float32.subarray(offset, offset + windowSize);
-    vad.acceptWaveform(window);
-
-    if (vad.isSpeechDetected() && !speechActive) {
-      speechActive = true;
-      console.log('[speech start]');
-    }
-
-    if (!vad.isSpeechDetected() && speechActive) {
-      speechActive = false;
-      console.log('[speech end]');
-    }
-
-    while (!vad.isEmpty()) {
-      const segment = vad.front();
-      const duration = (segment.samples.length / 16000).toFixed(2);
-      console.log(`  segment: ${duration}s of speech`);
-      vad.pop();
-    }
-  }
-});
-
-process.on('SIGINT', () => {
-  mic.stop();
-  vad.free();
-  process.exit(0);
-});
-
-console.log('Listening for speech... (Ctrl+C to stop)');</code></pre>
-        </div>
+      <div class="callout">
+        <strong>Enabling VAD:</strong> name the mode explicitly. Passing <code>True</code> (Python) or <code>true</code> (Node.js) to enable VAD is rejected with a migration message. When enabled, Node.js emits <code>'speech'</code> / <code>'silence'</code> events and Python updates <code>mic.is_speaking</code> / <code>mic.vad_score</code>.
       </div>
 
       <div class="related-links">
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/integrations/vad">Voice activity detection overview</a>: compare VAD options in decibri</li>
-          <li><a href="/docs/apis/node">API Reference</a>: full VAD option documentation (<code>vad</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>)</li>
+          <li><a href="/docs/apis/python">Python API</a>: full VAD option documentation (the <code>vad</code> option, the <code>Vad</code> object fields, and <code>model_path</code>)</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: full VAD option documentation (the <code>vad</code> option, the <code>Vad</code> object fields, and <code>modelPath</code>)</li>
           <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of VAD-gated audio</li>
           <li><a href="/docs/integrations/kws/sherpa-onnx">Sherpa-ONNX Keyword Spotting</a>: sibling neural model for wake-word detection</li>
           <li><a href="https://github.com/snakers4/silero-vad" target="_blank" rel="noopener noreferrer">Silero VAD on GitHub</a></li>
@@ -343,16 +381,114 @@ console.log('Listening for speech... (Ctrl+C to stop)');</code></pre>
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com/" target="_blank" rel="noopener noreferrer">Decibri</a></p>
       </footer>
 
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // homepage's copyHeroCode helper at docs/index.html.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+
+    // Copy the install command currently displayed (which follows the language
+    // tabs below) to the clipboard, flashing the pill briefly on success.
+    function copyInstall(el) {
+      var cmdEl = document.getElementById('install-cmd');
+      if (!cmdEl) return;
+      var flash = function () {
+        if (el && el.classList) {
+          el.classList.add('copied');
+          setTimeout(function () { el.classList.remove('copied'); }, 1500);
+        }
+      };
+      navigator.clipboard.writeText(cmdEl.textContent).then(flash).catch(flash);
+    }
+
+    // Install pill follows the language tabs. /docs/code-tabs.js dispatches a
+    // bubbling 'code-tabs:change' event whenever a tab becomes active,
+    // including on initial load from the localStorage preference. Mirrors the
+    // homepage wiring at docs/index.html.
+    (function () {
+      var installCommands = {
+        python: 'pip install decibri',
+        node: 'npm install decibri'
+      };
+      function syncInstallPill(lang) {
+        var cmdEl = document.getElementById('install-cmd');
+        if (cmdEl && installCommands[lang]) cmdEl.textContent = installCommands[lang];
+      }
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) syncInstallPill(e.detail.lang);
+      });
+      function syncFromActiveTab() {
+        var btn = document.querySelector('.code-tab-btn[aria-selected="true"]');
+        if (btn) syncInstallPill(btn.getAttribute('data-lang'));
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncFromActiveTab);
+      } else {
+        syncFromActiveTab();
+      }
+    })();
+  </script>
+  <script>
+    // Config options: language tabs for the config TABLES. They join the page-wide
+    // language switch driven by /docs/code-tabs.js, WITHOUT using the .code-tabs
+    // class (which would dark-background the tables and let Prism's [class*="lang-"]
+    // auto-highlighter darken the inline code). Not code, so no copy button.
+    //   LISTEN: when any code block switches, code-tabs.js dispatches a bubbling
+    //     'code-tabs:change' event; we follow it and switch our own panels.
+    //   DRIVE: when our own tab is clicked, we click a matching code-block tab so
+    //     code-tabs.js runs the canonical page-wide sync (every code block, the
+    //     localStorage preference, and the install pill all follow the language).
+    (function () {
+      var groups = document.querySelectorAll('[data-config-tabs]');
+      if (!groups.length) return;
+      function setLocal(lang) {
+        groups.forEach(function (group) {
+          group.querySelectorAll('.code-tab-btn').forEach(function (b) {
+            b.setAttribute('aria-selected', b.getAttribute('data-lang') === lang ? 'true' : 'false');
+          });
+          group.querySelectorAll('.code-tab-panel').forEach(function (p) {
+            if (p.getAttribute('data-lang') === lang) p.removeAttribute('hidden');
+            else p.setAttribute('hidden', '');
+          });
+        });
+      }
+      groups.forEach(function (group) {
+        group.querySelectorAll('.code-tab-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var lang = btn.getAttribute('data-lang');
+            setLocal(lang);
+            var codeBtn = document.querySelector('.code-tabs .code-tab-btn[data-lang="' + lang + '"]');
+            if (codeBtn) codeBtn.click();
+          });
+        });
+      });
+      document.addEventListener('code-tabs:change', function (e) {
+        if (e && e.detail && e.detail.lang) setLocal(e.detail.lang);
+      });
+    })();
+  </script>
   <script src="/docs/code-tabs.js"></script>
 </body>
 </html>

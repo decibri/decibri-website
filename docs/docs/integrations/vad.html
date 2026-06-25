@@ -65,28 +65,48 @@
 
       <h2>What&rsquo;s built in</h2>
       <ol>
-        <li><strong>RMS energy detector (default).</strong> Fast, minimal CPU, works well for clean audio. Enable with <code>{ vad: 'energy' }</code>.</li>
-        <li><strong>Silero v5 neural model (bundled).</strong> Significantly more accurate in noisy environments, background music, or multi-speaker scenarios. Enable with <code>{ vad: 'silero' }</code>.</li>
+        <li><strong>RMS energy detector.</strong> Fast, minimal CPU, works well for clean audio. Select with the <code>'energy'</code> mode.</li>
+        <li><strong>Silero v5 neural model (bundled).</strong> More accurate in noisy environments, background music, or multi-speaker scenarios. Select with the <code>'silero'</code> mode.</li>
       </ol>
-      <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri npm package. No separate download, no <code>sherpa-onnx</code> dependency.</p>
+      <p>Both run locally in Rust via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri package on both PyPI and npm. No separate download, no <code>sherpa-onnx</code> dependency.</p>
 
       <h2>Quick example</h2>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# RMS energy detector. Fast, clean-audio use cases.
+mic_rms = decibri.Microphone(vad="energy")
+
+# Silero neural model. Better accuracy under noise / music / multi-speaker.
+mic_silero = decibri.Microphone(vad="silero")
+
+# Python exposes VAD state as properties.
+with mic_silero:
+    for chunk in mic_silero:
+        if mic_silero.is_speaking:
+            print("[speech]")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
-// Default RMS detector. Fast, clean-audio use cases.
+// RMS energy detector. Fast, clean-audio use cases.
 const micRms = new Microphone({ vad: 'energy' });
 
 // Silero neural model. Better accuracy under noise / music / multi-speaker.
 const micSilero = new Microphone({ vad: 'silero' });
 
-// Both emit the same events.
-micSilero.on('speech',  () =&gt; console.log('[speech start]'));
-micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
+// Node emits 'speech' / 'silence' events.
+micSilero.on('speech',  () => console.log('[speech start]'));
+micSilero.on('silence', () => console.log('[speech end]'));</code></pre>
         </div>
       </div>
 
@@ -98,7 +118,7 @@ micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
         </a>
       </div>
 
-      <p>VAD configuration options (<code>vad</code>, <code>vadThreshold</code>, <code>vadHoldoff</code>, <code>modelPath</code>) are documented in the <a href="/docs/apis/node">Node.js API reference</a>.</p>
+      <p>VAD configuration options are documented in full in the <a href="/docs/apis/python">Python</a> and <a href="/docs/apis/node">Node.js</a> API references.</p>
 
       <div class="related-links">
         <h2>Related</h2>
@@ -112,15 +132,33 @@ micSilero.on('silence', () =&gt; console.log('[speech end]'));</code></pre>
       </div>
 
       <footer class="doc-footer">
-        <p>Apache-2.0 &copy; <a href="https://decibri.com" target="_blank" rel="noopener noreferrer">decibri</a> &middot; <a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">GitHub</a> &middot; <a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">npm</a></p>
+        <p>&copy; Copyright 2026 <a href="https://decibri.com/" target="_blank" rel="noopener noreferrer">Decibri</a></p>
       </footer>
 
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    // Copy the active code panel's source to the clipboard. On success the
+    // copy icon flips to a green check for ~1.5s, then reverts. Mirrors the
+    // homepage's copyHeroCode helper at docs/index.html.
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+  </script>
   <script src="/docs/code-tabs.js"></script>
 </body>
 </html>
