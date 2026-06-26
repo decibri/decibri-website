@@ -110,21 +110,9 @@
             </tr>
             <tr>
               <td><code>vad</code></td>
-              <td><code>false | 'energy' | 'silero'</code></td>
+              <td><code>false | 'energy' | 'silero' | VadOptions</code></td>
               <td><code>false</code></td>
-              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v5 ONNX model for ML-based detection</td>
-            </tr>
-            <tr>
-              <td><code>vadThreshold</code></td>
-              <td><code>number</code></td>
-              <td><code>0.01</code></td>
-              <td>RMS energy threshold for speech detection (0 to 1)</td>
-            </tr>
-            <tr>
-              <td><code>vadHoldoff</code></td>
-              <td><code>number</code></td>
-              <td><code>300</code></td>
-              <td>Milliseconds of sub-threshold audio before <code>'silence'</code> is emitted</td>
+              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v5 ONNX model for ML-based detection. Pass a <code>VadOptions</code> object to tune the threshold and holdoff</td>
             </tr>
             <tr>
               <td><code>modelPath</code></td>
@@ -137,7 +125,7 @@
       </div>
 
       <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted.</p>
-      <p>When <code>vad</code> is <code>'silero'</code>, the default <code>vadThreshold</code> changes from 0.01 to 0.5 (probability scale 0.0 to 1.0). If you explicitly set <code>vadThreshold</code>, your value is used regardless of mode.</p>
+      <p>To tune detection, pass a <code>VadOptions</code> object instead of the bare mode string: <code>vad: { model, threshold?, holdoffMs? }</code>. <code>model</code> is <code>'silero'</code> or <code>'energy'</code>. <code>threshold</code> is a number in <code>[0, 1]</code>; its default depends on the mode (0.5 for <code>'silero'</code>, on a probability scale of 0.0 to 1.0, and 0.01 for <code>'energy'</code>), and a value outside the range throws <code>RangeError</code>. <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>RangeError</code>). The <code>vad: 'silero'</code> and <code>vad: 'energy'</code> shorthands use these defaults.</p>
 
       <h2>Methods</h2>
 
@@ -209,7 +197,7 @@ console.log(devices);
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">Microphone.version();
-// { decibri: '4.0.1', audioBackend: 'cpal 0.17', binding: '4.2.0' }</code></pre>
+// { decibri: '5.0.0', audioBackend: 'cpal 0.17', binding: '5.0.0' }</code></pre>
         </div>
       </div>
 
@@ -243,10 +231,10 @@ console.log(devices);
       </div>
 
       <h3><code>'speech'</code></h3>
-      <p>Requires <code>vad</code> to be enabled. Emitted when the RMS energy of an audio chunk crosses the <code>vadThreshold</code>.</p>
+      <p>Requires <code>vad</code> to be enabled. Emitted when the VAD score crosses the configured <code>threshold</code>. The score is the Silero probability in <code>'silero'</code> mode and the normalised RMS energy in <code>'energy'</code> mode.</p>
 
       <h3><code>'silence'</code></h3>
-      <p>Requires <code>vad</code> to be enabled. Emitted when audio stays below <code>vadThreshold</code> for <code>vadHoldoff</code> milliseconds after a speech period.</p>
+      <p>Requires <code>vad</code> to be enabled. Emitted when the VAD score stays below the <code>threshold</code> for <code>holdoffMs</code> milliseconds after a speech period.</p>
 
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">

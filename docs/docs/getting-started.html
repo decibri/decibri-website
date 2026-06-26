@@ -186,9 +186,7 @@ const mic2 = new Microphone({ device: 'USB', sampleRate: 16000, channels: 1 });<
 with decibri.Microphone(
     sample_rate=16000,
     channels=1,
-    vad="energy",
-    vad_threshold=0.01,
-    vad_holdoff_ms=300,
+    vad=decibri.Vad(model="energy", threshold=0.01, holdoff_ms=300),
 ) as mic:
     for chunk in mic:
         if mic.is_speaking:
@@ -201,9 +199,7 @@ with decibri.Microphone(
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
-  vad: 'energy',
-  vadThreshold: 0.01,
-  vadHoldoff: 300,
+  vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 },
 });
 
 mic.on('speech', () => console.log('Speech detected'));
@@ -249,7 +245,7 @@ mic.on('speech', () => console.log('Speech detected'));
 mic.on('silence', () => console.log('Silence detected'));</code></pre>
         </div>
       </div>
-      <p>In Silero mode, the default threshold changes from 0.01 to 0.5 (probability scale 0.0 to 1.0). Override it by setting <code>vad_threshold</code> in Python or <code>vadThreshold</code> in Node.js.</p>
+      <p>In Silero mode, the default threshold changes from 0.01 to 0.5 (probability scale 0.0 to 1.0). Override it by passing a <code>Vad</code> object with a custom <code>threshold</code>: <code>vad=decibri.Vad(model="silero", threshold=0.6)</code> in Python or <code>vad: { model: 'silero', threshold: 0.6 }</code> in Node.js.</p>
       <p>The bundled model is auto-resolved from the package. To use a custom model, pass <code>model_path</code> (Python) or <code>modelPath</code> (Node.js) pointing to your <code>.onnx</code> file.</p>
 
       <h2>Audio output</h2>

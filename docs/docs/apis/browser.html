@@ -190,9 +190,7 @@ mic2.on('data', (chunk) => {
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
-  vad: 'energy',
-  vadThreshold: 0.01,
-  vadHoldoff: 300,
+  vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 },
 });
 
 mic.on('speech', () => console.log('Speaking...'));
@@ -201,6 +199,8 @@ mic.on('silence', () => console.log('Silence'));
 await mic.start();</code></pre>
         </div>
       </div>
+
+      <p>The browser build runs energy-mode VAD only. Pass <code>vad: 'energy'</code> for defaults, or a <code>VadOptions</code> object to tune detection: <code>{ model: 'energy', threshold?, holdoffMs? }</code>. <code>model</code> is <code>'energy'</code>, the only browser detector. <code>threshold</code> is a number in <code>[0, 1]</code> (default <code>0.01</code>; a value outside the range throws <code>RangeError</code>). <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>RangeError</code>).</p>
 
       <h3>WebSocket streaming</h3>
       <div class="code-tabs" data-tab-group="code">
@@ -333,21 +333,9 @@ const mic = new Microphone(options?);</code></pre>
             </tr>
             <tr>
               <td><code>vad</code></td>
-              <td><code>false | 'energy'</code></td>
+              <td><code>false | 'energy' | VadOptions</code></td>
               <td><code>false</code></td>
-              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding</td>
-            </tr>
-            <tr>
-              <td><code>vadThreshold</code></td>
-              <td><code>number</code></td>
-              <td><code>0.01</code></td>
-              <td>RMS energy threshold for speech detection (0 to 1)</td>
-            </tr>
-            <tr>
-              <td><code>vadHoldoff</code></td>
-              <td><code>number</code></td>
-              <td><code>300</code></td>
-              <td>Milliseconds of sub-threshold audio before <code>'silence'</code> is emitted</td>
+              <td>Voice activity detection. <code>false</code> disables it; <code>'energy'</code> enables it with default tuning; pass a <code>VadOptions</code> object (<code>{ model: 'energy', threshold?, holdoffMs? }</code>) to tune the threshold and holdoff</td>
             </tr>
             <tr>
               <td><code>echoCancellation</code></td>
@@ -410,7 +398,7 @@ console.log(devices);
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">Microphone.version();
-// { decibri: '4.2.0' }</code></pre>
+// { decibri: '5.0.0' }</code></pre>
         </div>
       </div>
 
@@ -454,7 +442,7 @@ console.log(devices);
             <tr>
               <td><code>'silence'</code></td>
               <td>(none)</td>
-              <td>VAD: sub-threshold audio for <code>vadHoldoff</code> ms. Requires <code>vad</code> to be enabled.</td>
+              <td>VAD: sub-threshold audio for the configured <code>holdoffMs</code>. Requires <code>vad</code> to be enabled.</td>
             </tr>
           </tbody>
         </table>

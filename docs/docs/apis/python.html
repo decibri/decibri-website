@@ -171,8 +171,6 @@ asyncio.run(main())</code></pre>
     dtype="int16",
     device=None,
     vad=False,
-    vad_threshold=None,
-    vad_holdoff_ms=300,
     model_path=None,
     as_ndarray=False,
     ort_library_path=None,
@@ -223,21 +221,9 @@ asyncio.run(main())</code></pre>
             </tr>
             <tr>
               <td><code>vad</code></td>
-              <td><code>False | "silero" | "energy"</code></td>
+              <td><code>False | "silero" | "energy" | Vad</code></td>
               <td><code>False</code></td>
-              <td>Voice activity detector mode. See <a href="#vad">Voice activity detection</a>.</td>
-            </tr>
-            <tr>
-              <td><code>vad_threshold</code></td>
-              <td><code>float | None</code></td>
-              <td>mode default</td>
-              <td>Threshold in <code>[0, 1]</code>. Defaults to 0.5 in <code>"silero"</code> mode, 0.01 in <code>"energy"</code> mode.</td>
-            </tr>
-            <tr>
-              <td><code>vad_holdoff_ms</code></td>
-              <td><code>int</code></td>
-              <td><code>300</code></td>
-              <td>Milliseconds of sub-threshold audio before <code>is_speaking</code> flips back to <code>False</code>.</td>
+              <td>Voice activity detection. <code>False</code> disables it; <code>"silero"</code> or <code>"energy"</code> selects a mode with default tuning; pass a <code>decibri.Vad(...)</code> object to tune the threshold and holdoff. See <a href="#vad">Voice activity detection</a>.</td>
             </tr>
             <tr>
               <td><code>model_path</code></td>
@@ -851,7 +837,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             </tr>
             <tr>
               <td><code>"energy"</code></td>
-              <td>Lightweight RMS-energy threshold computed in pure Python over each chunk.</td>
+              <td>Lightweight RMS-energy threshold computed natively over each chunk.</td>
               <td>0.01</td>
               <td>0.0 to 1.0</td>
             </tr>
@@ -869,8 +855,51 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
         <strong>Note:</strong> The bundled Silero VAD ONNX model and ONNX Runtime dylib ship inside the wheel. No separate download, no API keys, and no <code>onnxruntime</code> system dependency are required for <code>vad="silero"</code>.
       </div>
 
+      <h3>Tuning with the <code>decibri.Vad</code> object</h3>
+      <p>To tune the threshold or holdoff, pass a <code>decibri.Vad</code> object as the <code>vad</code> argument instead of a bare mode string. <code>Vad</code> is a frozen dataclass, so <code>vad="silero"</code> is shorthand for <code>vad=decibri.Vad(model="silero")</code> with default tuning.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>model</code></td>
+              <td><code>"silero" | "energy"</code></td>
+              <td><code>"silero"</code></td>
+              <td>Which detector to run.</td>
+            </tr>
+            <tr>
+              <td><code>threshold</code></td>
+              <td><code>float | None</code></td>
+              <td>mode default</td>
+              <td>Threshold in <code>[0, 1]</code>. <code>None</code> uses the mode default (0.5 for <code>"silero"</code>, 0.01 for <code>"energy"</code>). A value outside <code>[0, 1]</code> raises <code>ValueError</code>.</td>
+            </tr>
+            <tr>
+              <td><code>holdoff_ms</code></td>
+              <td><code>int</code></td>
+              <td><code>300</code></td>
+              <td>Milliseconds of sub-threshold audio before <code>is_speaking</code> flips back to <code>False</code>. A negative value raises <code>ValueError</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200))</code></pre>
+        </div>
+      </div>
+
       <h3>Holdoff and the <code>is_speaking</code> state machine</h3>
-      <p>Decibri runs a pure-Python state machine on top of the raw VAD probability. Above-threshold chunks set the speaking state and cancel any pending silence timer. Below-threshold chunks while already speaking start a silence timer; the timer expires after <code>vad_holdoff_ms</code> elapsed real time, at which point <code>is_speaking</code> flips back to <code>False</code>. Timer expiry is checked on every property access via <code>time.monotonic()</code>, so consumers who pause iteration still observe correct state on the next read.</p>
+      <p>Decibri runs a pure-Python state machine on top of the raw VAD probability. Above-threshold chunks set the speaking state and cancel any pending silence timer. Below-threshold chunks while already speaking start a silence timer; the timer expires after the <code>Vad</code> object's <code>holdoff_ms</code> (default <code>300</code>) of elapsed real time, at which point <code>is_speaking</code> flips back to <code>False</code>. Timer expiry is checked on every property access via <code>time.monotonic()</code>, so consumers who pause iteration still observe correct state on the next read.</p>
 
       <h3><code>is_speaking</code> vs <code>vad_score</code></h3>
       <p><code>is_speaking</code> is the debounced state machine output: above the threshold plus the holdoff grace. <code>vad_score</code> is the raw per-chunk view, identical to the Silero probability in Silero mode and the normalised RMS in energy mode. Use <code>is_speaking</code> for gating downstream work; use <code>vad_score</code> when you need the underlying signal (for example, to threshold differently per chunk or to log probability distributions).</p>
@@ -1035,7 +1064,7 @@ chunk = mic.read()
             <tr>
               <td><code>VadThresholdOutOfRange</code></td>
               <td><code>DecibriError</code></td>
-              <td>Constructor <code>vad_threshold</code> outside <code>[0, 1]</code>.</td>
+              <td>A VAD threshold outside the valid range <code>[0, 1]</code>.</td>
             </tr>
             <tr>
               <td><code>ForkAfterOrtInit</code></td>
