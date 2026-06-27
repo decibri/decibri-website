@@ -40,7 +40,7 @@
   // Top-level spine sections that should render expanded on every page so the
   // primary navigation stays visible regardless of where the user is.
   function isAlwaysExpanded(href) {
-    return href === '/docs/integrations' || href === '/docs/apis';
+    return href === '/docs/integrations' || href === '/docs/apis' || href === '/docs/audio';
   }
 
   var CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
@@ -90,6 +90,8 @@
     + group('/docs/integrations/vad', 'Voice activity detection (VAD)', vadChildren, 'sidebar-subsection-title-link', subsectionStyle)
     + group('/docs/integrations/kws', 'Keyword spotting (KWS)',       kwsChildren, 'sidebar-subsection-title-link', subsectionStyle);
 
+  var audioChildren = link('/docs/audio/ace', 'Audio Capture Engine (ACE)');
+
   var apisChildren =
       link('/docs/apis/python',  'Python')
     + link('/docs/apis/node',    'Node.js')
@@ -118,6 +120,11 @@
     // Getting started (single link, not expandable)
     +   '<div class="sidebar-section">'
     +     '<a href="/docs/getting-started" class="sidebar-top-link' + (isActive('/docs/getting-started') ? ' active' : '') + '">Getting started</a>'
+    +   '</div>'
+
+    // Audio Processing
+    +   '<div class="sidebar-section">'
+    +     group('/docs/audio', 'Audio Processing', audioChildren, 'sidebar-section-title-link')
     +   '</div>'
 
     // Integrations
@@ -178,6 +185,8 @@
     + mgroup('/docs/integrations/vad', 'Voice activity detection (VAD)', mVadChildren, 'mobile-menu-subsection-link')
     + mgroup('/docs/integrations/kws', 'Keyword spotting (KWS)',       mKwsChildren, 'mobile-menu-subsection-link');
 
+  var mAudioChildren = mlink('/docs/audio/ace', 'Audio Capture Engine (ACE)');
+
   var mApisChildren =
       mlink('/docs/apis/python',  'Python')
     + mlink('/docs/apis/node',    'Node.js')
@@ -190,6 +199,7 @@
     + '</button>'
     + '<a href="/docs/" class="mobile-menu-link' + (isActive('/docs/') ? ' active' : '') + '" onclick="toggleMobileMenu()">Introduction</a>'
     + '<a href="/docs/getting-started" class="mobile-menu-link' + (isActive('/docs/getting-started') ? ' active' : '') + '" onclick="toggleMobileMenu()">Getting started</a>'
+    + mgroup('/docs/audio', 'Audio Processing', mAudioChildren, 'mobile-menu-section-link')
     + mgroup('/docs/integrations', 'Integrations', mIntegrationsChildren, 'mobile-menu-section-link')
     + mgroup('/docs/apis',         'APIs',         mApisChildren,         'mobile-menu-section-link')
     + '<div class="mobile-menu-divider"></div>'
