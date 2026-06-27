@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Audio Capture Engine (ACE) | decibri docs</title>
+  <meta name="description" content="Decibri ACE (Audio Capture Engine) conditions microphone audio before it reaches your code. Keyless, local, off by default. DC removal, denoise, high-pass, automatic gain control, and limiter, with per-binding options for Python, Node.js, and Rust.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Audio Capture Engine (ACE) | decibri docs">
+  <meta property="og:description" content="Decibri ACE conditions microphone audio before it reaches your code. Keyless, local, off by default. DC removal, denoise, high-pass, AGC, and limiter.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/audio/ace">
+  <meta property="og:image" content="https://decibri.com/decibri-social-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Audio Capture Engine (ACE) | decibri docs">
+  <meta name="twitter:description" content="Decibri ACE conditions microphone audio before it reaches your code. Keyless, local, off by default. DC removal, denoise, high-pass, AGC, and limiter.">
+  <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
+  <link rel="canonical" href="https://decibri.com/docs/audio/ace">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/audio">Audio Processing</a>
+        <span class="sep">/</span>
+        <span class="current">Audio Capture Engine (ACE)</span>
+      </div>
+
+      <h1>Audio Capture Engine (ACE)</h1>
+      <p class="lead">The Audio Capture Engine (ACE) is decibri's opt-in audio front-end: it conditions microphone audio before it reaches your code. Every stage is off by default, so a plain <code>Microphone(...)</code> is byte-identical to capture without ACE, and you turn on only the stages you want.</p>
+
+      <p>What makes ACE useful is not the individual filters; it is the package they come in. The chain is keyless and local: no API key, no account, no network call. It runs on-device, and the bundled denoise model ships inside the decibri package. The same conditioning options, with the same names and ranges, are available from Python, Node.js, and Rust.</p>
+
+      <p>The stages are conventional, and each is described plainly below.</p>
+
+      <h2 id="quick-example">Quick example</h2>
+      <p>Enable the stages you want by passing options to the <code>Microphone</code> constructor. Here, DC removal, denoise, a 100 Hz high-pass, AGC targeting -18 dBFS, and a -1.0 dBFS limiter:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+mic = decibri.Microphone(
+    sample_rate=16000,
+    dc_removal=True,
+    denoise="fastenhancer-t",
+    highpass=100,
+    agc=-18,
+    limiter=-1.0,
+)
+
+with mic:
+    for chunk in mic:
+        process(chunk)  # chunk is already conditioned</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+
+const mic = new Microphone({
+  sampleRate: 16000,
+  dcRemoval: true,
+  denoise: 'fastenhancer-t',
+  highpass: 100,
+  agc: -18,
+  limiter: -1.0,
+});
+
+mic.on('data', (chunk) => {
+  // chunk is a Buffer of conditioned Int16 LE PCM
+});</code></pre>
+        </div>
+      </div>
+      <p>Leave an option unset to keep that stage off. With every stage off, capture is unchanged.</p>
+
+      <h2 id="pipeline">The pipeline</h2>
+      <p>Decibri opens the microphone and produces a raw block of samples. Before that block reaches you, it passes through normalization (downmix to mono and resample to your target rate), then the ACE conditioning chain. The chunk you receive is the conditioned output.</p>
+      <p>The conditioning stages always run in this fixed order, regardless of the order you pass the options:</p>
+      <p style="text-align: center;"><code>DC removal &rarr; denoise &rarr; high-pass &rarr; AGC &rarr; limiter</code></p>
+      <p>This order is deliberate. DC removal clears any constant offset first. Denoise runs early, on a near-full-band signal, so the model has the most to work with. The high-pass then trims low-frequency rumble below the voice band. AGC sets a consistent working level. The limiter sits last as a ceiling that catches any transient the AGC would let through.</p>
+
+      <div class="callout">
+        <strong>VAD reads the pre-enhancement signal.</strong> Voice activity detection takes its reading after normalization but before the conditioning chain. Turning on enhancement does not change what counts as speech; it only changes the audio you receive. See <a href="/docs/integrations/vad">Voice activity detection</a>.
+      </div>
+
+      <h2 id="stages">The stages</h2>
+      <p>Each stage is an independent option on the <code>Microphone</code> constructor. The names below are the Python form; the Node.js form is listed with each stage and in the <a href="#options">options reference</a>.</p>
+
+      <h3 id="dc-removal">DC removal</h3>
+      <p>Removes a constant (DC) offset from the signal with a one-pole DC-blocking high-pass. A DC offset is a fixed bias away from zero that some hardware introduces; left in, it wastes headroom and can upset downstream processing. This stage runs first in the chain.</p>
+      <p>Enable it with a boolean. It is the only stage with no numeric configuration.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(dc_removal=True)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Microphone({ dcRemoval: true });</code></pre>
+        </div>
+      </div>
+
+      <h3 id="denoise">Denoise</h3>
+      <p>An optional bundled single-channel speech-enhancement model that suppresses background noise while preserving the voice. It is the one neural stage in the chain; the others are classical filters. The model runs on-device through the same ONNX Runtime decibri already uses for Silero VAD, and it ships inside the decibri package, so there is no separate download.</p>
+      <p>Enable it by naming the model. Today there is one model, <code>"fastenhancer-t"</code>:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(denoise="fastenhancer-t")</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Microphone({ denoise: 'fastenhancer-t' });</code></pre>
+        </div>
+      </div>
+      <p>Denoise is designed for 16 kHz audio, which is the default sample rate. It is the only stage that adds latency: the conditioned output is delivered in steps of 256 samples, about 16 ms at 16 kHz. The other stages are sample-for-sample and add none.</p>
+
+      <h3 id="highpass">High-pass</h3>
+      <p>A second-order Butterworth high-pass filter that removes low-frequency rumble below the voice band, the kind of energy that comes from handling noise, air conditioning, or desk vibration. The cutoff is a fixed choice of <code>80</code> or <code>100</code> Hz, not a free frequency: pass one of those two integers.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(highpass=100)  # or 80</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Microphone({ highpass: 100 }); // or 80</code></pre>
+        </div>
+      </div>
+      <p>Any value other than 80 or 100 is rejected at construction.</p>
+
+      <h3 id="agc">Automatic gain control (AGC)</h3>
+      <p>Drives the running signal level toward a target with a smoothed, rate-limited gain, so quiet and loud speakers arrive at a more consistent level. The target is a level in dBFS, an integer from <code>-40</code> to <code>-3</code>; <code>-18</code> is a typical choice. AGC adds no latency.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(agc=-18)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Microphone({ agc: -18 });</code></pre>
+        </div>
+      </div>
+      <p>A value outside <code>-40</code> to <code>-3</code> is rejected at construction.</p>
+
+      <h3 id="limiter">Limiter</h3>
+      <p>A sample-peak ceiling that catches a transient the AGC would let exceed full scale. It is the safety net at the end of the chain: a fast peak limiter plus a hard clamp so the output never clips. The ceiling is a level in dBFS, a float from <code>-3.0</code> to <code>0.0</code>; <code>-1.0</code> is a typical choice. The limiter adds no latency.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic = decibri.Microphone(limiter=-1.0)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const mic = new Microphone({ limiter: -1.0 });</code></pre>
+        </div>
+      </div>
+      <p>A value outside <code>-3.0</code> to <code>0.0</code> is rejected at construction.</p>
+
+      <h2 id="options">Options reference</h2>
+      <p>The same five options across the bindings. Python uses snake_case, Node.js uses camelCase, and Rust exposes them as <code>MicrophoneConfig</code> fields. Each is off when unset.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Python</th>
+              <th>Node.js</th>
+              <th>Type</th>
+              <th>Values</th>
+              <th>Default</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="#dc-removal">DC removal</a></td>
+              <td><code>dc_removal</code></td>
+              <td><code>dcRemoval</code></td>
+              <td>boolean</td>
+              <td><code>True</code> / <code>False</code></td>
+              <td>off</td>
+            </tr>
+            <tr>
+              <td><a href="#denoise">Denoise</a></td>
+              <td><code>denoise</code></td>
+              <td><code>denoise</code></td>
+              <td>string</td>
+              <td><code>"fastenhancer-t"</code></td>
+              <td>off</td>
+            </tr>
+            <tr>
+              <td><a href="#highpass">High-pass</a></td>
+              <td><code>highpass</code></td>
+              <td><code>highpass</code></td>
+              <td>integer (Hz)</td>
+              <td><code>80</code> or <code>100</code></td>
+              <td>off</td>
+            </tr>
+            <tr>
+              <td><a href="#agc">AGC</a></td>
+              <td><code>agc</code></td>
+              <td><code>agc</code></td>
+              <td>integer (dBFS)</td>
+              <td><code>-40</code> to <code>-3</code></td>
+              <td>off</td>
+            </tr>
+            <tr>
+              <td><a href="#limiter">Limiter</a></td>
+              <td><code>limiter</code></td>
+              <td><code>limiter</code></td>
+              <td>float (dBFS)</td>
+              <td><code>-3.0</code> to <code>0.0</code></td>
+              <td>off</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>An out-of-range value is rejected when the <code>Microphone</code> is constructed. Python raises <code>ValueError</code>; Node.js raises <code>TypeError</code> for an unknown denoise model and <code>RangeError</code> for an out-of-range high-pass, AGC, or limiter. <code>dc_removal</code> is a boolean and has no invalid value.</p>
+
+      <div class="callout">
+        <strong>Not available in the browser.</strong> ACE is a native stage of the engine, so the conditioning options are available in the Node.js, Python, and Rust builds but not in the browser build. Passing an ACE option to a browser <code>Microphone</code> has no effect. See the <a href="/docs/apis/browser">Browser API</a>.
+      </div>
+
+      <h2 id="per-language">Per-language detail</h2>
+      <p>The conditioning options appear in each binding's constructor reference alongside the rest of the capture surface:</p>
+      <ul>
+        <li><a href="/docs/apis/python">Python API</a>: the <code>Microphone</code> constructor, including <code>dc_removal</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, and <code>limiter</code>.</li>
+        <li><a href="/docs/apis/node">Node.js API</a>: the <code>MicrophoneOptions</code> surface, including <code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, and <code>limiter</code>.</li>
+      </ul>
+
+      <h2 id="example">Complete example</h2>
+      <p>This puts the chain together with voice activity detection: ACE conditions each chunk, and VAD tells you when someone is speaking. Python exposes speaking state as the <code>is_speaking</code> property; Node.js emits <code>'speech'</code> and <code>'silence'</code> events. Here, 16 kHz capture with denoise, a high-pass, AGC, and a limiter, gated by the bundled Silero VAD:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
+# signal, so enabling the conditioning never changes what counts as speech.
+mic = decibri.Microphone(
+    sample_rate=16000,
+    denoise="fastenhancer-t",
+    highpass=100,
+    agc=-18,
+    limiter=-1.0,
+    vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200),
+)
+
+with mic:
+    for chunk in mic:
+        if mic.is_speaking:
+            process(chunk)  # chunk is conditioned (post-ACE)</code></pre>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+
+// ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
+// signal, so enabling the conditioning never changes what counts as speech.
+const mic = new Microphone({
+  sampleRate: 16000,
+  denoise: 'fastenhancer-t',
+  highpass: 100,
+  agc: -18,
+  limiter: -1.0,
+  vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 },
+});
+
+let speaking = false;
+mic.on('speech', () => { speaking = true; });
+mic.on('silence', () => { speaking = false; });
+
+mic.on('data', (chunk) => {
+  if (speaking) {
+    // chunk is a Buffer of conditioned (post-ACE) Int16 LE PCM
+  }
+});</code></pre>
+        </div>
+      </div>
+      <p>The chunks you receive are conditioned by ACE, while VAD reports speech from the signal before conditioning. The two are independent: changing the conditioning does not move the speech and silence boundaries.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/audio">Audio Processing</a>: the built-in audio processing overview</li>
+          <li><a href="/docs/apis/python">Python API</a>: the full constructor surface</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the JavaScript / TypeScript surface</li>
+          <li><a href="/docs/integrations/vad">Voice activity detection</a>: reads the signal before conditioning</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of conditioned audio</li>
+          <li><a href="https://github.com/decibri/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script>
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+  </script>
+  <script src="/docs/code-tabs.js"></script>
+</body>
+</html>
