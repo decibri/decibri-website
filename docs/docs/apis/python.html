@@ -174,6 +174,11 @@ asyncio.run(main())</code></pre>
     model_path=None,
     as_ndarray=False,
     ort_library_path=None,
+    denoise=None,
+    highpass=None,
+    agc=None,
+    limiter=None,
+    dc_removal=False,
 )</code></pre>
         </div>
       </div>
@@ -199,7 +204,7 @@ asyncio.run(main())</code></pre>
               <td><code>channels</code></td>
               <td><code>int</code></td>
               <td><code>1</code></td>
-              <td>Number of input channels (1 to 32).</td>
+              <td>Capture is mono only; the only accepted value is <code>1</code>. A value greater than <code>1</code> raises <code>MultichannelNotSupported</code>; a zero or otherwise out-of-range value raises <code>ChannelsOutOfRange</code>.</td>
             </tr>
             <tr>
               <td><code>frames_per_buffer</code></td>
@@ -243,9 +248,41 @@ asyncio.run(main())</code></pre>
               <td>resolver</td>
               <td>Override path to the ONNX Runtime dynamic library. Only used when <code>vad="silero"</code>. See <a href="#ort">ONNX Runtime resolution</a> for the four-arm priority order.</td>
             </tr>
+            <tr>
+              <td><code>dc_removal</code></td>
+              <td><code>bool</code></td>
+              <td><code>False</code></td>
+              <td>Remove a constant DC offset from the captured audio. See <a href="/docs/audio/ace#dc-removal">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>denoise</code></td>
+              <td><code>"fastenhancer-t" | None</code></td>
+              <td><code>None</code></td>
+              <td>Neural speech enhancement using the bundled model. An unknown value raises <code>ValueError</code>. See <a href="/docs/audio/ace#denoise">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>highpass</code></td>
+              <td><code>80 | 100 | None</code></td>
+              <td><code>None</code></td>
+              <td>Butterworth high-pass cutoff in Hz. Any other value raises <code>ValueError</code>. See <a href="/docs/audio/ace#highpass">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>agc</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code></td>
+              <td>Automatic gain control target in dBFS, -40 to -3. Out of range raises <code>ValueError</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>limiter</code></td>
+              <td><code>float | None</code></td>
+              <td><code>None</code></td>
+              <td>Peak limiter ceiling in dBFS, -3.0 to 0.0. Out of range raises <code>ValueError</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a>.</td>
+            </tr>
           </tbody>
         </table>
       </div>
+
+      <p>The five conditioning options (<code>dc_removal</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
 
       <h3>Context manager usage</h3>
       <p>The canonical Python pattern. Entering the <code>with</code> block opens the stream and starts capture; exiting stops the stream and resets VAD state, even if an exception propagates out.</p>
@@ -947,7 +984,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       </div>
 
       <h3>NumPy integration</h3>
-      <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>); the shape is 1-D <code>(N,)</code> for mono and 2-D <code>(N, channels)</code> for multi-channel (interleaved).</p>
+      <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>); the shape is 1-D <code>(N,)</code>, since capture is mono only.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -1017,6 +1054,11 @@ chunk = mic.read()
               <td>Constructor <code>channels</code> outside the supported range.</td>
             </tr>
             <tr>
+              <td><code>MultichannelNotSupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Microphone capture is mono only; a <code>channels</code> value greater than 1 was requested.</td>
+            </tr>
+            <tr>
               <td><code>FramesPerBufferOutOfRange</code></td>
               <td><code>DecibriError</code></td>
               <td>Constructor <code>frames_per_buffer</code> outside the supported range.</td>
@@ -1025,6 +1067,16 @@ chunk = mic.read()
               <td><code>InvalidFormat</code></td>
               <td><code>DecibriError</code></td>
               <td>Constructor <code>dtype</code> not <code>"int16"</code> or <code>"float32"</code>.</td>
+            </tr>
+            <tr>
+              <td><code>AgcTargetOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>An AGC target level outside the valid range <code>-40</code> to <code>-3</code> dBFS.</td>
+            </tr>
+            <tr>
+              <td><code>LimiterCeilingOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A limiter ceiling outside the valid range <code>-3.0</code> to <code>0.0</code> dBFS.</td>
             </tr>
             <tr>
               <td><code>AlreadyRunning</code></td>
@@ -1057,6 +1109,11 @@ chunk = mic.read()
               <td>Write attempted on a closed output stream.</td>
             </tr>
             <tr>
+              <td><code>DeviceFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A running microphone or speaker stream failed at the device or driver level (device unplugged, driver reset, exclusive-mode preemption).</td>
+            </tr>
+            <tr>
               <td><code>VadSampleRateUnsupported</code></td>
               <td><code>DecibriError</code></td>
               <td>VAD enabled with a sample rate the VAD model cannot accept.</td>
@@ -1070,6 +1127,11 @@ chunk = mic.read()
               <td><code>ForkAfterOrtInit</code></td>
               <td><code>DecibriError</code></td>
               <td>Linux only. The current process inherited an ORT session from its parent across <code>fork()</code>. See <a href="#multiprocessing">Multiprocessing and asyncio caveats</a>.</td>
+            </tr>
+            <tr>
+              <td><code>OnnxBackendFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>An ONNX inference backend reported an error. A catch-all for ONNX backend failures that are not the specific ORT failures grouped under <code>OrtError</code>.</td>
             </tr>
             <tr>
               <td><code>MicrophoneNotFound</code></td>
@@ -1132,6 +1194,11 @@ chunk = mic.read()
               <td>Loading the Silero VAD ONNX model failed. Has a <code>.path</code> attribute.</td>
             </tr>
             <tr>
+              <td><code>ModelLoadFailed</code></td>
+              <td><code>OrtError</code></td>
+              <td>Loading a bundled capture model (the <code>denoise</code> stage) failed. Has a <code>.path</code> attribute.</td>
+            </tr>
+            <tr>
               <td><code>OrtInferenceFailed</code></td>
               <td><code>OrtError</code></td>
               <td>ORT inference produced an error at runtime.</td>
@@ -1161,9 +1228,10 @@ chunk = mic.read()
       </div>
 
       <h3>Exceptions with extra attributes</h3>
-      <p>Three classes carry additional attributes beyond the standard exception message:</p>
+      <p>Four classes carry additional attributes beyond the standard exception message:</p>
       <ul>
         <li><code>VadModelLoadFailed.path</code>: the model path that failed to load.</li>
+        <li><code>ModelLoadFailed.path</code>: the capture model path (the <code>denoise</code> stage) that failed to load.</li>
         <li><code>OrtLoadFailed.path</code>: the ORT dylib path that failed to load.</li>
         <li><code>OrtPathInvalid.path</code>, <code>OrtPathInvalid.reason</code>: the rejected path and a short reason string.</li>
       </ul>
