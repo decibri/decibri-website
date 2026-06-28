@@ -88,7 +88,7 @@
               <td><code>channels</code></td>
               <td><code>number</code></td>
               <td><code>1</code></td>
-              <td>Number of input channels (1 to 32)</td>
+              <td>Mono only. The only accepted value is <code>1</code>; any other value throws <code>RangeError</code> (multichannel capture is not supported). The option is kept for forward compatibility</td>
             </tr>
             <tr>
               <td><code>framesPerBuffer</code></td>
@@ -98,9 +98,9 @@
             </tr>
             <tr>
               <td><code>device</code></td>
-              <td><code>number | string</code></td>
+              <td><code>number | string | { id: string }</code></td>
               <td>system default</td>
-              <td>Device index from <code>Microphone.devices()</code> or case-insensitive name substring</td>
+              <td>Device index or case-insensitive name substring from <code>Microphone.devices()</code>, or <code>{ id }</code> with a stable per-host device <code>id</code></td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -120,14 +120,57 @@
               <td>(bundled)</td>
               <td>Path to a custom Silero VAD ONNX model. Only used when <code>vad</code> is <code>'silero'</code>. When omitted, uses the model bundled with the package</td>
             </tr>
+            <tr>
+              <td><code>dcRemoval</code></td>
+              <td><code>boolean</code></td>
+              <td><code>false</code></td>
+              <td>Remove a constant DC offset from the captured audio. See <a href="/docs/audio/ace#dc-removal">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>denoise</code></td>
+              <td><code>'fastenhancer-t'</code></td>
+              <td>off</td>
+              <td>Neural speech enhancement using the bundled model. Unknown value throws <code>TypeError</code>. See <a href="/docs/audio/ace#denoise">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>highpass</code></td>
+              <td><code>80 | 100</code></td>
+              <td>off</td>
+              <td>Butterworth high-pass cutoff in Hz. Any other value throws <code>RangeError</code>. See <a href="/docs/audio/ace#highpass">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>agc</code></td>
+              <td><code>number</code></td>
+              <td>off</td>
+              <td>Automatic gain control target in dBFS, <code>-40</code> to <code>-3</code>. Out-of-range throws <code>RangeError</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>limiter</code></td>
+              <td><code>number</code></td>
+              <td>off</td>
+              <td>Peak limiter ceiling in dBFS, <code>-3.0</code> to <code>0.0</code>. Out-of-range throws <code>RangeError</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a></td>
+            </tr>
           </tbody>
         </table>
       </div>
 
-      <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted.</p>
-      <p>To tune detection, pass a <code>VadOptions</code> object instead of the bare mode string: <code>vad: { model, threshold?, holdoffMs? }</code>. <code>model</code> is <code>'silero'</code> or <code>'energy'</code>. <code>threshold</code> is a number in <code>[0, 1]</code>; its default depends on the mode (0.5 for <code>'silero'</code>, on a probability scale of 0.0 to 1.0, and 0.01 for <code>'energy'</code>), and a value outside the range throws <code>RangeError</code>. <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>RangeError</code>). The <code>vad: 'silero'</code> and <code>vad: 'energy'</code> shorthands use these defaults.</p>
+      <p>The five conditioning options (<code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted. Voice activity detection (the <code>vad</code> and <code>modelPath</code> options) is documented in the <a href="#vad">Voice activity detection</a> section below.</p>
+      <p>To construct without blocking the event loop on the open work (notably the Silero model load when <code>vad: 'silero'</code> is set), use the <a href="#mic-open"><code>Microphone.open()</code></a> async factory.</p>
 
       <h2>Methods</h2>
+
+      <h3 id="mic-open"><code>Microphone.open(options?)</code></h3>
+      <p>Static async factory. Returns <code>Promise&lt;Microphone&gt;</code>. Runs the open work (device resolution, and the Silero model load when <code>vad: 'silero'</code> is set) on the native thread pool instead of the event loop, then resolves to a ready instance. The synchronous constructor blocks for roughly 100 to 500 milliseconds on a cold Silero load; <code>open()</code> does not. Options are identical to the constructor. A failed open rejects with the matching error: <code>RangeError</code> or <code>TypeError</code> for invalid options, or <code>DeviceError</code>, <code>OrtError</code>, or <code>OrtPathError</code> for native failures.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const mic = await Microphone.open({ vad: 'silero' });
+mic.on('data', (chunk) => { /* ... */ });</code></pre>
+        </div>
+      </div>
 
       <h3><code>mic.stop()</code></h3>
       <p>Stops microphone capture and ends the stream. Safe to call multiple times; subsequent calls are no-ops.</p>
@@ -142,7 +185,7 @@
           <pre><code class="language-javascript">const devices = Microphone.devices();
 console.log(devices);
 // [
-//   { index: 0, name: 'Built-in Microphone', maxInputChannels: 1,
+//   { index: 0, name: 'Built-in Microphone', id: '...', maxInputChannels: 1,
 //     defaultSampleRate: 44100, isDefault: true },
 //   ...
 // ]</code></pre>
@@ -169,6 +212,11 @@ console.log(devices);
               <td><code>name</code></td>
               <td><code>string</code></td>
               <td>Human-readable device name reported by the OS</td>
+            </tr>
+            <tr>
+              <td><code>id</code></td>
+              <td><code>string</code></td>
+              <td>Stable per-host device ID (WASAPI endpoint ID on Windows, CoreAudio UID on macOS, ALSA PCM identifier on Linux). Pass via <code>device: { id }</code>. Empty string when the backend cannot produce a stable ID</td>
             </tr>
             <tr>
               <td><code>maxInputChannels</code></td>
@@ -206,6 +254,12 @@ console.log(devices);
       <h3><code>mic.isOpen</code></h3>
       <p><code>boolean</code> (read-only). Returns <code>true</code> while the microphone is actively capturing audio.</p>
 
+      <h3><code>mic.vadScore</code></h3>
+      <p><code>number</code> (read-only). Most recent VAD score for the active mode: the Silero speech probability in <code>'silero'</code> mode, the normalised RMS of the last chunk in <code>'energy'</code> mode. <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events. See <a href="#vad">Voice activity detection</a>.</p>
+
+      <h3><code>mic.overrunCount</code></h3>
+      <p><code>number</code> (read-only). Number of capture buffers dropped because the consumer could not keep pace. <code>0</code> while the consumer keeps up, or before capture starts. A rising value means audio is being dropped to bound memory.</p>
+
       <h2>Events</h2>
 
       <h3>Stream events</h3>
@@ -216,6 +270,7 @@ console.log(devices);
         <li><code>'error'</code>: emitted on microphone errors, including device disconnection (for example unplugging the microphone). When a device fails, <code>isOpen</code> becomes <code>false</code> and the <code>'error'</code> event fires, rather than capture freezing silently.</li>
         <li><code>'close'</code>: emitted when the stream is closed</li>
       </ul>
+      <p>When <code>vad</code> is enabled, the stream additionally emits <code>'speech'</code> and <code>'silence'</code>. Those are documented in the <a href="#vad">Voice activity detection</a> section.</p>
 
       <h3><code>'backpressure'</code></h3>
       <p>Emitted when the stream's internal buffer is full and the consumer is reading too slowly. Because a microphone cannot be paused, audio chunks continue to arrive. Drain the stream or drop data to avoid unbounded memory growth.</p>
@@ -230,23 +285,103 @@ console.log(devices);
         </div>
       </div>
 
-      <h3><code>'speech'</code></h3>
-      <p>Requires <code>vad</code> to be enabled. Emitted when the VAD score crosses the configured <code>threshold</code>. The score is the Silero probability in <code>'silero'</code> mode and the normalised RMS energy in <code>'energy'</code> mode.</p>
+      <h2 id="vad">Voice activity detection</h2>
+      <p>Decibri ships two VAD modes plus a disabled default, selected with the <code>vad</code> option on the <code>Microphone</code> constructor. When VAD is enabled, the microphone emits <code>'speech'</code> and <code>'silence'</code> events and updates the <code>vadScore</code> property. Both the energy detector and the Silero model run locally; there is no cloud call.</p>
 
-      <h3><code>'silence'</code></h3>
-      <p>Requires <code>vad</code> to be enabled. Emitted when the VAD score stays below the <code>threshold</code> for <code>holdoffMs</code> milliseconds after a speech period.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Description</th>
+              <th>Default threshold</th>
+              <th>Threshold range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>false</code></td>
+              <td>VAD disabled. No <code>'speech'</code> or <code>'silence'</code> events; <code>vadScore</code> stays <code>0</code>.</td>
+              <td>n/a</td>
+              <td>n/a</td>
+            </tr>
+            <tr>
+              <td><code>'energy'</code></td>
+              <td>Lightweight RMS-energy threshold computed natively over each chunk.</td>
+              <td>0.01</td>
+              <td>0.0 to 1.0</td>
+            </tr>
+            <tr>
+              <td><code>'silero'</code></td>
+              <td>ML-based detector using the bundled Silero v5 ONNX model, run through ONNX Runtime.</td>
+              <td>0.5</td>
+              <td>0.0 to 1.0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
+      <h3>Tuning with a <code>VadOptions</code> object</h3>
+      <p>To tune the threshold or holdoff, pass a <code>VadOptions</code> object as the <code>vad</code> option instead of a bare mode string. The <code>vad: 'silero'</code> and <code>vad: 'energy'</code> shorthands are equivalent to the object with its default tuning.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>model</code></td>
+              <td><code>'silero' | 'energy'</code></td>
+              <td>required</td>
+              <td>Which detector to run</td>
+            </tr>
+            <tr>
+              <td><code>threshold</code></td>
+              <td><code>number</code></td>
+              <td>mode default</td>
+              <td>Speech-detection threshold in <code>[0, 1]</code>. Defaults to 0.5 for <code>'silero'</code> and 0.01 for <code>'energy'</code>. A value outside the range throws <code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>holdoffMs</code></td>
+              <td><code>number</code></td>
+              <td><code>300</code></td>
+              <td>Milliseconds of sub-threshold audio after a speech period before <code>'silence'</code> is emitted. A negative value throws <code>RangeError</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
           <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'energy' });
-
-mic.on('speech', () => console.log('Speech detected'));
-mic.on('silence', () => console.log('Silence detected'));</code></pre>
+          <pre><code class="language-javascript">const mic = new Microphone({ vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 } });</code></pre>
         </div>
       </div>
+
+      <h3>Speaking state: the <code>'speech'</code> and <code>'silence'</code> events</h3>
+      <p>Node surfaces speaking state through events rather than a polled boolean. <code>'speech'</code> fires when the VAD score crosses the configured <code>threshold</code>. <code>'silence'</code> fires when the score then stays below the threshold for <code>holdoffMs</code> milliseconds after a speech period. Both require <code>vad</code> to be enabled. Because <code>Microphone</code> is a <code>Readable</code> stream, attach a <code>'data'</code> listener (or otherwise consume the stream) so audio keeps flowing and the detector runs.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, vad: 'energy' });
+
+mic.on('speech', () => console.log('Speech detected'));
+mic.on('silence', () => console.log('Silence detected'));
+mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
+        </div>
+      </div>
+      <p>For the raw per-chunk signal, read the <code>mic.vadScore</code> property documented above. <code>vadScore</code> is the underlying score; the <code>'speech'</code> and <code>'silence'</code> events are the debounced state derived from it via the threshold and holdoff.</p>
+
+      <h3>Bundled Silero model</h3>
+      <p>The Silero VAD ONNX model and ONNX Runtime ship inside the npm package. No separate download, no API key, and no system <code>onnxruntime</code> dependency are required for <code>vad: 'silero'</code>. To use a different Silero ONNX variant, pass an absolute path on the <code>modelPath</code> option; it is consulted only when <code>vad</code> is <code>'silero'</code>.</p>
 
       <h2>Audio format</h2>
 
@@ -324,9 +459,9 @@ const speaker = new Speaker(options?);</code></pre>
             </tr>
             <tr>
               <td><code>device</code></td>
-              <td><code>number | string</code></td>
+              <td><code>number | string | { id: string }</code></td>
               <td>system default</td>
-              <td>Output device index or name substring</td>
+              <td>Output device index, case-insensitive name substring, or <code>{ id }</code> with a stable per-host device <code>id</code> from <code>Speaker.devices()</code></td>
             </tr>
             <tr>
               <td><code>highWaterMark</code></td>
@@ -345,13 +480,22 @@ const speaker = new Speaker(options?);</code></pre>
       <h3><code>speaker.write(chunk)</code></h3>
       <p>Writes PCM data for playback. Returns <code>boolean</code>. If <code>false</code>, the buffer is full; wait for the <code>'drain'</code> event before writing more.</p>
 
+      <h3><code>speaker.writeAsync(chunk)</code></h3>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Writes PCM audio without blocking the event loop, performing the backpressure wait (when the native playback queue is full) on the native thread pool, and resolves when the samples are queued. This is an opt-in alternative to <code>write()</code>; do not interleave it with <code>write()</code> or <code>pipe()</code> on the same instance, and await calls sequentially to preserve sample order.</p>
+
       <h3><code>speaker.end([chunk])</code></h3>
       <p>Graceful stop. Plays all remaining buffered audio, then emits <code>'finish'</code>. Optionally accepts a final chunk to write before ending.</p>
+
+      <h3><code>speaker.drainAsync()</code></h3>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Waits for all queued audio to finish playing without blocking the event loop, resolving when the buffer has drained (immediately if nothing was written). Pair with <code>writeAsync()</code> for a fully non-blocking playback path.</p>
 
       <h3><code>speaker.stop()</code></h3>
       <p>Immediate stop. Discards remaining buffered audio and releases resources. Does not emit <code>'finish'</code>. Safe to call multiple times.</p>
 
       <h3>Static methods</h3>
+
+      <h3><code>Speaker.open(options?)</code></h3>
+      <p>Static async factory, symmetric with <code>Microphone.open()</code>. Returns <code>Promise&lt;Speaker&gt;</code>. The speaker loads no model, so the only open work is device resolution; the factory is provided so async callers can use one construction pattern across both classes. A failed open (for example an unknown device) rejects with the matching error.</p>
 
       <h3><code>Speaker.devices()</code></h3>
       <p>Returns an array of available audio output devices on the system.</p>
@@ -365,7 +509,7 @@ const speaker = new Speaker(options?);</code></pre>
 const devices = Speaker.devices();
 console.log(devices);
 // [
-//   { index: 0, name: 'Speakers', maxOutputChannels: 2,
+//   { index: 0, name: 'Speakers', id: '...', maxOutputChannels: 2,
 //     defaultSampleRate: 48000, isDefault: true },
 //   ...
 // ]</code></pre>
@@ -392,6 +536,11 @@ console.log(devices);
               <td><code>name</code></td>
               <td><code>string</code></td>
               <td>Human-readable device name reported by the OS</td>
+            </tr>
+            <tr>
+              <td><code>id</code></td>
+              <td><code>string</code></td>
+              <td>Stable per-host device ID, with the same format and fallback rules as the input-device <code>id</code>. Pass via <code>device: { id }</code></td>
             </tr>
             <tr>
               <td><code>maxOutputChannels</code></td>
@@ -456,12 +605,136 @@ console.log(devices);
         </table>
       </div>
 
+      <h2>Module-level helpers</h2>
+      <p>Convenience functions exported directly from the <code>decibri</code> package.</p>
+
+      <h3><code>inputDevices()</code></h3>
+      <p>Shortcut for <code>Microphone.devices()</code>. Returns a <code>MicrophoneInfo[]</code>.</p>
+
+      <h3><code>outputDevices()</code></h3>
+      <p>Shortcut for <code>Speaker.devices()</code>. Returns a <code>SpeakerInfo[]</code>.</p>
+
+      <h3><code>version()</code></h3>
+      <p>Returns the same <code>VersionInfo</code> (<code>{ decibri, audioBackend, binding }</code>) as <code>Microphone.version()</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const { inputDevices, outputDevices, version } = require('decibri');
+
+const inputs = inputDevices();
+const outputs = outputDevices();
+console.log(version());</code></pre>
+        </div>
+      </div>
+
+      <h2>Errors</h2>
+      <p>Decibri surfaces failures in three ways in Node, depending on when they occur.</p>
+
+      <h3>Constructor argument validation</h3>
+      <p>Invalid options throw a built-in <code>RangeError</code> or <code>TypeError</code> synchronously from the constructor (and reject the <code>Microphone.open()</code> or <code>Speaker.open()</code> promise), before any device is opened.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code> outside 1,000 to 384,000</td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>channels</code> other than <code>1</code> (multichannel capture is not supported)</td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>framesPerBuffer</code> outside 64 to 65,536</td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>dtype</code> not <code>'int16'</code> or <code>'float32'</code></td>
+              <td><code>TypeError</code></td>
+            </tr>
+            <tr>
+              <td><code>vad</code> not <code>false</code>, a valid mode, or a valid config object. <code>vad: true</code> is no longer supported; specify the mode explicitly</td>
+              <td><code>TypeError</code></td>
+            </tr>
+            <tr>
+              <td><code>vad</code> threshold outside <code>[0, 1]</code>, or <code>holdoffMs</code> negative</td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>denoise</code> not <code>'fastenhancer-t'</code></td>
+              <td><code>TypeError</code></td>
+            </tr>
+            <tr>
+              <td><code>highpass</code> not <code>80</code> or <code>100</code></td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>agc</code> outside <code>-40</code> to <code>-3</code>, or <code>limiter</code> outside <code>-3.0</code> to <code>0.0</code></td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>device</code> index out of range, or <code>device.id</code> not a string</td>
+              <td><code>RangeError</code> / <code>TypeError</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Native failures</h3>
+      <p>Failures from the native layer throw <code>DecibriError</code> or one of its subclasses, each carrying a stable string <code>code</code>. These are thrown from the synchronous constructor and rejected from <code>Microphone.open()</code> or <code>Speaker.open()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Extends</th>
+              <th>Cause</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DecibriError</code></td>
+              <td><code>Error</code></td>
+              <td>Base class for native device and ONNX Runtime failures. Carries a <code>code</code> string.</td>
+            </tr>
+            <tr>
+              <td><code>DeviceError</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Device enumeration or selection failure: an unmatched device name, an ambiguous match, or missing hardware.</td>
+            </tr>
+            <tr>
+              <td><code>OrtError</code></td>
+              <td><code>DecibriError</code></td>
+              <td>ONNX Runtime setup or inference failure (the Silero VAD or denoise stages).</td>
+            </tr>
+            <tr>
+              <td><code>OrtPathError</code></td>
+              <td><code>OrtError</code></td>
+              <td>A specific ONNX Runtime library path could not be loaded.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Catch <code>DecibriError</code> to handle any native failure generically, or a subclass for finer control. Argument validation (above) throws built-in <code>RangeError</code> or <code>TypeError</code>, not a <code>DecibriError</code>. If the bundled Silero or denoise model file cannot be located at construction, a plain <code>Error</code> is thrown.</p>
+
+      <h3>Runtime stream errors</h3>
+      <p>Errors after capture has started, such as a mid-stream device disconnect (unplugging the microphone), are surfaced through the <code>'error'</code> event rather than thrown. When a device fails, <code>isOpen</code> becomes <code>false</code> and the <code>'error'</code> event fires, rather than capture freezing silently.</p>
+
       <div class="related-links">
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/apis">APIs overview</a>: decibri&rsquo;s four interface surfaces (Python, Node.js, Browser, CLI)</li>
           <li><a href="/docs/getting-started">Getting started</a>: install and first capture</li>
           <li><a href="/docs/integrations">Integrations</a>: STT, VAD, and KWS providers</li>
+          <li><a href="/docs/audio/ace">Audio Capture Engine</a>: the five conditioning options in full</li>
+          <li><a href="/docs/integrations/vad">Voice activity detection</a>: the energy and Silero detectors</li>
           <li><a href="/docs/apis/python">Python API</a>: same library, sync and async surface</li>
           <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
