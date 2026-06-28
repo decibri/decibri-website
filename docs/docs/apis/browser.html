@@ -99,9 +99,9 @@
       <p>Capture microphone audio and log the chunk size:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Microphone } from 'decibri';
 
 const mic = new Microphone({ sampleRate: 16000 });
@@ -119,16 +119,17 @@ await mic.start();</code></pre>
       <p>Microphone access requires HTTPS (or localhost). The browser will show a permission prompt when <code>start()</code> is called.</p>
       <ul>
         <li>If the user denies permission, <code>start()</code> rejects with <code>Error('Microphone permission denied')</code></li>
-        <li>The <code>'error'</code> event also fires with the same error</li>
+        <li>If no input device is available, <code>start()</code> rejects with <code>Error('No microphone found')</code></li>
+        <li>In both cases the <code>'error'</code> event also fires with the same error</li>
         <li>Device labels from <code>Microphone.devices()</code> may be empty before permission is granted</li>
       </ul>
 
       <h3>Stopping and cleanup</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">mic.stop();</code></pre>
         </div>
       </div>
@@ -136,9 +137,9 @@ await mic.start();</code></pre>
       <p>To restart after stopping:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">await mic.start(); // creates a fresh audio pipeline</code></pre>
         </div>
       </div>
@@ -146,9 +147,9 @@ await mic.start();</code></pre>
       <h3>Device selection</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
 await mic.start();
 const devices = await Microphone.devices();
@@ -164,9 +165,9 @@ await usbMic.start();</code></pre>
       <h3>Output formats</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
 const mic = new Microphone({ dtype: 'int16' });
 mic.on('data', (chunk) => {
@@ -185,9 +186,9 @@ mic2.on('data', (chunk) => {
       <p>Enable the built-in VAD to receive <code>'speech'</code> and <code>'silence'</code> events based on RMS energy thresholding:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 },
@@ -200,14 +201,14 @@ await mic.start();</code></pre>
         </div>
       </div>
 
-      <p>The browser build runs energy-mode VAD only. Pass <code>vad: 'energy'</code> for defaults, or a <code>VadOptions</code> object to tune detection: <code>{ model: 'energy', threshold?, holdoffMs? }</code>. <code>model</code> is <code>'energy'</code>, the only browser detector. <code>threshold</code> is a number in <code>[0, 1]</code> (default <code>0.01</code>; a value outside the range throws <code>RangeError</code>). <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>RangeError</code>).</p>
+      <p>The browser build runs energy-mode VAD only. Pass <code>vad: 'energy'</code> for defaults, or a <code>VadOptions</code> object to tune detection: <code>{ model: 'energy', threshold?, holdoffMs? }</code>. <code>model</code> is <code>'energy'</code>, the only browser detector. <code>threshold</code> is a number in <code>[0, 1]</code> (default <code>0.01</code>; a value outside the range throws <code>TypeError</code>). <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>TypeError</code>).</p>
 
       <h3>WebSocket streaming</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
 const mic = new Microphone({ sampleRate: 16000, dtype: 'int16' });
 
@@ -265,15 +266,15 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       <p>By default, decibri loads its AudioWorklet processor via an inline Blob URL. If your Content Security Policy blocks <code>blob:</code> URLs:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({
   workletUrl: '/static/decibri-worklet.js',
 });</code></pre>
         </div>
       </div>
-      <p>Copy the worklet file from <code>node_modules/decibri/dist/worklet.js</code> to your static assets directory and pass the URL.</p>
+      <p>Copy the worklet file from <code>node_modules/decibri/src/browser/worklet-processor.js</code> to your static assets directory and pass its URL as <code>workletUrl</code>. A self-hosted worklet file must register the processor under the exact name <code>decibri-processor</code> (the name requested when the <code>AudioWorkletNode</code> is created); the file shipped in the package already does.</p>
 
       
       <h2>API reference</h2>
@@ -282,9 +283,9 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       <p>Creates a new capture instance. Does not start capture. Call <code>start()</code> to begin.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Microphone } from 'decibri';
 const mic = new Microphone(options?);</code></pre>
         </div>
@@ -311,7 +312,7 @@ const mic = new Microphone(options?);</code></pre>
               <td><code>channels</code></td>
               <td><code>number</code></td>
               <td><code>1</code></td>
-              <td>Number of channels (browsers reliably support 1)</td>
+              <td>Number of channels (1 to 32; browsers reliably support 1)</td>
             </tr>
             <tr>
               <td><code>framesPerBuffer</code></td>
@@ -359,18 +360,23 @@ const mic = new Microphone(options?);</code></pre>
         </table>
       </div>
 
+      <p>The constructor validates synchronously and throws <code>TypeError</code> for invalid options: a <code>sampleRate</code>, <code>channels</code>, or <code>framesPerBuffer</code> outside its range, a <code>dtype</code> other than <code>'int16'</code> or <code>'float32'</code>, or an invalid <code>vad</code> value. For backward compatibility, the removed <code>vad: true</code> shorthand and the flat <code>vadThreshold</code> and <code>vadHoldoff</code> options also throw <code>TypeError</code> with a migration message; pass tuning on the <code>vad</code> config object instead.</p>
+
       <h3>Methods</h3>
 
       <h4><code>mic.start()</code></h4>
-      <p>Returns <code>Promise&lt;void&gt;</code>. Requests microphone permission and begins capture. Must be called from a user gesture in Safari. No-op if already started. Rejects with a clear error on permission denial.</p>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Requests microphone permission and begins capture. Must be called from a user gesture in Safari. No-op if already started, and a call made while a start is still in progress returns that same pending promise rather than starting a second pipeline. Rejects with a clear error on permission denial.</p>
 
       <h4><code>mic.stop()</code></h4>
-      <p>Stops capture and releases all resources (tracks, context, nodes). Safe to call anytime, including before <code>start()</code> or multiple times. Emits <code>'end'</code> then <code>'close'</code>.</p>
+      <p>Stops capture and releases all resources (tracks, context, nodes). Safe to call anytime, including before <code>start()</code> or multiple times. When it stops an active capture it emits <code>'end'</code> then <code>'close'</code>; calling it before <code>start()</code> or after it has already stopped is a no-op and emits nothing.</p>
 
       <h3>Properties</h3>
 
       <h4><code>mic.isOpen</code></h4>
       <p><code>boolean</code> (read-only). Returns <code>true</code> while actively capturing audio.</p>
+
+      <h4><code>mic.vadScore</code></h4>
+      <p><code>number</code> (read-only). Most recent VAD score: the normalized RMS energy of the last chunk, in <code>[0, 1]</code>. The browser runs energy VAD only, so this is always the energy score (there is no Silero in the browser build). <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events.</p>
 
       <h3>Static methods</h3>
 
@@ -378,9 +384,9 @@ const mic = new Microphone(options?);</code></pre>
       <p>Returns <code>Promise&lt;MicrophoneInfo[]&gt;</code>. Lists available audio input devices. Labels may be empty before microphone permission is granted.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const devices = await Microphone.devices();
 console.log(devices);
 // [
@@ -394,9 +400,9 @@ console.log(devices);
       <p>Returns version information for decibri.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">Microphone.version();
 // { decibri: '5.0.0' }</code></pre>
         </div>
@@ -422,7 +428,7 @@ console.log(devices);
             <tr>
               <td><code>'error'</code></td>
               <td><code>Error</code></td>
-              <td>Permission denied, worklet load failure, AudioContext creation failure.</td>
+              <td>Emitted with the same <code>Error</code> that rejects <code>start()</code>: <code>Microphone permission denied</code>, <code>No microphone found</code>, or <code>Failed to load audio worklet: ...</code>.</td>
             </tr>
             <tr>
               <td><code>'end'</code></td>
@@ -442,18 +448,20 @@ console.log(devices);
             <tr>
               <td><code>'silence'</code></td>
               <td>(none)</td>
-              <td>VAD: sub-threshold audio for the configured <code>holdoffMs</code>. Requires <code>vad</code> to be enabled.</td>
+              <td>VAD: emitted after a <code>'speech'</code> period when audio stays sub-threshold for the configured <code>holdoffMs</code>. Fires only after a preceding <code>'speech'</code>; sub-threshold audio with no prior speech does not emit it. Requires <code>vad</code> to be enabled.</td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <p>Listeners use an EventEmitter-style API: <code>on(event, listener)</code> and <code>once(event, listener)</code> to subscribe, and <code>off(event, listener)</code> or <code>removeAllListeners(event?)</code> to unsubscribe (useful when tearing down a component).</p>
+
       <h3>Types</h3>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// MicrophoneInfo
 {
   deviceId: string,
@@ -464,6 +472,13 @@ console.log(devices);
 // VersionInfo
 {
   decibri: string,
+}
+
+// VadOptions
+{
+  model: 'energy',
+  threshold?: number,  // [0, 1], default 0.01
+  holdoffMs?: number,  // default 300
 }</code></pre>
         </div>
       </div>
@@ -506,7 +521,7 @@ console.log(devices);
             </tr>
             <tr>
               <td><code>device</code> option</td>
-              <td>Number index or name substring</td>
+              <td>Number index, name substring, or <code>{ id }</code> object</td>
               <td>String <code>deviceId</code> only</td>
               <td>Browser uses opaque device IDs</td>
             </tr>
@@ -541,6 +556,12 @@ console.log(devices);
               <td>Browser has no Node streams</td>
             </tr>
             <tr>
+              <td><code>channels</code></td>
+              <td>Mono only (other values throw)</td>
+              <td><code>1</code> to <code>32</code></td>
+              <td>The browser accepts a channel count from 1 to 32; Node captures mono only</td>
+            </tr>
+            <tr>
               <td><code>sampleRate</code></td>
               <td>Any (cpal resamples)</td>
               <td>Any (AudioWorklet resamples)</td>
@@ -554,9 +575,9 @@ console.log(devices);
             </tr>
             <tr>
               <td>VAD (<code>speech</code>/<code>silence</code>)</td>
-              <td>RMS-based</td>
-              <td>RMS-based (same algorithm)</td>
-              <td>Identical</td>
+              <td>Energy (RMS) and Silero (ONNX)</td>
+              <td>Energy (RMS) only</td>
+              <td>Browser offers the energy detector only; Silero is native-only (bundled ONNX) and not available in the browser build</td>
             </tr>
           </tbody>
         </table>
