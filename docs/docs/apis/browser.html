@@ -583,6 +583,165 @@ console.log(devices);
         </table>
       </div>
 
+      <h2>Speaker</h2>
+      <p>The browser <code>Speaker</code> plays PCM audio out through the Web Audio API and an output AudioWorklet. It is the inverse of the <code>Microphone</code>: the microphone captures input and emits chunks; the speaker accepts chunks and plays them. The API is promise-based and has no events and no static methods: progress is observed by awaiting <code>write()</code> and <code>drain()</code>, and failures surface as a rejected promise (or a <code>TypeError</code> thrown synchronously from the constructor). The first <code>start()</code> or <code>write()</code> must run from a user gesture so the browser allows audio.</p>
+
+      <h3>Playback quickstart</h3>
+      <p>Write PCM samples from a click handler, wait for playback to finish, then release resources:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        </div>
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+          <pre><code class="language-javascript">import { Speaker } from 'decibri';
+
+const speaker = new Speaker({ sampleRate: 16000 });
+
+document.getElementById('play').onclick = async () => {
+  await speaker.write(int16Chunk); // Int16Array of PCM samples
+  await speaker.drain();           // wait for playback to finish
+  speaker.stop();
+};</code></pre>
+        </div>
+      </div>
+
+      <h3>Constructor</h3>
+      <h4><code>new Speaker(options?)</code></h4>
+      <p>Creates a playback instance. Does not open the audio output; the pipeline is created on the first <code>start()</code> or <code>write()</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist">
+          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        </div>
+        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+          <pre><code class="language-javascript">import { Speaker } from 'decibri';
+const speaker = new Speaker(options?);</code></pre>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code></td>
+              <td><code>number</code></td>
+              <td><code>16000</code></td>
+              <td>Sample rate in Hz of the audio you write (1,000 to 384,000). Samples are resampled to the audio context's native rate before playback</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>number</code></td>
+              <td><code>1</code></td>
+              <td>Number of output channels (1 to 32). A mono stream is played on every channel</td>
+            </tr>
+            <tr>
+              <td><code>dtype</code></td>
+              <td><code>'int16' | 'float32'</code></td>
+              <td><code>'int16'</code></td>
+              <td>Sample encoding of the audio you write</td>
+            </tr>
+            <tr>
+              <td><code>workletUrl</code></td>
+              <td><code>string</code></td>
+              <td>(inline Blob URL)</td>
+              <td>URL for the output AudioWorklet processor file. Override if CSP blocks <code>blob:</code> URLs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The constructor validates synchronously and throws <code>TypeError</code> for invalid options: a <code>sampleRate</code> outside 1,000 to 384,000, a <code>channels</code> outside 1 to 32, or a <code>dtype</code> other than <code>'int16'</code> or <code>'float32'</code>. There is no <code>device</code> option; the browser Speaker plays to the default output device.</p>
+
+      <h3>Methods</h3>
+
+      <h4><code>speaker.start()</code></h4>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Creates and resumes the <code>AudioContext</code> and loads the output worklet. Must be called from a user gesture so the browser allows audio. No-op if already started, and a call made while a start is still in progress returns that same pending promise. Optional: <code>write()</code> starts the pipeline on its own, but calling <code>start()</code> from a click handler is the reliable way to unlock audio before samples are ready.</p>
+
+      <h4><code>speaker.write(chunk)</code></h4>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Plays PCM audio. <code>chunk</code> is an <code>Int16Array</code>, <code>Float32Array</code>, or <code>ArrayBuffer</code> of samples in the configured <code>dtype</code>. The samples are converted to the context rate and queued; the returned promise resolves when they are accepted, applying backpressure when the internal buffer (a fixed window of about 2 seconds) is full, so awaiting <code>write()</code> paces the caller to playback. Await calls sequentially to preserve sample order. An empty chunk resolves immediately. Pass data matching the configured <code>dtype</code>: a typed array of the other element type is byte-reinterpreted, not rejected.</p>
+
+      <h4><code>speaker.drain()</code></h4>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Resolves when all queued audio has finished playing. Resolves immediately if nothing is queued.</p>
+
+      <h4><code>speaker.stop()</code></h4>
+      <p>Stops playback immediately, discards any queued audio, and releases all resources (worklet node, audio context). Safe to call anytime, including before <code>start()</code> or multiple times. After <code>stop()</code>, a later <code>write()</code> or <code>start()</code> begins a fresh session.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>speaker.isPlaying</code></h4>
+      <p><code>boolean</code> (read-only). Returns <code>true</code> while the speaker is started and has queued audio that has not finished playing. It becomes <code>false</code> once the buffer drains, even if <code>stop()</code> has not been called.</p>
+
+      <h3>Differences from the Node.js Speaker</h3>
+      <p>The browser <code>Speaker</code> is a minimal promise-based playback class, not the Node.js <code>Writable</code> stream.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Node.js <code>Speaker</code></th>
+              <th><code>Speaker</code> (browser)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Model</td>
+              <td><code>Writable</code> stream with <code>'drain'</code>, <code>'finish'</code>, <code>'error'</code>, <code>'close'</code> events</td>
+              <td>Promise-based, no events</td>
+            </tr>
+            <tr>
+              <td><code>write()</code></td>
+              <td>Returns <code>boolean</code> (plus <code>writeAsync()</code>)</td>
+              <td>Returns <code>Promise&lt;void&gt;</code> with awaitable backpressure</td>
+            </tr>
+            <tr>
+              <td>Drain</td>
+              <td><code>drainAsync()</code> and the <code>'drain'</code> event</td>
+              <td><code>drain()</code> returns <code>Promise&lt;void&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Graceful end</td>
+              <td><code>end([chunk])</code> then <code>'finish'</code></td>
+              <td>None (await <code>drain()</code>, then <code>stop()</code>)</td>
+            </tr>
+            <tr>
+              <td>Start</td>
+              <td>Opens on construct or first write; <code>Speaker.open()</code> factory</td>
+              <td><code>start()</code>, which must run in a user gesture</td>
+            </tr>
+            <tr>
+              <td>Output device</td>
+              <td><code>device</code> option and <code>Speaker.devices()</code></td>
+              <td>None (default output device only)</td>
+            </tr>
+            <tr>
+              <td><code>version()</code></td>
+              <td><code>Speaker.version()</code></td>
+              <td>None</td>
+            </tr>
+            <tr>
+              <td>Buffering</td>
+              <td><code>highWaterMark</code></td>
+              <td>Fixed internal buffer (about 2 seconds)</td>
+            </tr>
+            <tr>
+              <td><code>workletUrl</code></td>
+              <td>N/A</td>
+              <td>Supported (CSP override)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>CSP-restricted environments (Speaker)</h3>
+      <p>Like the <code>Microphone</code>, the <code>Speaker</code> loads its output AudioWorklet via an inline Blob URL by default. If your Content Security Policy blocks <code>blob:</code> URLs, copy <code>node_modules/decibri/src/browser/output-worklet-processor.js</code> to your static assets directory and pass its URL as <code>workletUrl</code>. A self-hosted file must register the processor under the exact name <code>decibri-output-processor</code> (the name requested when the output <code>AudioWorkletNode</code> is created); the file shipped in the package already does.</p>
+
             <div class="related-links">
         <h2>Related</h2>
         <ul>
