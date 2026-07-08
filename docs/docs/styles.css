@@ -1453,3 +1453,80 @@ body {
   border-radius: 0;
 }
 
+/* ------------------------------------------------------------------
+   Universal footer: injected by nav.js into each page's existing
+   <footer class="doc-footer">. Mirrors the root-page footer: a
+   centered vertical stack of social badges, legal links, and
+   copyright. Extends (does not replace) the .doc-footer base rule
+   near line 838; the extra .doc-footer block below only adds the
+   flex-column layout, later in the cascade at equal specificity.
+   ------------------------------------------------------------------ */
+
+.doc-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.doc-footer .footer-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.doc-footer .footer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+/* opacity: 1 neutralizes the .doc-content a:hover { opacity: 0.8 }
+   rule (same trick as .doc-card:hover) so badge and legal hovers
+   match the root-page footer's pure color change. */
+.doc-footer .footer-badge:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.doc-footer .footer-badge svg { width: 18px; height: 18px; }
+
+.doc-footer .footer-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.doc-footer .footer-legal a {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.doc-footer .footer-legal a:hover {
+  color: var(--accent);
+  opacity: 1;
+}
+
+/* Middle-dot separator between adjacent legal links; future links
+   (Terms of Use, Cookies Policy) get the divider automatically. */
+.doc-footer .footer-legal a + a::before {
+  content: '\00B7';
+  color: var(--text-muted);
+  padding: 0 10px;
+}
+
+/* margin: 0 cancels the .doc-content p margin-bottom so the
+   copyright sits flush inside the flex stack. */
+.doc-footer .footer-copyright {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
