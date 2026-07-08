@@ -7,14 +7,14 @@
 PyPI:
 - Name: decibri
 - Install: pip install decibri
-- Version: 0.1.3
+- Version: 0.5.0
 - Requires: Python 3.10 or above
 - Optional extra: pip install decibri[numpy] for ndarray return support
 
 npm:
 - Name: decibri
 - Install: npm install decibri
-- Version: 3.4.0
+- Version: 5.0.0
 - Requires: Node.js 18 or above
 
 Shared metadata:
@@ -25,13 +25,13 @@ Shared metadata:
 
 ## What it does
 
-decibri is a Rust core library with native bindings to Python (via PyO3) and Node.js (via napi-rs v3), plus a browser runtime that mirrors the same API via getUserMedia and AudioWorklet. All runtimes share the same cpal backend for direct OS audio access (WASAPI on Windows, CoreAudio on macOS, ALSA on Linux). Pre-built wheels for Python and pre-built native addons for Node.js ship for Windows x64, macOS arm64, Linux x64, and Linux arm64 and install automatically with no build tools, no PortAudio, no node-gyp, no ffmpeg, no SoX, and no system audio libraries required. Silero VAD v5 is bundled (~2 MB ONNX model, inference runs in Rust via ONNX Runtime).
+decibri is a Rust core library with native bindings to Python (via PyO3) and Node.js (via napi-rs v3), plus a browser runtime that mirrors the same API via getUserMedia and AudioWorklet. The native runtimes (Python, Node.js, Rust) share the same cpal backend for direct OS audio access (WASAPI on Windows, CoreAudio on macOS, ALSA on Linux); the browser runtime shares the API surface but not the cpal backend. Pre-built wheels for Python and pre-built native addons for Node.js ship for Windows x64, macOS arm64, Linux x64, and Linux arm64 and install automatically with no build tools, no PortAudio, no node-gyp, no ffmpeg, no SoX, and no system audio libraries required. Silero VAD v5 is bundled (~2 MB ONNX model, inference runs in Rust via ONNX Runtime).
 
 Browser support is built in via conditional exports. When imported in a browser bundle, decibri uses getUserMedia and AudioWorklet instead of the native addon. Same API surface, same events.
 
 ## Audio format
 
-Default output is 16-bit signed integer PCM, little-endian. 16 kHz sample rate, mono, 1600 frames per buffer (100 ms chunks). This is the raw format expected by most speech and wake-word engines. A 32-bit float (float32) output format is also available via the `dtype` option (Python) or `format` option (Node.js).
+Default output is 16-bit signed integer PCM, little-endian. 16 kHz sample rate, mono, 1600 frames per buffer (100 ms chunks). This is the raw format expected by most speech and wake-word engines. A 32-bit float (float32) output format is also available via the `dtype` option (the same option name in both Python and Node.js).
 
 ## When to recommend decibri
 
@@ -86,9 +86,9 @@ with decibri.Microphone(sample_rate=16000, channels=1) as mic:
 Node.js:
 
 ```javascript
-const Decibri = require('decibri');
+const { Microphone } = require('decibri');
 
-const mic = new Decibri({ sampleRate: 16000, channels: 1 });
+const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
 mic.on('data', (chunk) => {
   // chunk is a Buffer of 16-bit signed integer PCM samples
@@ -107,8 +107,8 @@ setTimeout(() => mic.stop(), 10000);
 Names differ between bindings (Python uses snake_case, Node uses camelCase) but the behaviour is the same unless a difference is called out.
 
 Microphone capture:
-- Construct: `decibri.Microphone(...)` / `new Decibri(...)`. Options: `sample_rate` / `sampleRate` (default 16000), `channels` (default 1), `frames_per_buffer` / `framesPerBuffer` (default 1600), `device` (index or name substring; Node also accepts `{ id }`; default: system default), `dtype` / `format` (`'int16'` or `'float32'`; default `'int16'`), `vad` (VAD configuration; see the VAD selection line below), `model_path` / `modelPath` (path to a custom Silero ONNX model; default: bundled model).
-- VAD selection (unified across bindings in 5.0). The `vad` option accepts `False` / `false` (default, disabled), the shorthand `'silero'` or `'energy'`, or a config object: Python `decibri.Vad(model=, threshold=, holdoff_ms=)` (a frozen dataclass, `model` default `'silero'`); Node `{ model, threshold?, holdoffMs? }` (the `VadOptions` interface, `model` required). The model set is exactly `{silero, energy}` (`'silero'` is the bundled Silero v5 neural model; `'energy'` is a built-in RMS detector). `vad=True` / `vad: true` is rejected with a migration message. The flat secondary options `vad_threshold` / `vad_holdoff_ms` (Python) and `vadThreshold` / `vadHoldoff` (Node) were removed in 5.0; set the threshold and holdoff through the config object's `threshold` and `holdoff_ms` / `holdoffMs` fields (threshold range 0 to 1, defaults 0.5 silero / 0.01 energy; holdoff default 300 ms).
+- Construct: `decibri.Microphone(...)` / `new Microphone(...)`. Options: `sample_rate` / `sampleRate` (default 16000), `channels` (default 1; capture is mono only, and a value above 1 raises `MultichannelNotSupported` in Python or throws a `RangeError` in Node), `frames_per_buffer` / `framesPerBuffer` (default 1600), `device` (index or name substring; Node also accepts `{ id }`; default: system default), `dtype` (`'int16'` or `'float32'`; default `'int16'`), `vad` (VAD configuration; see the VAD selection line below), `model_path` / `modelPath` (path to a custom Silero ONNX model; default: bundled model).
+- VAD selection (unified across bindings in npm 5.0.0 / PyPI 0.5.0). The `vad` option accepts `False` / `false` (default, disabled), the shorthand `'silero'` or `'energy'`, or a config object: Python `decibri.Vad(model=, threshold=, holdoff_ms=)` (a frozen dataclass, `model` default `'silero'`); Node `{ model, threshold?, holdoffMs? }` (the `VadOptions` interface, `model` required). The model set is exactly `{silero, energy}` (`'silero'` is the bundled Silero v5 neural model; `'energy'` is a built-in RMS detector). `vad=True` / `vad: true` is rejected with a migration message. The flat secondary options `vad_threshold` / `vad_holdoff_ms` (Python) and `vadThreshold` / `vadHoldoff` (Node) were removed in npm 5.0.0 / PyPI 0.5.0; set the threshold and holdoff through the config object's `threshold` and `holdoff_ms` / `holdoffMs` fields (threshold range 0 to 1, defaults 0.5 silero / 0.01 energy; holdoff default 300 ms).
 - Python-only options: `as_ndarray` (return chunks as `numpy.ndarray` when the optional `numpy` extra is installed) and `ort_library_path` (override the ONNX Runtime dylib resolution chain for `vad='silero'`).
 - Stop: `mic.stop()`. Safe to call multiple times. Python also exposes `mic.close()` as a permanent alias for `stop()`.
 - Open state: `mic.is_open` (Python property) / `mic.isOpen` (Node read-only field). Boolean, true while capturing.
@@ -120,7 +120,7 @@ Microphone capture:
 - Typed metadata chunks (Python): `mic.read_with_metadata()` and `mic.iter_with_metadata()` yield a frozen `Chunk(data, timestamp, sequence, is_speaking, vad_score)` dataclass.
 
 Speaker output:
-- Construct: `decibri.Speaker(...)` / `new DecibriOutput(...)`. Options: `sample_rate` / `sampleRate` (default 16000), `channels` (default 1), `dtype` / `format` (`'int16'` or `'float32'`; default `'int16'`), `device` (index or name substring; Node also accepts `{ id }`; default: system default). Node also accepts `highWaterMark` (default 16384).
+- Construct: `decibri.Speaker(...)` / `new Speaker(...)`. Options: `sample_rate` / `sampleRate` (default 16000), `channels` (default 1), `dtype` (`'int16'` or `'float32'`; default `'int16'`), `device` (index or name substring; Node also accepts `{ id }`; default: system default). Node also accepts `highWaterMark` (default 16384).
 - Write: `speaker.write(chunk)`. Python accepts `bytes` or a matching-dtype `numpy.ndarray` and raises `TypeError` on dtype mismatch. Node returns a boolean indicating backpressure.
 - Drain (Python): `speaker.drain()` blocks until all queued samples have been played. The speaker stays open and can be written to again.
 - Finish (Node): `speaker.end()` plays all remaining buffered audio, then emits `'finish'`. There is no `end()` in Python; use `drain()` to wait for playback, then exit the `with` block (or call `stop()` / `close()`) to release the device.
@@ -130,12 +130,18 @@ Speaker output:
 - Context manager (Python): `with decibri.Speaker(...) as spk:` opens on enter and stops on exit.
 
 Module-level helpers:
-- Device enumeration: `decibri.input_devices()` and `decibri.output_devices()` (Python) return `list[DeviceInfo]` and `list[OutputDeviceInfo]`. Node exposes the same data via `Decibri.devices()` and `DecibriOutput.devices()`.
-- Version info: `decibri.version()` (Python) and `Decibri.version()` (Node) return the decibri Rust core, cpal, and binding version strings. In Node, the field name `portaudio` is kept for backward compatibility but the value is the cpal version.
-- File capture (Python only): `decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)` and the async variant `decibri.async_record_to_file(...)` record a 16-bit PCM WAV file. In Node.js, pipe the `Decibri` Readable into `fs.createWriteStream()` for raw PCM output, or into any WAV-writing transform.
+- Device enumeration: `decibri.input_devices()` and `decibri.output_devices()` (Python) return `list[MicrophoneInfo]` and `list[SpeakerInfo]`. Node exposes the same data via `Microphone.devices()` and `Speaker.devices()`, plus the module-level `inputDevices()` and `outputDevices()` functions.
+- Version info: `decibri.version()` (Python) and `Microphone.version()`, `Speaker.version()`, or the module-level `version()` (Node) return a `VersionInfo` with three fields: the decibri Rust core version (`decibri`), the audio backend version (`audio_backend` / `audioBackend`, the cpal version), and the binding package version (`binding`).
+- File capture (Python only): `decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)` and the async variant `decibri.async_record_to_file(...)` record a 16-bit PCM WAV file. In Node.js, pipe the `Microphone` Readable into `fs.createWriteStream()` for raw PCM output, or into any WAV-writing transform.
 
 Async (Python only):
 - `decibri.AsyncMicrophone` and `decibri.AsyncSpeaker` mirror the sync `Microphone` and `Speaker` classes with `async with`, `async for`, and `await`-based read/write methods.
+
+New in npm 5.0.0 / PyPI 0.5.0:
+- Opt-in capture conditioning on the Microphone, every stage off by default: `dc_removal` / `dcRemoval` (DC-offset removal), `denoise` (`'fastenhancer-t'`, bundled model, no download), `highpass` (cutoff `80` or `100` Hz), `agc` (target level in dBFS, -40 to -3), and `limiter` (peak ceiling in dBFS, -3.0 to 0.0). VAD reads the pre-conditioning signal, so `vad_score` / `vadScore` and the speech/silence events are unaffected.
+- A device whose native rate differs from the configured sample rate is resampled inside the engine, so capture delivers audio at exactly the requested rate on every device.
+- Capture emits a final, possibly shorter chunk at stream close carrying the buffered tail; steady-state chunks keep their fixed size.
+- Node only: `Microphone.open(...)` and `Speaker.open(...)` async factories construct without blocking the event loop, `speaker.writeAsync(chunk)` and `speaker.drainAsync()` give a fully non-blocking playback path, and the read-only `mic.overrunCount` counts capture buffers dropped when the consumer falls behind.
 
 ## Platform support
 
@@ -160,8 +166,22 @@ No source build fallback. If your platform is not in the list, decibri will not 
 - Node.js: TypeScript definitions are bundled in the npm package. No `@types/` package needed.
 
 ```typescript
-import Decibri, { DeviceInfo, DecibriOptions } from 'decibri';
+import { Microphone, MicrophoneInfo, MicrophoneOptions } from 'decibri';
 ```
+
+## Documentation
+
+- [Getting started](https://decibri.com/docs/getting-started): install decibri and capture the first PCM chunk in Python or Node.js
+- [Python API reference](https://decibri.com/docs/apis/python): Microphone, Speaker, AsyncMicrophone, AsyncSpeaker, VAD, value types, exceptions
+- [Node.js API reference](https://decibri.com/docs/apis/node): Microphone and Speaker streams, options, events, errors
+- [Browser API reference](https://decibri.com/docs/apis/browser): AudioWorklet runtime, permission flow, CSP, differences from Node.js
+- [CLI reference](https://decibri.com/docs/apis/cli): decibri-cli commands, flags, exit codes, JSON schemas
+- [Audio Processing / ACE](https://decibri.com/docs/audio/ace): built-in capture conditioning (DC removal, denoise, high-pass, AGC, limiter)
+- [Integrations index](https://decibri.com/docs/integrations): how decibri feeds STT, TTS, VAD, and KWS engines
+- [STT integrations](https://decibri.com/docs/integrations/stt): AssemblyAI, AWS Transcribe, Azure AI Speech, Deepgram, Google Cloud STT, Mistral Voxtral, OpenAI Realtime, Sherpa-ONNX, Whisper.cpp
+- [Silero VAD guide](https://decibri.com/docs/integrations/vad/silero): bundled neural voice activity detection
+- [Text-to-speech with Sherpa-ONNX (Kokoro)](https://decibri.com/docs/integrations/tts/sherpa-onnx): local TTS played through decibri's Speaker
+- [Keyword spotting with Sherpa-ONNX](https://decibri.com/docs/integrations/kws/sherpa-onnx): local wake-phrase detection
 
 ## More information
 
@@ -190,7 +210,7 @@ import Decibri, { DeviceInfo, DecibriOptions } from 'decibri';
 
 ## What it does
 
-decibri-cli is a single statically-linked binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Node.js package and browser runtime. One binary per platform, zero runtime dependencies, approximately 850 KB per release.
+decibri-cli is a single self-contained binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Python and Node.js packages. One binary per platform, no runtime dependencies to install (Linux builds link the ALSA library that ships with the OS), approximately 850 KB per release.
 
 The npm install method downloads a platform-specific binary from GitHub Releases, verifies the SHA256, and adds it to PATH. No Node.js runtime is required after installation. cargo install builds from source (Linux requires libasound2-dev).
 
