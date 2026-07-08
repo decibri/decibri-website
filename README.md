@@ -13,7 +13,7 @@ For the Decibri library itself (source code, releases, issues), see the main [de
 
 ## Contributing
 
-Documentation improvements and integration partner contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+Documentation improvements and integration provider contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## License
 
