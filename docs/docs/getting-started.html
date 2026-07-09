@@ -118,13 +118,13 @@ setTimeout(() => mic.stop(), 5000);</code></pre>
         <div class="code-tab-panel" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
-decibri.record_to_file("capture.wav", duration_seconds=10, sample_rate=44100, channels=2)</code></pre>
+decibri.record_to_file("capture.wav", duration_seconds=10, sample_rate=44100, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const fs = require('fs');
 
-const mic = new Microphone({ sampleRate: 44100, channels: 2 });
+const mic = new Microphone({ sampleRate: 44100, channels: 1 });
 mic.pipe(fs.createWriteStream('capture.raw'));</code></pre>
         </div>
       </div>
