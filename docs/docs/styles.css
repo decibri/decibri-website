@@ -1,5 +1,59 @@
 /* ── Decibri Docs Shared Stylesheet ── */
 
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url('/fonts/outfit-vf-latin-v15.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url('/fonts/outfit-vf-latin-ext-v15.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: optional;
+  src: url('/fonts/jetbrains-mono-vf-latin-v24.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: optional;
+  src: url('/fonts/jetbrains-mono-vf-latin-ext-v24.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Outfit Fallback';
+  src: local('Arial'), local('ArialMT');
+  size-adjust: 99.8204%;
+  ascent-override: 100.18%;
+  descent-override: 26.0468%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('CourierNewPSMT');
+  size-adjust: 99.9837%;
+  ascent-override: 102.0166%;
+  descent-override: 30.0049%;
+  line-gap-override: 0%;
+}
+
 :root {
   --bg: #0a0a0f;
   --bg-elevated: #12121a;
@@ -15,8 +69,8 @@
   --accent-glow-strong: rgba(94, 163, 248, 0.25);
   --red: #ff6b6b;
   --red-dim: rgba(255, 107, 107, 0.12);
-  --font-display: 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Outfit', 'Outfit Fallback', sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   --sidebar-width: 260px;
 }
 
