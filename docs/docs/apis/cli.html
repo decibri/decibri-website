@@ -61,14 +61,14 @@
       </div>
 
       <h1>CLI API</h1>
-      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Python, Node.js, and browser packages. This page covers installation and first commands, then the full command-line reference.</p>
+      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Python and Node.js packages (the browser package shares the same API through a JavaScript implementation). This page covers installation and first commands, then the full command-line reference.</p>
 
       <h2>Quickstart</h2>
       <h3>Install</h3>
       <p>Three ways to install. Pick whichever fits your workflow best.</p>
 
       <h4>npm (recommended)</h4>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g decibri-cli')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('npm install -g decibri-cli')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">npm install -g decibri-cli</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -80,7 +80,7 @@
       </div>
 
       <h4>Cargo</h4>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('cargo install decibri-cli')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('cargo install decibri-cli')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('cargo install decibri-cli')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">cargo install decibri-cli</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
