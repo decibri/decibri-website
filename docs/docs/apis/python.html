@@ -68,19 +68,19 @@
 
       <h3>Install</h3>
       <p>Recommended with <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener noreferrer">uv</a>:</p>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('uv pip install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('uv pip install decibri')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('uv pip install decibri')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">uv pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
       <p>Or with pip:</p>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('pip install decibri')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
       <p>For NumPy ndarray support (see <a href="#audio-format">Audio format</a>):</p>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('pip install decibri[numpy]')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">pip install decibri[numpy]</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -1001,7 +1001,7 @@ with decibri.Microphone(sample_rate=16000, dtype="float32", as_ndarray=True) as 
       </div>
       <p><code>Speaker.write()</code> duck-types on each call: pass <code>bytes</code> or pass an <code>ndarray</code> with matching dtype. Mixing both within a single output session is supported.</p>
       <p>The NumPy extra is opt-in to keep the default install lightweight:</p>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" role="button" tabindex="0" aria-label="Copy install command">
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install decibri[numpy]')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('pip install decibri[numpy]')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">pip install decibri[numpy]</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
