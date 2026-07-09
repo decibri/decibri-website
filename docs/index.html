@@ -1705,13 +1705,19 @@
 <span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Microphone</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
 <span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Got ${chunk.length} bytes`</span>));
 <span class="fn">setTimeout</span>(() =&gt; <span class="obj">mic</span>.<span class="fn">stop</span>(), <span class="const">5000</span>);</pre></div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
+        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">std</span>::<span class="obj">time</span>::<span class="obj">Duration</span>;
+<span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">DecibriError</span>, <span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 
 <span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
     <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">Microphone</span>::<span class="fn">new</span>(<span class="obj">MicrophoneConfig</span>::<span class="fn">default</span>())?;
     <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
-        <span class="fn">println!</span>(<span class="str">"Got {} bytes"</span>, <span class="param">chunk</span>.<span class="param">data</span>.<span class="fn">len</span>());
+    <span class="kw">loop</span> {
+        <span class="kw">match</span> <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">1600</span>, <span class="obj">Some</span>(<span class="obj">Duration</span>::<span class="fn">from_millis</span>(<span class="const">100</span>))) {
+            <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) =&gt; <span class="fn">println!</span>(<span class="str">"Got {} samples"</span>, <span class="param">chunk</span>.<span class="param">data</span>.<span class="fn">len</span>()),
+            <span class="obj">Ok</span>(<span class="const">None</span>) =&gt; <span class="kw">continue</span>,
+            <span class="obj">Err</span>(<span class="obj">DecibriError</span>::<span class="obj">MicrophoneStreamClosed</span>) =&gt; <span class="kw">break</span>,
+            <span class="obj">Err</span>(<span class="param">e</span>) =&gt; <span class="kw">return</span> <span class="obj">Err</span>(<span class="param">e</span>.<span class="fn">into</span>()),
+        }
     }
     <span class="obj">Ok</span>(())
 }</pre></div>
@@ -1902,7 +1908,8 @@
         </div>
 
         <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden>
-<pre><span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
+<pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">sample</span>::<span class="fn">f32_to_i16_le_bytes</span>;
+<span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 <span class="kw">use</span> <span class="obj">std</span>::<span class="obj">fs</span>::<span class="obj">File</span>;
 <span class="kw">use</span> <span class="obj">std</span>::<span class="obj">io</span>::<span class="obj">Write</span>;
 
@@ -1910,8 +1917,8 @@
     <span class="kw">let</span> <span class="kw">mut</span> <span class="param">file</span> = <span class="obj">File</span>::<span class="fn">create</span>(<span class="str">"capture.raw"</span>)?;
     <span class="kw">let</span> <span class="param">capture</span> = <span class="obj">Microphone</span>::<span class="fn">new</span>(<span class="obj">MicrophoneConfig</span>::<span class="fn">default</span>())?;
     <span class="kw">let</span> <span class="param">stream</span> = <span class="param">capture</span>.<span class="fn">start</span>()?;
-    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">None</span>) {
-        <span class="param">file</span>.<span class="fn">write_all</span>(&amp;<span class="param">chunk</span>.<span class="param">data</span>)?;
+    <span class="kw">while</span> <span class="kw">let</span> <span class="obj">Ok</span>(<span class="obj">Some</span>(<span class="param">chunk</span>)) = <span class="param">stream</span>.<span class="fn">next_chunk</span>(<span class="const">1600</span>, <span class="const">None</span>) {
+        <span class="param">file</span>.<span class="fn">write_all</span>(&amp;<span class="fn">f32_to_i16_le_bytes</span>(&amp;<span class="param">chunk</span>.<span class="param">data</span>))?;
     }
     <span class="obj">Ok</span>(())
 }</pre>
