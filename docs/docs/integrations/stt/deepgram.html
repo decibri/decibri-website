@@ -120,15 +120,17 @@
       <h3>1. Configure the client</h3>
       <p>Import decibri, the Deepgram SDK, and dotenv. Create a <code>DeepgramClient</code> with your API key. The same <code>DeepgramClient</code> is used for both products; the product is selected at connect time.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import os
 from dotenv import load_dotenv
 import decibri
@@ -138,7 +140,7 @@ from deepgram.core.events import EventType
 load_dotenv()
 client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -156,15 +158,17 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
         <strong>Node Authorization:</strong> the Node connect args must include <code>Authorization: `Token ${KEY}`</code>. The <code>DeepgramClient</code> constructor's <code>apiKey</code> option only flows to REST endpoints; the WebSocket transport ignores it. Omitting the Authorization header in the Node connect args is the single most common reason a Deepgram WebSocket fails to open. The Python SDK wires the constructor's <code>api_key</code> through to the WebSocket transport automatically, so the Python connect args do not need an Authorization entry.
       </div>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">with client.listen.v1.connect(
     model="nova-3",
     encoding="linear16",
@@ -174,7 +178,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
     # down inside this block (see steps below).
     ...</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
 
 const socket = await client.listen.v1.connect({
@@ -198,15 +202,17 @@ await Promise.race([
       <h3>3. Register event handlers</h3>
       <p>Register handlers before streaming audio. Both SDKs deliver each result as one event. In Python, events use the <code>EventType</code> enum from <code>deepgram.core.events</code>; on v1, message payloads are Pydantic <code>ListenV1Results</code> objects accessed with attribute syntax. In Node, the socket exposes string events (<code>'open'</code>, <code>'message'</code>, <code>'error'</code>, <code>'close'</code>); message payloads are plain JS objects with direct property access.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">def on_open(_):
     print("Deepgram connected.")
 
@@ -223,7 +229,7 @@ def on_message(result):
 connection.on(EventType.OPEN, on_open)
 connection.on(EventType.MESSAGE, on_message)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">socket.on('open', () => {
   console.log('Deepgram connected.');
 });
@@ -251,18 +257,20 @@ socket.on('close', () => {
       <h3>4. Open the microphone</h3>
       <p>Create a decibri instance at 16 kHz mono. Decibri's default 16-bit signed integer PCM matches Deepgram's <code>linear16</code> encoding directly. In Python, <code>Microphone</code> is constructed here but capture starts only when the <code>with mic:</code> block is entered (see the shutdown step below). In Node, <code>new Microphone(...)</code> begins capture as soon as it is constructed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
@@ -270,15 +278,17 @@ socket.on('close', () => {
       <h3>5. Stream audio</h3>
       <p>Read chunks from decibri and forward them to Deepgram. Deepgram recommends streaming buffers between 20 and 100 ms; batching to 100 ms windows (3200 bytes of int16 mono at 16 kHz) gives the most efficient server-side processing. Decibri's live microphone capture delivers audio at real-time pace, and Deepgram processes it as it arrives. Decibri produces raw int16 PCM that Deepgram accepts as-is, so no format conversion is needed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
 MIN_BYTES = 1600     # 50 ms tail-drop
 
@@ -292,7 +302,7 @@ def audio_iter():
     if len(buffer) >= MIN_BYTES:
         yield bytes(buffer)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
 const MIN_BYTES = 1600;    // 50 ms tail-drop
 
@@ -315,22 +325,24 @@ mic.on('error', (err) => {
       <p>When the audio stream ends, call <code>send_finalize</code> (Python) or <code>sendFinalize</code> (Node) to flush any unprocessed audio in Deepgram's server-side pipeline. Without this, the last few hundred milliseconds of speech can be missed because Deepgram's endpointing has not yet closed the utterance. Finalize emits a final <code>Results</code> message with <code>from_finalize: true</code>. Wait a short grace period (around 2 seconds) for that message to arrive before tearing the connection down.</p>
       <p>This step is specific to Nova-3 (v1). Flux uses <code>EndOfTurn</code> events for turn boundaries and does not need an explicit Finalize call.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">for chunk in audio_iter():
     connection.send_media(chunk)
 
 connection.send_finalize()
 time.sleep(2.0)  # grace for the from_finalize Results message</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">if (buffer.length >= MIN_BYTES) {
   socket.sendMedia(buffer);
 }
@@ -344,15 +356,17 @@ await new Promise((r) => setTimeout(r, 2000));  // grace for the from_finalize R
       <p>In Node, <code>socket.sendCloseStream({ type: 'CloseStream' })</code> followed by <code>socket.close()</code> is the public API; the <code>'close'</code> event fires once the server has acknowledged.</p>
       <p>The Python pattern below runs the send-side work on a background thread because <code>connection.start_listening()</code> blocks the main thread until the socket closes. The thread is required to keep audio flowing while the main thread receives events.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import threading
 import time
 
@@ -379,7 +393,7 @@ try:
 except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
 
 process.on('SIGINT', async () => {
@@ -405,15 +419,17 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
       <h3>1. Configure the client</h3>
       <p>Same client construction as Nova-3. The product is selected at connect time, not on the client.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-8-python" aria-controls="code-panel-8-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-python" aria-labelledby="code-tab-8-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import os
 from dotenv import load_dotenv
 import decibri
@@ -423,7 +439,7 @@ from deepgram.core.events import EventType
 load_dotenv()
 client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -437,15 +453,17 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
       <p>Open a WebSocket to Deepgram and select the Flux model. The connect args include <code>eot_threshold</code> (end-of-turn probability threshold, default 0.7) and <code>eot_timeout_ms</code> (maximum wait for end-of-turn, default 5000) which configure the turn-detection behaviour.</p>
       <p>The Wrapped-client and Authorization caveats described in the Nova-3 connect step apply identically here: in Node you must call <code>socket.connect()</code> before awaiting <code>socket.waitForOpen()</code>, you should wrap <code>waitForOpen()</code> in a <code>Promise.race</code> with a timeout, and the connect args must include an <code>Authorization</code> header. The Python connect args do not need one.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-9-python" aria-controls="code-panel-9-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-python" aria-labelledby="code-tab-9-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">with client.listen.v2.connect(
     model="flux-general-en",
     eot_threshold=0.7,
@@ -457,7 +475,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
     # down inside this block (see steps below).
     ...</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
 
 const socket = await client.listen.v2.connect({
@@ -483,15 +501,17 @@ await Promise.race([
       <h3>3. Register event handlers</h3>
       <p>Register handlers before streaming audio. In Python, Flux's v2 SDK delivers each message as a plain dict (not a Pydantic object as v1 does); use <code>.get(...)</code> rather than attribute access. In Node, messages are plain JS objects with direct property access for both v1 and v2.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-10-python" aria-controls="code-panel-10-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-python" aria-labelledby="code-tab-10-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">def on_open(_):
     print("Deepgram (Flux) connected.")
 
@@ -504,7 +524,7 @@ def on_message(result):
 connection.on(EventType.OPEN, on_open)
 connection.on(EventType.MESSAGE, on_message)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">socket.on('open', () => {
   console.log('Deepgram (Flux) connected.');
 });
@@ -528,18 +548,20 @@ socket.on('close', () => {
       <h3>4. Open the microphone</h3>
       <p>Same microphone construction as Nova-3. Create a decibri instance at 16 kHz mono.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-11-python" aria-controls="code-panel-11-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-11-python" aria-labelledby="code-tab-11-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
@@ -547,15 +569,17 @@ socket.on('close', () => {
       <h3>5. Stream audio</h3>
       <p>Same batching as the Nova-3 walkthrough. Decibri produces raw int16 PCM at the rate Deepgram expects, so no format conversion is needed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-12-python" aria-controls="code-panel-12-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-12-node" aria-controls="code-panel-12-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-12-python" aria-labelledby="code-tab-12-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
 MIN_BYTES = 1600     # 50 ms tail-drop
 
@@ -569,7 +593,7 @@ def audio_iter():
     if len(buffer) >= MIN_BYTES:
         yield bytes(buffer)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-12-node" aria-labelledby="code-tab-12-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
 const MIN_BYTES = 1600;    // 50 ms tail-drop
 
@@ -591,15 +615,17 @@ mic.on('error', (err) => {
       <h3>6. Clean shutdown</h3>
       <p>Same shutdown shape as Nova-3, minus the Finalize call. Wait a short grace period (around 2 seconds) after the last audio chunk for any late <code>EndOfTurn</code> events to arrive, then close the connection. The Python SDK quirk (no public close on <code>V2SocketClient</code>, requires <code>connection._websocket.close()</code> to break out of <code>start_listening()</code>) applies to v2 as well as v1.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-13-python" aria-controls="code-panel-13-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-13-node" aria-controls="code-panel-13-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-13-python" aria-labelledby="code-tab-13-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import threading
 import time
 
@@ -627,7 +653,7 @@ try:
 except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-13-node" aria-labelledby="code-tab-13-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
 
 process.on('SIGINT', async () => {
@@ -655,15 +681,17 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs code-tabs-flat" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist" aria-label="Language">
-            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <div class="code-tab-bar">
+            <div role="tablist" aria-label="Language" style="display: contents">
+              <button type="button" class="code-tab-btn" id="code-tab-14-python" aria-controls="code-panel-14-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+              <button type="button" class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            </div>
             <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
               <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
-          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-14-python" aria-labelledby="code-tab-14-python" data-lang="python" role="tabpanel">
             <pre><code class="language-python">import os
 import threading
 import time
@@ -735,7 +763,7 @@ with client.listen.v1.connect(
     except KeyboardInterrupt:
         print("\nStopping...")</code></pre>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -826,15 +854,17 @@ run().catch(console.error);</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs code-tabs-flat" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist" aria-label="Language">
-            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <div class="code-tab-bar">
+            <div role="tablist" aria-label="Language" style="display: contents">
+              <button type="button" class="code-tab-btn" id="code-tab-15-python" aria-controls="code-panel-15-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+              <button type="button" class="code-tab-btn" id="code-tab-15-node" aria-controls="code-panel-15-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            </div>
             <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
               <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
-          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-15-python" aria-labelledby="code-tab-15-python" data-lang="python" role="tabpanel">
             <pre><code class="language-python">import os
 import threading
 import time
@@ -902,7 +932,7 @@ with client.listen.v2.connect(
     except KeyboardInterrupt:
         print("\nStopping...")</code></pre>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -1189,6 +1219,6 @@ run().catch(console.error);</code></pre>
       }
     })();
   </script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

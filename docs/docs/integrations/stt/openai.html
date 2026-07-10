@@ -104,10 +104,10 @@
         <li>Store it in a <code>.env</code> file in your project root:</li>
       </ol>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">OPENAI_API_KEY=your_key_here</code></pre>
         </div>
       </div>
@@ -131,10 +131,10 @@
       <h3>1. Configuration</h3>
       <p>Import decibri, the ws WebSocket package, and dotenv. Set the Realtime API endpoint and your API key.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -148,10 +148,10 @@ const WS_URL = 'wss://api.openai.com/v1/realtime?intent=transcription';</code></
       <h3>2. Connect to OpenAI</h3>
       <p>Create a WebSocket connection with your API key in the Authorization header.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const ws = new WebSocket(WS_URL, {
   headers: {
     'Authorization': `Bearer ${API_KEY}`,
@@ -163,10 +163,10 @@ const WS_URL = 'wss://api.openai.com/v1/realtime?intent=transcription';</code></
       <h3>3. Configure the transcription session</h3>
       <p>After the WebSocket opens, send a <code>session.update</code> message to configure the transcription model and voice activity detection. The audio format defaults to PCM16 at 24000 Hz, which matches decibri's output when configured at that sample rate.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">ws.on('open', () => {
   ws.send(JSON.stringify({
     type: 'session.update',
@@ -194,10 +194,10 @@ const WS_URL = 'wss://api.openai.com/v1/realtime?intent=transcription';</code></
       <h3>4. Open the microphone and stream audio</h3>
       <p>Create a decibri instance at <strong>24000 Hz</strong> mono. Each audio chunk must be base64-encoded before sending. This is the one extra step compared to Deepgram and AssemblyAI, which accept raw buffers directly.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 24000, channels: 1 });
 
 mic.on('data', (chunk) => {
@@ -221,10 +221,10 @@ mic.on('data', (chunk) => {
       </ol>
       <p>To print only final transcripts:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">ws.on('message', (data) => {
   const event = JSON.parse(data.toString());
 
@@ -243,10 +243,10 @@ mic.on('data', (chunk) => {
       <h3>6. Clean shutdown</h3>
       <p>Stop the microphone and close the WebSocket when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">ws.on('close', (code, reason) => {
   console.log('Connection closed:', code, reason.toString());
 });
@@ -272,10 +272,10 @@ process.on('SIGINT', () => {
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -439,6 +439,6 @@ run().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

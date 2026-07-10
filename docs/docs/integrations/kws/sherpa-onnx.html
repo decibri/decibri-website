@@ -95,10 +95,10 @@
       <h3>Download a keyword spotting model</h3>
       <p>Download a KWS model from the <a href="https://github.com/k2-fsa/sherpa-onnx/releases" target="_blank" rel="noopener noreferrer">sherpa-onnx releases</a>. For example, the Zipformer transducer KWS model:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/kws-models/sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2
 tar xvf sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2</code></pre>
         </div>
@@ -110,10 +110,10 @@ tar xvf sherpa-onnx-kws-zipformer-wenetspeech-3.3M-2024-01-01.tar.bz2</code></pr
       <h3>1. Configuration</h3>
       <p>Define your model paths and the keywords you want to detect. Keywords are encoded as BPE token sequences using the model's <code>tokens.txt</code> file.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
@@ -143,10 +143,10 @@ const config = {
       <h3>2. Create the KWS engine</h3>
       <p>Instantiate the keyword spotter and create a detection stream.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const kws = new sherpa.KeywordSpotter(config);
 const stream = kws.createStream();</code></pre>
         </div>
@@ -155,10 +155,10 @@ const stream = kws.createStream();</code></pre>
       <h3>3. Open the microphone</h3>
       <p>Create a decibri instance at 16 kHz mono to match the model's expected input.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
@@ -166,10 +166,10 @@ const stream = kws.createStream();</code></pre>
       <h3>4. Process audio and detect keywords</h3>
       <p>Convert each incoming Int16 buffer to Float32, feed it to the KWS engine, and check for keyword detections.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">mic.on('data', (chunk) => {
   // Convert Int16 PCM to Float32
   const int16 = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
@@ -196,10 +196,10 @@ const stream = kws.createStream();</code></pre>
       <h3>5. Clean shutdown</h3>
       <p>Stop the microphone and free resources when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   mic.stop();
   stream.free();
@@ -215,10 +215,10 @@ console.log('Listening for keywords... (Ctrl+C to stop)');</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
@@ -296,6 +296,6 @@ console.log('Listening for keywords... (Ctrl+C to stop)');</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

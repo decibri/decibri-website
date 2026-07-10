@@ -162,10 +162,10 @@
       <h3 id="mic-open"><code>Microphone.open(options?)</code></h3>
       <p>Static async factory. Returns <code>Promise&lt;Microphone&gt;</code>. Runs the open work (device resolution, and the Silero model load when <code>vad: 'silero'</code> is set) on the native thread pool instead of the event loop, then resolves to a ready instance. The synchronous constructor blocks for roughly 100 to 500 milliseconds on a cold Silero load; <code>open()</code> does not. Options are identical to the constructor. A failed open rejects with the matching error: <code>RangeError</code> or <code>TypeError</code> for invalid options, or <code>DeviceError</code>, <code>OrtError</code>, or <code>OrtPathError</code> for native failures.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = await Microphone.open({ vad: 'silero' });
 mic.on('data', (chunk) => { /* ... */ });</code></pre>
         </div>
@@ -177,10 +177,10 @@ mic.on('data', (chunk) => { /* ... */ });</code></pre>
       <h3><code>Microphone.devices()</code></h3>
       <p>Returns an array of available audio input devices on the system.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const devices = Microphone.devices();
 console.log(devices);
 // [
@@ -239,10 +239,10 @@ console.log(devices);
       <h3><code>Microphone.version()</code></h3>
       <p>Returns version information for decibri and the audio backend. The <code>audioBackend</code> field reports the cpal version, and the <code>binding</code> field reports the npm package version.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">Microphone.version();
 // { decibri: '5.0.0', audioBackend: 'cpal 0.17', binding: '5.0.0' }</code></pre>
         </div>
@@ -274,10 +274,10 @@ console.log(devices);
       <h3><code>'backpressure'</code></h3>
       <p>Emitted when the stream's internal buffer is full and the consumer is reading too slowly. Because a microphone cannot be paused, audio chunks continue to arrive. Drain the stream or drop data to avoid unbounded memory growth.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">mic.on('backpressure', () => {
   console.warn('Consumer is too slow, audio may be lost');
 });</code></pre>
@@ -355,10 +355,10 @@ console.log(devices);
         </table>
       </div>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 } });</code></pre>
         </div>
       </div>
@@ -366,10 +366,10 @@ console.log(devices);
       <h3>Speaking state: the <code>'speech'</code> and <code>'silence'</code> events</h3>
       <p>Node surfaces speaking state through events rather than a polled boolean. <code>'speech'</code> fires when the VAD score crosses the configured <code>threshold</code>. <code>'silence'</code> fires when the score then stays below the threshold for <code>holdoffMs</code> milliseconds after a speech period. Both require <code>vad</code> to be enabled. Because <code>Microphone</code> is a <code>Readable</code> stream, attach a <code>'data'</code> listener (or otherwise consume the stream) so audio keeps flowing and the detector runs.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, vad: 'energy' });
 
 mic.on('speech', () => console.log('Speech detected'));
@@ -387,10 +387,10 @@ mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
       <h3>Int16 (default)</h3>
       <p>Each 2 bytes represents one 16-bit signed integer sample, little-endian. Range: -32,768 to 32,767.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">mic.on('data', (chunk) => {
   const samples = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
 });</code></pre>
@@ -400,10 +400,10 @@ mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
       <h3>Float32</h3>
       <p>Each 4 bytes represents one 32-bit IEEE 754 float sample, little-endian. Range: approximately -1.0 to 1.0.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, dtype: 'float32' });
 
 mic.on('data', (chunk) => {
@@ -417,10 +417,10 @@ mic.on('data', (chunk) => {
       <h3><code>new Speaker(options?)</code></h3>
       <p>Creates a Node.js Writable stream for speaker playback. Extends <code>Writable</code> from the <code>stream</code> module.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
 const speaker = new Speaker(options?);</code></pre>
@@ -499,10 +499,10 @@ const speaker = new Speaker(options?);</code></pre>
       <h3><code>Speaker.devices()</code></h3>
       <p>Returns an array of available audio output devices on the system.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
 const devices = Speaker.devices();
@@ -616,10 +616,10 @@ console.log(devices);
       <h3><code>version()</code></h3>
       <p>Returns the same <code>VersionInfo</code> (<code>{ decibri, audioBackend, binding }</code>) as <code>Microphone.version()</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const { inputDevices, outputDevices, version } = require('decibri');
 
 const inputs = inputDevices();
@@ -753,6 +753,6 @@ console.log(version());</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

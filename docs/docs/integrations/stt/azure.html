@@ -109,10 +109,10 @@
 
       <p><strong>Option 1: .env file with dotenv</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">AZURE_SPEECH_KEY=your_subscription_key
 AZURE_SPEECH_REGION=australiaeast</code></pre>
         </div>
@@ -120,10 +120,10 @@ AZURE_SPEECH_REGION=australiaeast</code></pre>
 
       <p><strong>Option 2: Environment variables</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">export AZURE_SPEECH_KEY=your_subscription_key
 export AZURE_SPEECH_REGION=australiaeast</code></pre>
         </div>
@@ -143,10 +143,10 @@ export AZURE_SPEECH_REGION=australiaeast</code></pre>
       <h3>1. Configuration</h3>
       <p>Import decibri, the Azure Speech SDK, and dotenv. Create a <code>SpeechConfig</code> with your subscription key and region.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -164,10 +164,10 @@ speechConfig.speechRecognitionLanguage = 'en-US';</code></pre>
       <h3>2. Create the push stream</h3>
       <p>Azure's Node.js SDK cannot access the microphone directly. Instead, create a <code>PushAudioInputStream</code> and wire it into a <code>SpeechRecognizer</code>. The default push stream format is 16 kHz, 16-bit, mono PCM, which matches decibri's default output exactly.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const pushStream = sdk.AudioInputStream.createPushStream();
 const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
 const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);</code></pre>
@@ -177,10 +177,10 @@ const recognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);</code></
       <h3>3. Open the microphone and push audio</h3>
       <p>Create a decibri instance at 16 kHz mono and push each audio chunk into the push stream.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 mic.on('data', (chunk) => {
   pushStream.write(chunk.buffer.slice(
@@ -201,10 +201,10 @@ mic.on('data', (chunk) => {
         <li><strong>recognized</strong>: Final confirmed transcription. Won't change. Use these for command processing.</li>
       </ul>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">recognizer.recognizing = (s, e) => {
   process.stdout.write(`\r  [partial] ${e.result.text}                    `);
 };
@@ -226,10 +226,10 @@ recognizer.canceled = (s, e) => {
       <h3>5. Start continuous recognition</h3>
       <p>Use <code>startContinuousRecognitionAsync()</code> for ongoing microphone input. Do not use <code>recognizeOnceAsync()</code>, which stops after a single utterance.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">recognizer.startContinuousRecognitionAsync();</code></pre>
         </div>
       </div>
@@ -237,10 +237,10 @@ recognizer.canceled = (s, e) => {
       <h3>6. Clean shutdown</h3>
       <p>Stop recognition, close the recognizer, microphone, and push stream when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   recognizer.stopContinuousRecognitionAsync(() => {
@@ -258,10 +258,10 @@ recognizer.canceled = (s, e) => {
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -393,6 +393,6 @@ main().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

@@ -93,19 +93,19 @@
 
       <h4>Check the version</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri version</code></pre>
         </div>
       </div>
       <p>Prints the CLI version, the decibri library version it was built against, the audio backend for your platform, the Rust target triple, and the Rust compiler version:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri-cli 0.1.0
 decibri 3.0.0
 Audio backend: WASAPI
@@ -116,18 +116,18 @@ Rust: 1.82.0</code></pre>
 
       <p>For machine-readable output, add <code>--json</code>:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri version --json</code></pre>
         </div>
       </div>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
   "decibri_cli": "0.1.0",
   "decibri": "3.0.0",
@@ -144,19 +144,19 @@ Rust: 1.82.0</code></pre>
 
       <h4>List audio devices</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri devices</code></pre>
         </div>
       </div>
       <p>Prints a human-readable table of all input and output devices on the system. Use <code>--input</code> or <code>--output</code> to filter, and <code>--json</code> for machine-readable output.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri devices --input
 decibri devices --output
 decibri devices --input --json</code></pre>
@@ -165,10 +165,10 @@ decibri devices --input --json</code></pre>
 
       <h4>Record a WAV file</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri capture -o recording.wav -d 10</code></pre>
         </div>
       </div>
@@ -180,10 +180,10 @@ decibri devices --input --json</code></pre>
 
       <h4>Play a WAV file</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri play recording.wav</code></pre>
         </div>
       </div>
@@ -193,10 +193,10 @@ decibri devices --input --json</code></pre>
 
       <h4>Record from a specific microphone</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri devices --input
 decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
         </div>
@@ -205,10 +205,10 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
 
       <h4>Higher-quality stereo recording</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri capture -o song.wav -d 60 -r 44100 -c 2</code></pre>
         </div>
       </div>
@@ -216,10 +216,10 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
 
       <h4>Round-trip check</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri capture -o test.wav -d 5 &amp;&amp; decibri play test.wav</code></pre>
         </div>
       </div>
@@ -227,10 +227,10 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
 
       <h4>CI-friendly recording</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-12-node" aria-controls="code-panel-12-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-12-node" aria-labelledby="code-tab-12-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri capture -o /tmp/ci-test.wav -d 2 --quiet --json</code></pre>
         </div>
       </div>
@@ -282,20 +282,20 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
 
       <h4>Usage</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-13-node" aria-controls="code-panel-13-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-13-node" aria-labelledby="code-tab-13-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri version [--json]</code></pre>
         </div>
       </div>
 
       <h4>Human output</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri-cli 0.1.0
 decibri 3.0.0
 Audio backend: WASAPI
@@ -306,10 +306,10 @@ Rust: 1.82.0</code></pre>
 
       <h4>JSON output (stable schema)</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-15-node" aria-controls="code-panel-15-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
   "decibri_cli": "0.1.0",
   "decibri": "3.0.0",
@@ -368,10 +368,10 @@ Rust: 1.82.0</code></pre>
 
       <h4>Usage</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-16-node" aria-controls="code-panel-16-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-16-node" aria-labelledby="code-tab-16-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri devices [--input] [--output] [--json]</code></pre>
         </div>
       </div>
@@ -409,10 +409,10 @@ Rust: 1.82.0</code></pre>
 
       <h4>Human output</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-17-node" aria-controls="code-panel-17-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-17-node" aria-labelledby="code-tab-17-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">INPUT DEVICES
   #  Name                     Channels  Sample rate  Default
   0  MacBook Pro Microphone      1        48000        yes
@@ -427,10 +427,10 @@ OUTPUT DEVICES
 
       <h4>JSON output</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-18-node" aria-controls="code-panel-18-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-18-node" aria-labelledby="code-tab-18-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
   "input_devices": [
     { "index": 0, "name": "MacBook Pro Microphone", "kind": "input", "default": true, "channels": 1, "sample_rate": 48000 },
@@ -452,10 +452,10 @@ OUTPUT DEVICES
 
       <h4>Usage</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-19-node" aria-controls="code-panel-19-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-19-node" aria-labelledby="code-tab-19-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri capture -o &lt;FILE&gt; [-d &lt;DURATION&gt;] [-r &lt;RATE&gt;] [-c &lt;CHANNELS&gt;] [--device &lt;NAME_OR_INDEX&gt;] [--json] [--quiet]</code></pre>
         </div>
       </div>
@@ -537,10 +537,10 @@ OUTPUT DEVICES
 
       <h4>Examples</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-20-node" aria-controls="code-panel-20-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-20-node" aria-labelledby="code-tab-20-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash"># ASR-ready recording (16 kHz mono, 30 seconds)
 decibri capture -o speech.wav -d 30
 
@@ -557,10 +557,10 @@ decibri capture -o clip.wav --json</code></pre>
 
       <h4>JSON output</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-21-node" aria-controls="code-panel-21-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-21-node" aria-labelledby="code-tab-21-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
   "file": "speech.wav",
   "duration_seconds": 30.0,
@@ -580,10 +580,10 @@ decibri capture -o clip.wav --json</code></pre>
 
       <h4>Usage</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-22-node" aria-controls="code-panel-22-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-22-node" aria-labelledby="code-tab-22-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri play &lt;FILE&gt; [--device &lt;NAME_OR_INDEX&gt;] [--json] [--quiet]</code></pre>
         </div>
       </div>
@@ -671,10 +671,10 @@ decibri capture -o clip.wav --json</code></pre>
 
       <h4>Examples</h4>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-23-node" aria-controls="code-panel-23-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-23-node" aria-labelledby="code-tab-23-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">decibri play recording.wav
 decibri play recording.wav --device "External Headphones"</code></pre>
         </div>
@@ -766,10 +766,10 @@ decibri play recording.wav --device "External Headphones"</code></pre>
       <h4>macOS Gatekeeper "cannot be verified" on direct download</h4>
       <p>Unquarantine the file manually:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-24-node" aria-controls="code-panel-24-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-24-node" aria-labelledby="code-tab-24-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">xattr -d com.apple.quarantine /path/to/decibri</code></pre>
         </div>
       </div>
@@ -778,10 +778,10 @@ decibri play recording.wav --device "External Headphones"</code></pre>
       <h4>Linux: libasound2 error after <code>cargo install</code></h4>
       <p>Install the ALSA development headers:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-25-node" aria-controls="code-panel-25-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-25-node" aria-labelledby="code-tab-25-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">sudo apt install libasound2-dev    # Debian / Ubuntu
 sudo dnf install alsa-lib-devel    # Fedora</code></pre>
         </div>
@@ -790,10 +790,10 @@ sudo dnf install alsa-lib-devel    # Fedora</code></pre>
       <h4>"Unsupported WAV format" on <code>decibri play</code></h4>
       <p>v0.1.0 only supports 16-bit PCM integer and 32-bit float WAV. Convert with ffmpeg:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-26-node" aria-controls="code-panel-26-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-26-node" aria-labelledby="code-tab-26-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">ffmpeg -i input.wav -acodec pcm_s16le -ar 16000 -ac 1 output.wav
 decibri play output.wav</code></pre>
         </div>
@@ -824,6 +824,6 @@ decibri play output.wav</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

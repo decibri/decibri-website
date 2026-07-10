@@ -97,10 +97,10 @@
       <h3>Quick start</h3>
       <p>Capture microphone audio and log the chunk size:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-browser" aria-controls="code-panel-1-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-browser" aria-labelledby="code-tab-1-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Microphone } from 'decibri';
 
 const mic = new Microphone({ sampleRate: 16000 });
@@ -125,30 +125,30 @@ await mic.start();</code></pre>
 
       <h3>Stopping and cleanup</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-browser" aria-controls="code-panel-2-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-browser" aria-labelledby="code-tab-2-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">mic.stop();</code></pre>
         </div>
       </div>
       <p><code>stop()</code> releases all resources: MediaStream tracks are stopped, AudioContext is closed, all nodes are disconnected, references are nulled. Safe for React/Vue component unmount cycles. Safe to call multiple times or before <code>start()</code>.</p>
       <p>To restart after stopping:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-browser" aria-controls="code-panel-3-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-browser" aria-labelledby="code-tab-3-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">await mic.start(); // creates a fresh audio pipeline</code></pre>
         </div>
       </div>
 
       <h3>Device selection</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-browser" aria-controls="code-panel-4-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-browser" aria-labelledby="code-tab-4-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
 await mic.start();
 const devices = await Microphone.devices();
@@ -163,10 +163,10 @@ await usbMic.start();</code></pre>
 
       <h3>Output formats</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-browser" aria-controls="code-panel-5-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-browser" aria-labelledby="code-tab-5-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
 const mic = new Microphone({ dtype: 'int16' });
 mic.on('data', (chunk) => {
@@ -184,10 +184,10 @@ mic2.on('data', (chunk) => {
       <h3>Voice activity detection</h3>
       <p>Enable the built-in VAD to receive <code>'speech'</code> and <code>'silence'</code> events based on RMS energy thresholding:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-browser" aria-controls="code-panel-6-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-browser" aria-labelledby="code-tab-6-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 },
@@ -204,10 +204,10 @@ await mic.start();</code></pre>
 
       <h3>WebSocket streaming</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-browser" aria-controls="code-panel-7-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-browser" aria-labelledby="code-tab-7-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
 const mic = new Microphone({ sampleRate: 16000, dtype: 'int16' });
 
@@ -264,10 +264,10 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       <h3>CSP-restricted environments</h3>
       <p>By default, decibri loads its AudioWorklet processor via an inline Blob URL. If your Content Security Policy blocks <code>blob:</code> URLs:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-browser" aria-controls="code-panel-8-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-browser" aria-labelledby="code-tab-8-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({
   workletUrl: '/static/decibri-worklet.js',
 });</code></pre>
@@ -281,10 +281,10 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       <h4><code>new Microphone(options?)</code></h4>
       <p>Creates a new capture instance. Does not start capture. Call <code>start()</code> to begin.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-browser" aria-controls="code-panel-9-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-browser" aria-labelledby="code-tab-9-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Microphone } from 'decibri';
 const mic = new Microphone(options?);</code></pre>
         </div>
@@ -382,10 +382,10 @@ const mic = new Microphone(options?);</code></pre>
       <h4><code>Microphone.devices()</code></h4>
       <p>Returns <code>Promise&lt;MicrophoneInfo[]&gt;</code>. Lists available audio input devices. Labels may be empty before microphone permission is granted.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-10-browser" aria-controls="code-panel-10-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-browser" aria-labelledby="code-tab-10-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">const devices = await Microphone.devices();
 console.log(devices);
 // [
@@ -398,10 +398,10 @@ console.log(devices);
       <h4><code>Microphone.version()</code></h4>
       <p>Returns version information for decibri.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-11-browser" aria-controls="code-panel-11-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-11-browser" aria-labelledby="code-tab-11-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">Microphone.version();
 // { decibri: '5.0.0' }</code></pre>
         </div>
@@ -457,10 +457,10 @@ console.log(devices);
 
       <h3>Types</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-12-browser" aria-controls="code-panel-12-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-12-browser" aria-labelledby="code-tab-12-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">// MicrophoneInfo
 {
   deviceId: string,
@@ -588,10 +588,10 @@ console.log(devices);
       <h3>Playback quickstart</h3>
       <p>Write PCM samples from a click handler, wait for playback to finish, then release resources:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-13-browser" aria-controls="code-panel-13-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-13-browser" aria-labelledby="code-tab-13-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Speaker } from 'decibri';
 
 const speaker = new Speaker({ sampleRate: 16000 });
@@ -608,10 +608,10 @@ document.getElementById('play').onclick = async () => {
       <h4><code>new Speaker(options?)</code></h4>
       <p>Creates a playback instance. Does not open the audio output; the pipeline is created on the first <code>start()</code> or <code>write()</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-14-browser" aria-controls="code-panel-14-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
-        <div class="code-tab-panel" data-lang="browser" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-14-browser" aria-labelledby="code-tab-14-browser" data-lang="browser" role="tabpanel">
           <pre><code class="language-javascript">import { Speaker } from 'decibri';
 const speaker = new Speaker(options?);</code></pre>
         </div>
@@ -766,6 +766,6 @@ const speaker = new Speaker(options?);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

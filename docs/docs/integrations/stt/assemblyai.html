@@ -115,15 +115,17 @@
       <h3>1. Configuration</h3>
       <p>Import decibri, the AssemblyAI SDK, and dotenv. Create a client with your API key.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import os
 from dotenv import load_dotenv
 import decibri
@@ -139,7 +141,7 @@ client = StreamingClient(
     StreamingClientOptions(api_key=os.environ["ASSEMBLYAI_API_KEY"])
 )</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -152,18 +154,20 @@ const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });</code
       <h3>2. Create streaming transcriber</h3>
       <p>Configure the streaming session. The speech model is required and has no default; omitting it causes the connection to fail. The Python SDK builds these into a <code>StreamingParameters</code> object passed at connect time; the Node SDK passes them to <code>client.streaming.transcriber()</code>.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">params = StreamingParameters(sample_rate=16000, speech_model="u3-rt-pro")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const transcriber = client.streaming.transcriber({
   speechModel: 'u3-rt-pro',
   sampleRate: 16_000,
@@ -174,15 +178,17 @@ const client = new AssemblyAI({ apiKey: process.env.ASSEMBLYAI_API_KEY });</code
       <h3>3. Register event handlers</h3>
       <p>Register handlers before connecting. This ensures no events are missed during the connection handshake. Both SDKs expose at least <code>turn</code> and <code>error</code> events; the Node SDK additionally exposes <code>open</code> and <code>close</code>.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">def on_turn(client, event):
     if event.end_of_turn and event.transcript:
         print(event.transcript)
@@ -193,7 +199,7 @@ def on_error(client, error):
 client.on(StreamingEvents.Turn, on_turn)
 client.on(StreamingEvents.Error, on_error)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">transcriber.on('open', ({ id }) => {
   console.log('Session:', id);
 });
@@ -220,19 +226,21 @@ transcriber.on('close', (code, reason) => {
       </div>
       <p>Connect to AssemblyAI, then prepare the microphone. In Python the connect call is synchronous and <code>Microphone</code> is only constructed here; capture starts in the next block when it is opened with a <code>with</code> statement. In Node the connect call returns a promise that must be awaited, and <code>new Microphone(...)</code> begins capture as soon as it is constructed. Audio must only be sent after the connection is established.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">client.connect(params)
 mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">await transcriber.connect();
 
 const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
@@ -242,15 +250,17 @@ const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
       <h3>5. Stream audio</h3>
       <p>Read chunks from decibri and forward them to AssemblyAI. AssemblyAI streaming v3 requires audio in 50 ms to 1000 ms windows; decibri on Windows may emit chunks shorter than 50 ms, so batch incoming audio into 100 ms (3200 bytes of int16 mono at 16 kHz) before forwarding. Drop any trailing remainder under 50 ms (1600 bytes). No format conversion is needed; decibri produces raw int16 PCM which AssemblyAI accepts as-is.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
 MIN_BYTES = 1600     # 50 ms; AssemblyAI streaming v3 minimum
 
@@ -264,7 +274,7 @@ def audio_iter():
     if len(buffer) >= MIN_BYTES:
         yield bytes(buffer)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
 const MIN_BYTES = 1600;    // 50 ms; AssemblyAI streaming v3 minimum
 
@@ -296,20 +306,22 @@ mic.on('end', () => {
       <p>The event object exposes the same fields in both SDKs; only the callback parameter name differs (<code>event</code> in Python, <code>turn</code> in Node).</p>
       <p>To show only final results, filter on <code>end_of_turn</code>:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">def on_turn(client, event):
     if event.end_of_turn and event.transcript:
         print(event.transcript)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">transcriber.on('turn', (turn) => {
   if (turn.end_of_turn && turn.transcript) {
     console.log(turn.transcript);
@@ -321,15 +333,17 @@ mic.on('end', () => {
       <h3>7. Clean shutdown</h3>
       <p>Stop the microphone and close the AssemblyAI connection when the user presses Ctrl+C.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">print("Listening... (Ctrl+C to stop)")
 try:
     with mic:
@@ -339,7 +353,7 @@ except KeyboardInterrupt:
 finally:
     client.disconnect(terminate=True)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">process.on('SIGINT', async () => {
   console.log('\nStopping...');
   mic.stop();
@@ -353,15 +367,17 @@ finally:
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs code-tabs-flat" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist" aria-label="Language">
-            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <div class="code-tab-bar">
+            <div role="tablist" aria-label="Language" style="display: contents">
+              <button type="button" class="code-tab-btn" id="code-tab-8-python" aria-controls="code-panel-8-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+              <button type="button" class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            </div>
             <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
               <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
-          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-8-python" aria-labelledby="code-tab-8-python" data-lang="python" role="tabpanel">
             <pre><code class="language-python">import os
 from dotenv import load_dotenv
 
@@ -415,7 +431,7 @@ except KeyboardInterrupt:
 finally:
     client.disconnect(terminate=True)</code></pre>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -601,6 +617,6 @@ run().catch(console.error);</code></pre>
       }
     })();
   </script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>
