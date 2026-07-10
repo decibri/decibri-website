@@ -18,7 +18,7 @@
   <title>decibri-cli | Cross-platform audio CLI for capture, playback, and devices</title>
   <meta name="description" content="Capture, play, and enumerate audio devices from the command line. One static binary, zero runtime dependencies, cross-platform. Scriptable JSON output and stable exit codes.">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="audio cli, wav recorder cli, cross-platform audio capture, sox alternative, scriptable audio, command line microphone, rust audio cli, microphone, audio capture, PCM, cross-platform, voice AI, real-time audio, cpal, rust">
+  <meta name="keywords" content="audio cli, wav recorder cli, cross-platform audio capture, scriptable audio, command line microphone, rust audio cli, microphone, audio capture, PCM, cross-platform, voice AI, real-time audio, cpal, rust">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="canonical" href="https://decibri.com/cli">
   <link rel="alternate" type="text/plain" href="https://decibri.com/llms.txt" title="LLM-readable package description">
@@ -104,15 +104,7 @@
         "name": "Does it support FLAC, MP3, or other formats?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Not in v0.1.0. The focus is small, focused, and predictable. If you need format conversion, pipe the WAV output through ffmpeg or sox."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is this a SoX replacement?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "No. SoX is a full audio processing toolkit with effects, filters, and format conversion. decibri-cli does four things: capture, play, enumerate devices, and report version. If your use case is \"record and play WAVs from a script on any OS\", decibri-cli fits. If you need to apply reverb or convert between codecs, use SoX or ffmpeg."
+          "text": "Not in v0.1.0. The focus is small, focused, and predictable. decibri-cli records and plays 16-bit PCM WAV only; format conversion is out of scope."
         }
       },
       {
@@ -880,69 +872,6 @@
       color: var(--text-primary);
     }
 
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 32px;
-    }
-
-    @media (max-width: 640px) {
-      .compare-grid { grid-template-columns: 1fr; }
-    }
-
-    .compare-card {
-      padding: 24px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-    }
-
-    .compare-card h3 {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      letter-spacing: -0.3px;
-    }
-
-    .compare-card .alt-name { color: var(--text-muted); }
-    .compare-card .mic-name { color: var(--accent); }
-
-    .compare-card ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .compare-card ul li {
-      font-size: 13.5px;
-      color: var(--text-secondary);
-      padding: 5px 0;
-      padding-left: 22px;
-      position: relative;
-      line-height: 1.5;
-    }
-
-    .compare-card ul li::before {
-      position: absolute;
-      left: 0;
-      top: 7px;
-    }
-
-    .compare-card.alt ul li::before {
-      content: '×';
-      color: var(--red);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .compare-card.ours ul li::before {
-      content: '✓';
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 13px;
-    }
-
     /* ── FAQ Accordion ── */
     .faq-list {
       margin-top: 32px;
@@ -1357,7 +1286,6 @@
       <div class="nav-links">
         <a href="#why">Why</a>
         <a href="#features">Features</a>
-        <a href="#compare">Compare</a>
         <a href="#platforms">Platforms</a>
         <a href="/cli/">CLI</a>
         <a href="/docs/">Docs</a>
@@ -1386,7 +1314,6 @@
     </button>
     <a href="#why" onclick="toggleMobileMenu()">Why</a>
     <a href="#features" onclick="toggleMobileMenu()">Features</a>
-    <a href="#compare" onclick="toggleMobileMenu()">Compare</a>
     <a href="#platforms" onclick="toggleMobileMenu()">Platforms</a>
     <a href="/cli/" onclick="toggleMobileMenu()">CLI</a>
     <a href="/docs/">Docs</a>
@@ -1432,7 +1359,7 @@
     <section id="why" class="fade-in">
       <div class="section-label">Why decibri-cli</div>
       <h2>An audio CLI that works everywhere your scripts do.</h2>
-      <p class="section-desc">Scripting audio I/O has always meant reaching for fragmented, unmaintained, or heavyweight tooling. decibri-cli is a focused alternative: one statically-linked binary with zero runtime dependencies, installed in seconds via npm, cargo, or a direct download.</p>
+      <p class="section-desc">decibri-cli is a focused audio I/O tool for scripts and CI: one statically-linked binary with zero runtime dependencies, installed in seconds via npm, cargo, or a direct download.</p>
 
       <div class="features-grid">
         <div class="feature-card">
@@ -1467,7 +1394,7 @@
     <section id="features" class="fade-in">
       <div class="section-label">Core Features</div>
       <h2>Four commands. <span class="gradient-text">One binary.</span></h2>
-      <p class="section-desc">Everything decibri-cli does in v0.1.0. A tool built for capture, playback, and device enumeration rather than a full SoX replacement.</p>
+      <p class="section-desc">Everything decibri-cli does in v0.1.0. A tool built for capture, playback, and device enumeration.</p>
 
       <div class="features-grid">
         <div class="feature-card">
@@ -1592,38 +1519,6 @@
 
   <div class="divider"></div>
 
-  <!-- ── Compare ── -->
-  <div class="container">
-    <section id="compare" class="fade-in">
-      <div class="section-label">Compared to</div>
-      <h2>Built for <span class="gradient-text">exactly this job</span>.</h2>
-      <p class="section-desc">Purpose-built for audio capture, playback, and device enumeration. Here's how it stacks up against the tools you might reach for today.</p>
-      <div class="compare-grid">
-        <div class="compare-card alt">
-          <h3><span class="alt-name">Other tools</span></h3>
-          <ul>
-            <li>SoX has no modern Windows build and ships infrequent releases</li>
-            <li>ffmpeg weighs 70 MB+, and audio I/O is a rounding error inside a full media toolkit</li>
-            <li>arecord and aplay are Linux only and not portable across operating systems</li>
-            <li>Platform-specific scripts force your CI to branch per OS</li>
-          </ul>
-        </div>
-        <div class="compare-card ours">
-          <h3><span class="mic-name">decibri-cli</span></h3>
-          <ul>
-            <li>~800 KB static binary, Apache-2.0</li>
-            <li>Single install across Windows, macOS, Linux (x64 + arm64)</li>
-            <li>Focused on capture, play, devices, and version. Nothing else.</li>
-            <li>JSON output and stable exit codes for scripts and CI</li>
-            <li>SLSA provenance attestations via Sigstore</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div class="divider"></div>
-
   <!-- ── Platforms ── -->
   <div class="container">
     <section id="platforms" class="fade-in">
@@ -1692,11 +1587,7 @@
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does it support FLAC, MP3, or other formats?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
-          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Not in v0.1.0. The focus is small, focused, and predictable. If you need format conversion, pipe the WAV output through ffmpeg or sox.</p></div></div>
-        </div>
-        <div class="faq-item">
-          <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Is this a SoX replacement?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
-          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">No. SoX is a full audio processing toolkit with effects, filters, and format conversion. decibri-cli does four things: capture, play, enumerate devices, and report version. If your use case is "record and play WAVs from a script on any OS", decibri-cli fits. If you need to apply reverb or convert between codecs, use SoX or ffmpeg.</p></div></div>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Not in v0.1.0. The focus is small, focused, and predictable. decibri-cli records and plays 16-bit PCM WAV only; format conversion is out of scope.</p></div></div>
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">I'm seeing a SmartScreen or Gatekeeper warning. Is this safe?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>

@@ -661,7 +661,7 @@ decibri capture -o clip.wav --json</code></pre>
           </tbody>
         </table>
       </div>
-      <p>Use ffmpeg or sox to convert unsupported files to 16-bit PCM WAV before playback.</p>
+      <p>Convert unsupported files to 16-bit PCM WAV before playback.</p>
 
       <h4>Behavior</h4>
       <ul>
@@ -788,16 +788,7 @@ sudo dnf install alsa-lib-devel    # Fedora</code></pre>
       </div>
 
       <h4>"Unsupported WAV format" on <code>decibri play</code></h4>
-      <p>v0.1.0 only supports 16-bit PCM integer and 32-bit float WAV. Convert with ffmpeg:</p>
-      <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button class="code-tab-btn" id="code-tab-26-node" aria-controls="code-panel-26-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
-        </div>
-        <div class="code-tab-panel" id="code-panel-26-node" aria-labelledby="code-tab-26-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">ffmpeg -i input.wav -acodec pcm_s16le -ar 16000 -ac 1 output.wav
-decibri play output.wav</code></pre>
-        </div>
-      </div>
+      <p>v0.1.0 only supports 16-bit PCM integer and 32-bit float WAV. Convert the file to 16-bit PCM WAV (16 kHz mono is the common target for speech pipelines), then play the converted file.</p>
 
             <div class="related-links">
         <h2>Related</h2>
