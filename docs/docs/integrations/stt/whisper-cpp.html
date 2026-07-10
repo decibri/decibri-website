@@ -100,10 +100,10 @@
       <h3>Download a Whisper model</h3>
       <p>Download a GGML model file from the <a href="https://huggingface.co/ggerganov/whisper.cpp/tree/main" target="_blank" rel="noopener noreferrer">whisper.cpp model repository</a>. For example, the tiny English model:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">curl -L -o ggml-tiny.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin</code></pre>
         </div>
       </div>
@@ -171,10 +171,10 @@
       <h3>1. Configuration</h3>
       <p>Set the model path, buffer duration, and sample rate. The addon accepts Float32 PCM audio at the sample rate the model expects (16 kHz for all standard Whisper models). GPU acceleration via Vulkan is enabled by default. Set <code>use_gpu: false</code> if Vulkan is not available on your system.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const { transcribe } = require('@kutalia/whisper-node-addon');
 
@@ -187,10 +187,10 @@ const BUFFER_SECONDS = 5; // shorter = faster feedback, longer = better accuracy
       <h3>2. Open the microphone</h3>
       <p>Create a decibri instance at 16 kHz mono. The default format is 16-bit signed integer PCM.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: SAMPLE_RATE, channels: 1 });</code></pre>
         </div>
       </div>
@@ -198,10 +198,10 @@ const BUFFER_SECONDS = 5; // shorter = faster feedback, longer = better accuracy
       <h3>3. Buffer audio</h3>
       <p>Accumulate incoming PCM chunks into a list. When the buffer reaches the target duration, trigger transcription.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const chunks = [];
 let bufferedSamples = 0;
 const targetSamples = SAMPLE_RATE * BUFFER_SECONDS;
@@ -220,10 +220,10 @@ mic.on('data', (chunk) => {
       <h3>4. Convert and transcribe</h3>
       <p>Concatenate the buffered chunks, convert Int16 PCM to Float32 (the addon expects <code>pcmf32</code> as a <code>Float32Array</code> with samples in the range -1.0 to 1.0), and call <code>transcribe()</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">let processing = false;
 
 async function processBuffer() {
@@ -265,10 +265,10 @@ async function processBuffer() {
       <h3>5. Clean shutdown</h3>
       <p>Stop the microphone and process any remaining audio when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">process.on('SIGINT', async () => {
   mic.stop();
   if (chunks.length > 0) await processBuffer();
@@ -283,10 +283,10 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const { transcribe } = require('@kutalia/whisper-node-addon');
 
@@ -381,6 +381,6 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

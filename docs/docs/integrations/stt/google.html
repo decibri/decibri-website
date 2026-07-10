@@ -83,10 +83,10 @@
       <h2>What this does</h2>
       <p>This is the simplest cloud integration in the decibri docs. Google's <code>streamingRecognize()</code> returns a standard Node.js writable stream. Microphone is a Readable stream. The entire integration is one line:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">mic.pipe(recognizeStream);</code></pre>
         </div>
       </div>
@@ -114,30 +114,30 @@
 
       <p><strong>Option 1: Environment variable (recommended)</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-key-file.json"</code></pre>
         </div>
       </div>
 
       <p><strong>Option 2: .env file with dotenv</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">GOOGLE_APPLICATION_CREDENTIALS=./your-key-file.json</code></pre>
         </div>
       </div>
 
       <p><strong>Option 3: Direct in code (testing only)</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const client = new speech.SpeechClient({
   keyFilename: './your-key-file.json'
 });</code></pre>
@@ -164,10 +164,10 @@
       <h3>1. Configuration</h3>
       <p>Import decibri, the Google Cloud Speech SDK, and dotenv. Create a client.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -181,10 +181,10 @@ const client = new speech.SpeechClient();</code></pre>
       <h3>2. Configure the recognition request</h3>
       <p>Set the audio encoding, sample rate, language, and whether you want interim (partial) results.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const request = {
   config: {
     encoding: 'LINEAR16',
@@ -202,10 +202,10 @@ const client = new speech.SpeechClient();</code></pre>
       <h3>3. Create the recognize stream</h3>
       <p>Call <code>streamingRecognize()</code> to get a writable stream that accepts audio and emits transcription results.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const recognizeStream = client
   .streamingRecognize(request)
   .on('error', console.error)
@@ -226,10 +226,10 @@ const client = new speech.SpeechClient();</code></pre>
       <h3>4. Open the microphone and pipe</h3>
       <p>Create a decibri instance at 16 kHz mono and pipe it directly into the recognize stream. This is the entire integration. No bridge code, no async generator, no chunk wrapping.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 mic.pipe(recognizeStream);</code></pre>
         </div>
@@ -246,10 +246,10 @@ mic.pipe(recognizeStream);</code></pre>
       <h3>6. Clean shutdown</h3>
       <p>Stop the microphone and exit when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   process.exit(0);
@@ -261,10 +261,10 @@ mic.pipe(recognizeStream);</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -392,6 +392,6 @@ main().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

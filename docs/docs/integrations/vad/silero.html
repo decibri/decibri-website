@@ -107,20 +107,22 @@
       <h3>1. Create a Microphone with Silero VAD</h3>
       <p>Set the VAD mode to <code>'silero'</code> to enable voice activity detection with the neural model instead of the RMS energy detector. The bare string shorthand uses the mode defaults: a <code>0.5</code> probability threshold for Silero and a <code>300</code> ms holdoff.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });</code></pre>
@@ -128,15 +130,17 @@ const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });</
       </div>
       <p>To tune the detection threshold or the holdoff, pass a <code>Vad</code> config object instead of the bare string. In Python that is <code>decibri.Vad(model=, threshold=, holdoff_ms=)</code>; in Node.js it is a <code>{ model, threshold, holdoffMs }</code> object. The <code>'energy'</code> mode is configured the same way.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 # Override the threshold and holdoff with a Vad config object.
@@ -146,7 +150,7 @@ mic = decibri.Microphone(
     vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200),
 )</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 // Override the threshold and holdoff with a Vad config object.
@@ -161,15 +165,17 @@ const mic = new Microphone({
       <h3>2. React to speech and silence</h3>
       <p>The two bindings expose voice activity differently. In Node.js, decibri emits a <code>'speech'</code> event when voice activity starts and a <code>'silence'</code> event when audio stays below the threshold for the holdoff window (the <code>holdoffMs</code> field, default <code>300</code> ms); read the latest score from <code>mic.vadScore</code>. In Python there are no events: read <code>mic.is_speaking</code> and <code>mic.vad_score</code> as properties in the chunk loop, and detect the transitions yourself. Both patterns ride alongside the regular audio stream.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">prev_speaking = False
 
 with mic:
@@ -181,7 +187,7 @@ with mic:
         prev_speaking = mic.is_speaking
         # chunk is int16 PCM bytes; mic.vad_score is the latest Silero probability</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">mic.on('speech', () => {
   console.log('[speech started]');
 });
@@ -199,15 +205,17 @@ mic.on('data', (chunk) => {
       <h3>3. Clean shutdown</h3>
       <p>Stop the microphone when the user presses Ctrl+C. In Python the <code>with</code> block stops capture on exit, so catching <code>KeyboardInterrupt</code> is enough. In Node.js, call <code>mic.stop()</code> from a SIGINT handler.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">try:
     with mic:
         for chunk in mic:
@@ -215,7 +223,7 @@ mic.on('data', (chunk) => {
 except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   mic.stop();
@@ -228,15 +236,17 @@ except KeyboardInterrupt:
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs code-tabs-flat" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist" aria-label="Language">
-            <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-            <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <div class="code-tab-bar">
+            <div role="tablist" aria-label="Language" style="display: contents">
+              <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+              <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            </div>
             <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
               <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>
-          <div class="code-tab-panel" data-lang="python" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
             <pre><code class="language-python">import decibri
 
 mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")
@@ -255,7 +265,7 @@ try:
 except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+          <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
             <pre><code class="language-javascript">'use strict';
 
 const { Microphone } = require('decibri');
@@ -282,10 +292,10 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
       <p>Voice activity detection is off unless you enable it. There are two ways to turn it on.</p>
       <div class="config-tabs" data-config-tabs>
         <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+          <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
           <pre><code class="language-python">mic = decibri.Microphone(vad="silero")   # or "energy"</code></pre>
           <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
@@ -323,7 +333,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
           </div>
           <p>To use a custom Silero ONNX build instead of the bundled v5, pass <code>model_path</code> alongside the <code>'silero'</code> mode.</p>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
           <pre><code class="language-javascript">const mic = new Microphone({ vad: 'silero' });   // or 'energy'</code></pre>
           <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
@@ -488,6 +498,6 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
       });
     })();
   </script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

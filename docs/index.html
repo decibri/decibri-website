@@ -1769,27 +1769,29 @@
 
       <p class="hero-label">Then start streaming:</p>
       <div class="code-tabs hero-code-tabs" data-tab-group="hero">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-rust" aria-controls="code-panel-1-rust" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyHeroCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="python"><pre><span class="kw">import</span> <span class="obj">decibri</span>
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" role="tabpanel" data-lang="python"><pre><span class="kw">import</span> <span class="obj">decibri</span>
 
 <span class="kw">with</span> <span class="obj">decibri</span>.<span class="fn">Microphone</span>(<span class="param">sample_rate</span>=<span class="const">16000</span>) <span class="kw">as</span> <span class="obj">mic</span>:
     <span class="kw">for</span> <span class="param">chunk</span> <span class="kw">in</span> <span class="obj">mic</span>:
         <span class="fn">print</span>(<span class="str">f"Got {len(chunk)} bytes"</span>)
         <span class="kw">break</span></pre></div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> { <span class="obj">Microphone</span> } = <span class="fn">require</span>(<span class="str">'decibri'</span>);
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" role="tabpanel" data-lang="node" hidden><pre><span class="kw">const</span> { <span class="obj">Microphone</span> } = <span class="fn">require</span>(<span class="str">'decibri'</span>);
 
 <span class="kw">const</span> <span class="obj">mic</span> = <span class="kw">new</span> <span class="fn">Microphone</span>({ <span class="param">sampleRate</span>: <span class="const">16000</span> });
 <span class="obj">mic</span>.<span class="fn">on</span>(<span class="str">'data'</span>, (<span class="param">chunk</span>) =&gt; <span class="fn">console</span>.<span class="fn">log</span>(<span class="str">`Got ${chunk.length} bytes`</span>));
 <span class="fn">setTimeout</span>(() =&gt; <span class="obj">mic</span>.<span class="fn">stop</span>(), <span class="const">5000</span>);</pre></div>
-        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">std</span>::<span class="obj">time</span>::<span class="obj">Duration</span>;
+        <div class="code-tab-panel" id="code-panel-1-rust" aria-labelledby="code-tab-1-rust" role="tabpanel" data-lang="rust" hidden><pre><span class="kw">use</span> <span class="obj">std</span>::<span class="obj">time</span>::<span class="obj">Duration</span>;
 <span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">DecibriError</span>, <span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 
 <span class="kw">fn</span> <span class="fn">main</span>() -&gt; <span class="obj">Result</span>&lt;(), <span class="obj">Box</span>&lt;<span class="kw">dyn</span> <span class="obj">std</span>::<span class="obj">error</span>::<span class="obj">Error</span>&gt;&gt; {
@@ -1967,23 +1969,25 @@
       <p class="example-desc">Decibri provides a one-line <code>record_to_file()</code> helper for the simple case, and full streaming control when you need it. Set the sample rate to match your target format. No encoding step, no intermediate buffers.</p>
 
       <div class="code-tabs hero-code-tabs" data-tab-group="use-cases" style="margin-top: 16px;">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-rust" aria-controls="code-panel-2-rust" role="tab" data-lang="rust" aria-selected="false">Rust</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyHeroCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
 
-        <div class="code-tab-panel" role="tabpanel" data-lang="python">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" role="tabpanel" data-lang="python">
 <pre><span class="kw">import</span> <span class="obj">decibri</span>
 
 <span class="obj">decibri</span>.<span class="fn">record_to_file</span>(<span class="str">"capture.wav"</span>, <span class="param">duration_seconds</span>=<span class="const">10</span>, <span class="param">sample_rate</span>=<span class="const">16000</span>)</pre>
         </div>
 
-        <div class="code-tab-panel" role="tabpanel" data-lang="node" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" role="tabpanel" data-lang="node" hidden>
 <pre><span class="kw">const</span> { <span class="obj">Microphone</span> } = <span class="fn">require</span>(<span class="str">'decibri'</span>);
 <span class="kw">const</span> <span class="obj">fs</span> = <span class="fn">require</span>(<span class="str">'fs'</span>);
 
@@ -1991,7 +1995,7 @@
 <span class="obj">mic</span>.<span class="fn">pipe</span>(<span class="obj">fs</span>.<span class="fn">createWriteStream</span>(<span class="str">'capture.raw'</span>));</pre>
         </div>
 
-        <div class="code-tab-panel" role="tabpanel" data-lang="rust" hidden>
+        <div class="code-tab-panel" id="code-panel-2-rust" aria-labelledby="code-tab-2-rust" role="tabpanel" data-lang="rust" hidden>
 <pre><span class="kw">use</span> <span class="obj">decibri</span>::<span class="obj">sample</span>::<span class="fn">f32_to_i16_le_bytes</span>;
 <span class="kw">use</span> <span class="obj">decibri</span>::{<span class="obj">Microphone</span>, <span class="obj">MicrophoneConfig</span>};
 <span class="kw">use</span> <span class="obj">std</span>::<span class="obj">fs</span>::<span class="obj">File</span>;
@@ -2292,7 +2296,7 @@
   </footer>
 
   <!-- Tabbed code blocks: shared component, also used across docs pages -->
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 
   <script>
     // Enable fade-in animations (content stays visible without JS)

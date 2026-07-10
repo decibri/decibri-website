@@ -1,13 +1,27 @@
 // decibri docs: code tabs component
 // Tabbed code blocks with localStorage-backed language preference.
-// Markup contract:
+// Markup contract (ids follow code-tab-{group}-{lang} / code-panel-{group}-{lang},
+// where {group} is the 1-based index of the tab group within the page):
 //   <div class="code-tabs" data-tab-group="code">
-//     <div class="code-tab-bar" role="tablist">
-//       <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+//     <div class="code-tab-bar" role="tablist" aria-label="Language">
+//       <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node"
+//               role="tab" data-lang="node" aria-selected="true">Node.js</button>
 //     </div>
-//     <div class="code-tab-panel" data-lang="node" role="tabpanel">
+//     <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node"
+//          data-lang="node" role="tabpanel">
 //       <pre><code class="language-javascript">...</code></pre>
 //     </div>
+//   </div>
+// Inactive panels carry the hidden attribute in the static HTML, so the initial
+// visible state does not depend on this script. The script tag is safe to defer.
+// When a copy button shares the tab bar, role="tablist"/aria-label move to an inner
+// display:contents wrapper around only the tab buttons, because a tablist may not
+// own non-tab children:
+//   <div class="code-tab-bar">
+//     <div role="tablist" aria-label="Language" style="display: contents">
+//       <button class="code-tab-btn" ... role="tab" ...>Node.js</button>
+//     </div>
+//     <button class="code-copy-btn" aria-label="Copy code">...</button>
 //   </div>
 // When only one panel is present, the tab bar is hidden via CSS (:has selector or .single-tab fallback).
 (function () {

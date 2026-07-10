@@ -87,10 +87,10 @@
 
       <h3>Record to a file in one line</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 decibri.record_to_file("output.wav", duration_seconds=10)</code></pre>
@@ -100,10 +100,10 @@ decibri.record_to_file("output.wav", duration_seconds=10)</code></pre>
 
       <h3>Stream chunks with a <code>with</code> block</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000) as mic:
@@ -116,10 +116,10 @@ with decibri.Microphone(sample_rate=16000) as mic:
 
       <h3>Async parallel</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import asyncio
 import decibri
 
@@ -159,10 +159,10 @@ asyncio.run(main())</code></pre>
 
       <h3>Constructor</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">decibri.Microphone(
     sample_rate=16000,
     channels=1,
@@ -286,10 +286,10 @@ asyncio.run(main())</code></pre>
       <h3>Context manager usage</h3>
       <p>The canonical Python pattern. Entering the <code>with</code> block opens the stream and starts capture; exiting stops the stream and resets VAD state, even if an exception propagates out.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) as mic:
@@ -321,10 +321,10 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <h4><code>mic.iter_with_metadata()</code></h4>
       <p>Generator yielding <code>Chunk</code> objects until the stream closes cleanly. Use this in place of <code>for chunk in mic</code> when you want metadata alongside the audio data.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">with decibri.Microphone(vad="silero") as mic:
     for chunk in mic.iter_with_metadata():
         if chunk.is_speaking:
@@ -351,10 +351,10 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <h4><code>Microphone.devices()</code></h4>
       <p>Returns a list of <code>MicrophoneInfo</code> objects describing every input device recognised by the operating system.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">for d in decibri.Microphone.devices():
     print(d.index, d.name, d.default_sample_rate)</code></pre>
         </div>
@@ -370,10 +370,10 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
 
       <h3>Constructor</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-python" aria-controls="code-panel-8-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-python" aria-labelledby="code-tab-8-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">decibri.Speaker(
     sample_rate=16000,
     channels=1,
@@ -424,10 +424,10 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
 
       <h3>Context manager usage</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-python" aria-controls="code-panel-9-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-python" aria-labelledby="code-tab-9-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Speaker(sample_rate=16000, channels=1) as spk:
@@ -471,10 +471,10 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       <h3>Constructor</h3>
       <p>Parameters match <code>Microphone</code> exactly. See the <a href="#microphone">Microphone section</a> for the full parameter table.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-10-python" aria-controls="code-panel-10-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-python" aria-labelledby="code-tab-10-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.AsyncMicrophone(sample_rate=16000, vad="silero")</code></pre>
         </div>
       </div>
@@ -486,10 +486,10 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       <h3><code>await AsyncMicrophone.open(...)</code></h3>
       <p>Async factory classmethod. The synchronous constructor blocks for roughly 100 to 500 milliseconds when <code>vad="silero"</code> because it loads the Silero ONNX model inline. <code>open()</code> dispatches that load to <code>loop.run_in_executor(None, ...)</code> so the event loop keeps spinning while ORT initialises.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-11-python" aria-controls="code-panel-11-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-11-python" aria-labelledby="code-tab-11-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = await decibri.AsyncMicrophone.open(vad="silero")
 async with mic:
     async for chunk in mic:
@@ -504,10 +504,10 @@ async with mic:
       <h3><code>async with</code> and <code>async for</code></h3>
       <p>The async context manager opens the stream on entry and stops it on exit. Iteration via <code>async for</code> yields the same data shape as the sync <code>Microphone</code> (<code>bytes</code> by default, <code>numpy.ndarray</code> when <code>as_ndarray=True</code>).</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-12-python" aria-controls="code-panel-12-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-12-python" aria-labelledby="code-tab-12-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(sample_rate=16000) as mic:
     async for chunk in mic:
         await websocket.send(chunk)</code></pre>
@@ -534,10 +534,10 @@ async with mic:
       <h4><code>mic.aiter_with_metadata()</code></h4>
       <p>Async-generator function yielding <code>Chunk</code> objects until the stream closes cleanly. Stops when the bridge returns <code>None</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-13-python" aria-controls="code-panel-13-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-13-python" aria-labelledby="code-tab-13-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(vad="silero") as mic:
     async for chunk in mic.aiter_with_metadata():
         if chunk.is_speaking:
@@ -578,10 +578,10 @@ async with mic:
       <h3>Constructor</h3>
       <p>Parameters match <code>Speaker</code> exactly. See the <a href="#speaker">Speaker section</a> for the parameter table.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-14-python" aria-controls="code-panel-14-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-14-python" aria-labelledby="code-tab-14-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">spk = decibri.AsyncSpeaker(sample_rate=24000, channels=1)</code></pre>
         </div>
       </div>
@@ -595,10 +595,10 @@ async with mic:
 
       <h3><code>async with</code> usage</h3>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-15-python" aria-controls="code-panel-15-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-15-python" aria-labelledby="code-tab-15-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">async with decibri.AsyncSpeaker(sample_rate=24000) as spk:
     await spk.write(audio_bytes)
     await spk.drain()</code></pre>
@@ -638,10 +638,10 @@ async with mic:
       <h3><code>decibri.input_devices()</code></h3>
       <p>Module-level shortcut for <code>Microphone.devices()</code>. Returns a list of <code>MicrophoneInfo</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-16-python" aria-controls="code-panel-16-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-16-python" aria-labelledby="code-tab-16-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">for d in decibri.input_devices():
     print(d.index, d.name)</code></pre>
         </div>
@@ -653,10 +653,10 @@ async with mic:
       <h3><code>decibri.version()</code></h3>
       <p>Returns a <code>VersionInfo</code> for the Rust core, the audio backend, and the binding wheel.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-17-python" aria-controls="code-panel-17-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-17-python" aria-labelledby="code-tab-17-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">v = decibri.version()
 print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </div>
@@ -665,10 +665,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3><code>decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)</code></h3>
       <p>Synchronous one-shot recorder. Captures <code>duration_seconds</code> of microphone audio to a 16-bit PCM WAV file. Wraps <code>Microphone</code> plus the standard library <code>wave</code> module. Frame-count termination guarantees an accurate duration even on platforms where the buffer hint is ignored by the OS audio subsystem.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-18-python" aria-controls="code-panel-18-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-18-python" aria-labelledby="code-tab-18-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">decibri.record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
         </div>
       </div>
@@ -676,10 +676,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3><code>await decibri.async_record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)</code></h3>
       <p>Async parallel of <code>record_to_file</code>. Same parameters, same semantics; await it from an asyncio context.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-19-python" aria-controls="code-panel-19-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-19-python" aria-labelledby="code-tab-19-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">await decibri.async_record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
         </div>
       </div>
@@ -926,10 +926,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </table>
       </div>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-20-python" aria-controls="code-panel-20-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-20-python" aria-labelledby="code-tab-20-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200))</code></pre>
         </div>
       </div>
@@ -943,10 +943,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3>Custom Silero model with <code>model_path</code></h3>
       <p>The bundled Silero model is the published Silero v5 checkpoint. To use a different Silero ONNX variant, pass an absolute path on the <code>model_path</code> constructor parameter. The path is only consulted when <code>vad="silero"</code>; energy mode and <code>vad=False</code> ignore it.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-21-python" aria-controls="code-panel-21-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-21-python" aria-labelledby="code-tab-21-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(vad="silero", model_path="/opt/models/silero_vad_v4.onnx")</code></pre>
         </div>
       </div>
@@ -957,10 +957,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3><code>int16</code> (default)</h3>
       <p>Each two bytes represents one 16-bit signed integer sample, little-endian. Range: -32,768 to 32,767. Two bytes per sample. This is the format expected by most cloud STT providers and the wire format used by the <code>record_to_file</code> helpers.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-22-python" aria-controls="code-panel-22-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-22-python" aria-labelledby="code-tab-22-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">with decibri.Microphone(dtype="int16") as mic:
     chunk = mic.read()  # bytes; len(chunk) == frames * channels * 2</code></pre>
         </div>
@@ -969,10 +969,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3><code>float32</code></h3>
       <p>Each four bytes represents one 32-bit IEEE 754 float sample, little-endian. Range: approximately -1.0 to 1.0. Four bytes per sample. Use this when your downstream pipeline expects normalised floats and you would otherwise convert from int16.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-23-python" aria-controls="code-panel-23-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-23-python" aria-labelledby="code-tab-23-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">with decibri.Microphone(dtype="float32") as mic:
     chunk = mic.read()  # bytes; len(chunk) == frames * channels * 4</code></pre>
         </div>
@@ -985,10 +985,10 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <h3>NumPy integration</h3>
       <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>); the shape is 1-D <code>(N,)</code>, since capture is mono only.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-24-python" aria-controls="code-panel-24-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-24-python" aria-labelledby="code-tab-24-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 import numpy as np
 
@@ -1013,10 +1013,10 @@ with decibri.Microphone(sample_rate=16000, dtype="float32", as_ndarray=True) as 
       <h2 id="type-hints">Type hints and <code>py.typed</code></h2>
       <p>The decibri wheel ships a <code>py.typed</code> marker file per PEP 561, with hand-written <code>.pyi</code> stubs covering the internal Rust extension module and the full exception hierarchy. The package is mypy strict-clean. IDEs and type checkers will autocomplete every public name and narrow return types correctly.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-25-python" aria-controls="code-panel-25-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-25-python" aria-labelledby="code-tab-25-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 import numpy as np
 
@@ -1238,10 +1238,10 @@ chunk = mic.read()
       <h3>Catch patterns</h3>
       <p>Catch any decibri error:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-26-python" aria-controls="code-panel-26-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-26-python" aria-labelledby="code-tab-26-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">try:
     with decibri.Microphone(sample_rate=16000) as mic:
         chunk = mic.read()
@@ -1251,10 +1251,10 @@ except decibri.DecibriError as e:
       </div>
       <p>Catch device-selection failures specifically, then fall back to the system default:</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-27-python" aria-controls="code-panel-27-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-27-python" aria-labelledby="code-tab-27-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">try:
     mic = decibri.Microphone(device="USB Audio")
 except decibri.DeviceError as e:
@@ -1269,10 +1269,10 @@ except decibri.DeviceError as e:
       <p>Python's default <code>fork</code> start method on Linux duplicates the parent's memory into the child, but ONNX Runtime's internal state is not safe to share across forked processes. A Silero-enabled <code>Microphone</code> initialised in the parent and then used in a forked child either produces incorrect inference results or segfaults; decibri detects the PID mismatch at the start of every Silero inference call and raises <code>ForkAfterOrtInit</code> instead.</p>
       <p>The fix is to either set the spawn start method before constructing any worker, or to construct the <code>Microphone</code> inside each child process after the fork.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-28-python" aria-controls="code-panel-28-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-28-python" aria-labelledby="code-tab-28-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import multiprocessing
 
 if __name__ == "__main__":
@@ -1334,6 +1334,6 @@ if __name__ == "__main__":
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

@@ -71,15 +71,17 @@
       <h2>Quick start</h2>
       <p>Capture microphone audio and log the size of each chunk:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000, channels=1) as mic:
@@ -88,7 +90,7 @@ with decibri.Microphone(sample_rate=16000, channels=1) as mic:
         print(f"Received {len(chunk)} bytes")
         break  # exit after first chunk for demo</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 
@@ -106,20 +108,22 @@ setTimeout(() => mic.stop(), 5000);</code></pre>
       <h2>Record audio to a file</h2>
       <p>Decibri ships a one-line helper in Python that captures microphone audio straight to a 16-bit PCM WAV file. In Node.js, the <code>Microphone</code> instance is a standard <code>Readable</code> stream, so you can pipe it into any <code>Writable</code> stream including <code>fs.createWriteStream()</code> for a raw PCM file.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 decibri.record_to_file("capture.wav", duration_seconds=10, sample_rate=44100, channels=1)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 const fs = require('fs');
 
@@ -132,15 +136,17 @@ mic.pipe(fs.createWriteStream('capture.raw'));</code></pre>
       <h2>Select a microphone</h2>
       <p>List available input devices and choose one by index or name:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 # List all input devices
@@ -153,7 +159,7 @@ mic = decibri.Microphone(device=2, sample_rate=16000, channels=1)
 # Or select by name substring (case-insensitive)
 mic2 = decibri.Microphone(device="USB", sample_rate=16000, channels=1)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 // List all input devices
@@ -171,15 +177,17 @@ const mic2 = new Microphone({ device: 'USB', sampleRate: 16000, channels: 1 });<
       <h2>Voice activity detection</h2>
       <p>Enable the built-in VAD based on RMS energy thresholding. In Python, check the <code>mic.is_speaking</code> property on each chunk; in Node.js, subscribe to the <code>'speech'</code> and <code>'silence'</code> events.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(
@@ -194,7 +202,7 @@ with decibri.Microphone(
             print("Silence")
         break  # exit after first chunk for demo</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
@@ -210,15 +218,17 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <h2>Silero voice activity detection</h2>
       <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vad: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(
@@ -233,7 +243,7 @@ with decibri.Microphone(
             print("Silence")
         break  # exit after first chunk for demo</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   channels: 1,
@@ -250,22 +260,24 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <h2>Audio output</h2>
       <p>Decibri's audio output uses the same native audio backend as capture. In Python the class is <code>decibri.Speaker</code>; in Node.js it is <code>Speaker</code>, a standard <code>Writable</code> stream.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Speaker(sample_rate=16000, channels=1) as spk:
     spk.write(pcm_bytes)
     spk.drain()  # block until all buffered audio has played</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Speaker } = require('decibri');
 
 const speaker = new Speaker({ sampleRate: 16000, channels: 1 });
@@ -278,15 +290,17 @@ speaker.end(); // plays all remaining audio, then emits 'finish'</code></pre>
       <h2>Full duplex</h2>
       <p>Capture and play back simultaneously: read from the microphone and write each chunk to the speaker.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000, channels=1) as mic, \
@@ -294,7 +308,7 @@ with decibri.Microphone(sample_rate=16000, channels=1) as mic, \
     for chunk in mic:
         spk.write(chunk)  # hear yourself in real time</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone, Speaker } = require('decibri');
 
 const mic = new Microphone({ sampleRate: 16000, channels: 1 });
@@ -425,6 +439,6 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
       }
     })();
   </script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

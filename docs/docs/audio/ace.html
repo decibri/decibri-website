@@ -76,15 +76,17 @@
       <h2 id="quick-example">Quick example</h2>
       <p>Enable the stages you want by passing options to the <code>Microphone</code> constructor. Here, DC removal, denoise, a 100 Hz high-pass, AGC targeting -18 dBFS, and a -1.0 dBFS limiter:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 mic = decibri.Microphone(
@@ -100,7 +102,7 @@ with mic:
     for chunk in mic:
         process(chunk)  # chunk is already conditioned</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 const mic = new Microphone({
@@ -136,18 +138,20 @@ mic.on('data', (chunk) => {
       <p>Removes a constant (DC) offset from the signal with a one-pole DC-blocking high-pass. A DC offset is a fixed bias away from zero that some hardware introduces; left in, it wastes headroom and can upset downstream processing. This stage runs first in the chain.</p>
       <p>Enable it with a boolean. It is the only stage with no numeric configuration.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(dc_removal=True)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ dcRemoval: true });</code></pre>
         </div>
       </div>
@@ -156,18 +160,20 @@ mic.on('data', (chunk) => {
       <p>An optional bundled single-channel speech-enhancement model that suppresses background noise while preserving the voice. It is the one neural stage in the chain; the others are classical filters. The model runs on-device through the same ONNX Runtime decibri already uses for Silero VAD, and it ships inside the decibri package, so there is no separate download.</p>
       <p>Enable it by naming the model. Today there is one model, <code>"fastenhancer-t"</code>:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(denoise="fastenhancer-t")</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ denoise: 'fastenhancer-t' });</code></pre>
         </div>
       </div>
@@ -176,18 +182,20 @@ mic.on('data', (chunk) => {
       <h3 id="highpass">High-pass</h3>
       <p>A second-order Butterworth high-pass filter that removes low-frequency rumble below the voice band, the kind of energy that comes from handling noise, air conditioning, or desk vibration. The cutoff is a fixed choice of <code>80</code> or <code>100</code> Hz, not a free frequency: pass one of those two integers.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(highpass=100)  # or 80</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ highpass: 100 }); // or 80</code></pre>
         </div>
       </div>
@@ -196,18 +204,20 @@ mic.on('data', (chunk) => {
       <h3 id="agc">Automatic gain control (AGC)</h3>
       <p>Drives the running signal level toward a target with a smoothed, rate-limited gain, so quiet and loud speakers arrive at a more consistent level. The target is a level in dBFS, an integer from <code>-40</code> to <code>-3</code>; <code>-18</code> is a typical choice. AGC adds no latency.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(agc=-18)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ agc: -18 });</code></pre>
         </div>
       </div>
@@ -216,18 +226,20 @@ mic.on('data', (chunk) => {
       <h3 id="limiter">Limiter</h3>
       <p>A sample-peak ceiling that catches a transient the AGC would let exceed full scale. It is the safety net at the end of the chain: a fast peak limiter plus a hard clamp so the output never clips. The ceiling is a level in dBFS, a float from <code>-3.0</code> to <code>0.0</code>; <code>-1.0</code> is a typical choice. The limiter adds no latency.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(limiter=-1.0)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const mic = new Microphone({ limiter: -1.0 });</code></pre>
         </div>
       </div>
@@ -307,15 +319,17 @@ mic.on('data', (chunk) => {
       <h2 id="example">Complete example</h2>
       <p>This puts the chain together with voice activity detection: ACE conditions each chunk, and VAD tells you when someone is speaking. Python exposes speaking state as the <code>is_speaking</code> property; Node.js emits <code>'speech'</code> and <code>'silence'</code> events. Here, 16 kHz capture with denoise, a high-pass, AGC, and a limiter, gated by the bundled Silero VAD:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist" aria-label="Language">
-          <button type="button" class="code-tab-btn" role="tab" data-lang="python" aria-selected="true">Python</button>
-          <button type="button" class="code-tab-btn" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
           <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
             <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           </button>
         </div>
-        <div class="code-tab-panel" data-lang="python" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">import decibri
 
 # ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
@@ -334,7 +348,7 @@ with mic:
         if mic.is_speaking:
             process(chunk)  # chunk is conditioned (post-ACE)</code></pre>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel" hidden>
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
           <pre><code class="language-javascript">const { Microphone } = require('decibri');
 
 // ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
@@ -398,6 +412,6 @@ mic.on('data', (chunk) => {
       navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
     }
   </script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

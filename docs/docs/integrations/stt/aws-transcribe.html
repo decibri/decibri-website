@@ -98,10 +98,10 @@
 
       <p><strong>Option 1: Environment variables</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">export AWS_ACCESS_KEY_ID=AKIA...
 export AWS_SECRET_ACCESS_KEY=your_secret
 export AWS_REGION=us-east-1</code></pre>
@@ -110,10 +110,10 @@ export AWS_REGION=us-east-1</code></pre>
 
       <p><strong>Option 2: AWS credentials file</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash"># ~/.aws/credentials
 [default]
 aws_access_key_id = AKIA...
@@ -124,10 +124,10 @@ region = us-east-1</code></pre>
 
       <p><strong>Option 3: .env file with dotenv</strong></p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">AWS_ACCESS_KEY_ID=AKIA...
 AWS_SECRET_ACCESS_KEY=your_secret
 AWS_REGION=us-east-1</code></pre>
@@ -140,10 +140,10 @@ AWS_REGION=us-east-1</code></pre>
         <strong>IAM permissions:</strong> Your IAM user needs the <code>transcribe:StartStreamTranscription</code> action. For testing, you can use the managed policy <code>AmazonTranscribeFullAccess</code>. For production, use a minimal policy:
       </div>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
   "Version": "2012-10-17",
   "Statement": [
@@ -171,10 +171,10 @@ AWS_REGION=us-east-1</code></pre>
       <h3>1. Configuration</h3>
       <p>Import decibri, the AWS Transcribe Streaming SDK, and dotenv. Create a client with your region.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -193,10 +193,10 @@ const client = new TranscribeStreamingClient({
       <h3>2. Create the audio stream generator</h3>
       <p>AWS Transcribe requires an async iterator that yields <code>AudioEvent</code> objects. This generator bridges decibri's <code>data</code> events into the format the SDK expects. This is the key difference from other integrations, which send chunks directly over a WebSocket.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">function createAudioStream(mic) {
   const chunks = [];
   let done = false;
@@ -240,10 +240,10 @@ const client = new TranscribeStreamingClient({
       <h3>3. Open the microphone</h3>
       <p>Create a decibri instance at 16 kHz mono. The default format is 16-bit signed integer PCM, which matches AWS Transcribe's <code>pcm</code> encoding directly.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
@@ -251,10 +251,10 @@ const client = new TranscribeStreamingClient({
       <h3>4. Start transcription</h3>
       <p>Send a <code>StartStreamTranscriptionCommand</code> with the audio parameters and the async generator as the <code>AudioStream</code>.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">const command = new StartStreamTranscriptionCommand({
   LanguageCode: 'en-US',
   MediaEncoding: 'pcm',
@@ -276,10 +276,10 @@ const response = await client.send(command);</code></pre>
         <li><strong>Final results</strong> (<code>IsPartial: false</code>): Confirmed transcription. Won't change. Use these for command processing.</li>
       </ul>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">for await (const event of response.TranscriptResultStream) {
   if (event.TranscriptEvent) {
     const results = event.TranscriptEvent.Transcript.Results;
@@ -299,10 +299,10 @@ const response = await client.send(command);</code></pre>
       <h3>6. Clean shutdown</h3>
       <p>Stop the microphone and exit when the user presses Ctrl+C.</p>
       <div class="code-tabs" data-tab-group="code">
-        <div class="code-tab-bar" role="tablist">
-          <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
-        <div class="code-tab-panel" data-lang="node" role="tabpanel">
+        <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   process.exit(0);
@@ -314,10 +314,10 @@ const response = await client.send(command);</code></pre>
       <details>
         <summary>View complete code</summary>
         <div class="code-tabs" data-tab-group="code">
-          <div class="code-tab-bar" role="tablist">
-            <button class="code-tab-btn" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+          <div class="code-tab-bar" role="tablist" aria-label="Language">
+            <button class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
-          <div class="code-tab-panel" data-lang="node" role="tabpanel">
+          <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel">
             <pre><code class="language-javascript">'use strict';
 require('dotenv').config();
 
@@ -473,6 +473,6 @@ main().catch(console.error);</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
-  <script src="/docs/code-tabs.js"></script>
+  <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>
