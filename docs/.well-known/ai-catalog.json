@@ -1,0 +1,23 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "Decibri"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:decibri.com:server:mcp-listen",
+      "displayName": "mcp-listen",
+      "type": "application/mcp-server-card+json",
+      "url": "https://github.com/decibri/mcp-listen",
+      "description": "Give your AI agents the ability to listen. Microphone capture and speech-to-text tools for MCP-compatible agents. Fully offline: audio never leaves the machine.",
+      "capabilities": ["list_audio_devices", "capture_audio", "voice_query"],
+      "representativeQueries": [
+        "capture audio from my microphone",
+        "transcribe what I just said",
+        "list the available microphone input devices",
+        "record my voice and answer my question with a local model"
+      ],
+      "tags": ["audio", "speech-to-text", "microphone", "whisper", "voice", "stt", "offline"]
+    }
+  ]
+}
