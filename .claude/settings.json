@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx --yes serve -p 5174 .)"
+      "Bash(npx --yes serve -p 5174 .)",
+      "Bash(python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 python -c ' *)"
     ]
   }
 }
