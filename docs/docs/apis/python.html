@@ -269,13 +269,13 @@ asyncio.run(main())</code></pre>
               <td><code>agc</code></td>
               <td><code>int | None</code></td>
               <td><code>None</code></td>
-              <td>Automatic gain control target in dBFS, -40 to -3. Out of range raises <code>ValueError</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a>.</td>
+              <td>Automatic gain control target in dBFS, -40 to -3. Out of range raises <code>AgcTargetOutOfRange</code> with the message <code>agc must be in [-40, -3]; got -41</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a>.</td>
             </tr>
             <tr>
               <td><code>limiter</code></td>
               <td><code>float | None</code></td>
               <td><code>None</code></td>
-              <td>Peak limiter ceiling in dBFS, -3.0 to 0.0. Out of range raises <code>ValueError</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a>.</td>
+              <td>Peak limiter ceiling in dBFS, -3.0 to 0.0. Out of range raises <code>LimiterCeilingOutOfRange</code> with the message <code>limiter must be in [-3.0, 0.0]; got -3.1</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a>.</td>
             </tr>
           </tbody>
         </table>
@@ -463,6 +463,356 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       <h4><code>Speaker.devices()</code></h4>
       <p>Returns a list of <code>SpeakerInfo</code> objects describing every output device recognised by the operating system.</p>
 
+      <h2 id="file">File (sync)</h2>
+      <p>Offline audio source. A <code>File</code> runs a recording, or samples you already hold, through the same conditioning chain as <code>Microphone</code>, and delivers the same chunk shape. Because a recording has an end, it can also score the whole thing for speech in one pass with <code>analyze()</code>. The feature page is <a href="/docs/audio/afp">Audio File Processor (AFP)</a>.</p>
+
+      <h3>Constructor</h3>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-29-python" aria-controls="code-panel-29-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-29-python" aria-labelledby="code-tab-29-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">decibri.File(
+    path,
+    sample_rate=16000,
+    dtype="int16",
+    vad=False,
+    model_path=None,
+    as_ndarray=False,
+    ort_library_path=None,
+    denoise=None,
+    highpass=None,
+    agc=None,
+    limiter=None,
+    dc_removal=False,
+)</code></pre>
+        </div>
+      </div>
+      <p>Every parameter after <code>path</code> is keyword-only. An unknown keyword raises <code>TypeError</code>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>path</code></td>
+              <td><code>str | Path</code></td>
+              <td>required</td>
+              <td>Path to a WAV file. 16-bit PCM and 32-bit float are supported, in the plain container and in <code>WAVE_FORMAT_EXTENSIBLE</code>. Multi-channel files are downmixed to mono.</td>
+            </tr>
+            <tr>
+              <td><code>sample_rate</code></td>
+              <td><code>int</code></td>
+              <td><code>16000</code></td>
+              <td>Target output rate in Hz (1,000 to 384,000). The source is resampled from its own rate to this one.</td>
+            </tr>
+            <tr>
+              <td><code>dtype</code></td>
+              <td><code>"int16" | "float32"</code></td>
+              <td><code>"int16"</code></td>
+              <td>Sample encoding of the delivered chunks.</td>
+            </tr>
+            <tr>
+              <td><code>vad</code></td>
+              <td><code>False | "silero" | "energy" | Vad</code></td>
+              <td><code>False</code></td>
+              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>. <code>analyze()</code> requires <code>"silero"</code>. See <a href="#vad">Voice activity detection</a>.</td>
+            </tr>
+            <tr>
+              <td><code>model_path</code></td>
+              <td><code>str | Path | None</code></td>
+              <td>bundled</td>
+              <td>Override path to a Silero VAD ONNX model. Only used when <code>vad="silero"</code>.</td>
+            </tr>
+            <tr>
+              <td><code>as_ndarray</code></td>
+              <td><code>bool</code></td>
+              <td><code>False</code></td>
+              <td>When <code>True</code>, reads return a <code>numpy.ndarray</code> instead of <code>bytes</code>. Requires <code>pip install decibri[numpy]</code>; without it the constructor raises <code>ImportError</code>.</td>
+            </tr>
+            <tr>
+              <td><code>ort_library_path</code></td>
+              <td><code>str | Path | None</code></td>
+              <td>resolver</td>
+              <td>Override path to the ONNX Runtime dynamic library. See <a href="#ort">ONNX Runtime resolution</a>.</td>
+            </tr>
+            <tr>
+              <td><code>dc_removal</code></td>
+              <td><code>bool</code></td>
+              <td><code>False</code></td>
+              <td>Remove a constant DC offset. See <a href="/docs/audio/ace#dc-removal">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>denoise</code></td>
+              <td><code>"fastenhancer-t" | None</code></td>
+              <td><code>None</code></td>
+              <td>Neural speech enhancement using the bundled model. An unknown value raises <code>ValueError</code>. See <a href="/docs/audio/ace#denoise">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>highpass</code></td>
+              <td><code>80 | 100 | None</code></td>
+              <td><code>None</code></td>
+              <td>Butterworth high-pass cutoff in Hz. Any other value raises <code>ValueError</code>. See <a href="/docs/audio/ace#highpass">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>agc</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code></td>
+              <td>Automatic gain control target in dBFS, -40 to -3. Out of range raises <code>AgcTargetOutOfRange</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>limiter</code></td>
+              <td><code>float | None</code></td>
+              <td><code>None</code></td>
+              <td>Peak limiter ceiling in dBFS, -3.0 to 0.0. Out of range raises <code>LimiterCeilingOutOfRange</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>The five conditioning options behave exactly as they do on <code>Microphone</code>, in the same fixed chain, and are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+
+      <h3>Context manager usage</h3>
+      <p><code>File</code> is a context manager. Entering the block hands back the same instance; exiting closes the source.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-30-python" aria-controls="code-panel-30-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-30-python" aria-labelledby="code-tab-30-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
+    for chunk in file:
+        handle(chunk)  # 3,200 bytes per full chunk at dtype="int16"</code></pre>
+        </div>
+      </div>
+      <p>A full chunk is 1,600 samples at the target rate: 3,200 bytes as <code>int16</code>, 6,400 bytes as <code>float32</code>. The final chunk is shorter whenever the total does not divide evenly.</p>
+
+      <h3>Alternate constructors</h3>
+
+      <h4><code>File.open(path, **kwargs)</code></h4>
+      <p>Classmethod, identical to <code>File(path, **kwargs)</code> and accepting the same keywords. It is an alternate spelling of the constructor, not an async variant; for asyncio use <a href="#async-file"><code>AsyncFile</code></a>.</p>
+
+      <h4><code>File.buffer(samples, *, input_rate, **kwargs)</code></h4>
+      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> is a list of floats or a one-channel <code>numpy.ndarray</code> with a floating dtype, mono, in the range -1.0 to 1.0. Raw samples carry no header, so <code>input_rate</code> (their native rate, 1,000 to 384,000) is a mandatory keyword-only argument. Every other keyword matches the constructor.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-31-python" aria-controls="code-panel-31-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-31-python" aria-labelledby="code-tab-31-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)</code></pre>
+        </div>
+      </div>
+      <p>This is also the route for any audio the WAV reader rejects: decode it yourself, convert to mono floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code>. The conditioning chain then behaves identically to the path constructor.</p>
+
+      <h3>Single-pass lifecycle</h3>
+      <p>Iteration and analysis are two alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
+      <ul>
+        <li><code>analyze()</code> after iteration has begun raises <code>FileEngaged</code>. Any call that advances the cursor marks the <code>File</code> engaged, including one that returns nothing: on an empty recording the first <code>read()</code> returns <code>None</code> and a later <code>analyze()</code> still raises.</li>
+        <li>A second pass raises <code>FileConsumed</code>. That covers calling <code>analyze()</code> twice and iterating a <code>File</code> that has already been analysed.</li>
+        <li>Iterating a <code>File</code> that has been drained or closed yields nothing rather than raising. Only analysis reports the consumed state.</li>
+        <li>A rejected <code>analyze()</code> that never touched the source leaves the <code>File</code> iterable: both <code>VadNotConfigured</code> and the energy-mode refusal return before the pass begins.</li>
+        <li><code>close()</code> is idempotent, and the four accessors keep returning their pre-close values afterwards.</li>
+      </ul>
+
+      <h3>Methods</h3>
+
+      <h4><code>file.read()</code></h4>
+      <p>Read one conditioned chunk. Returns the chunk, or <code>None</code> at the end of the source. Return type is <code>bytes</code> by default, or <code>numpy.ndarray</code> when the <code>File</code> was constructed with <code>as_ndarray=True</code>. Advances VAD state as a side effect when VAD is enabled.</p>
+
+      <h4><code>file.read_with_metadata()</code></h4>
+      <p>Read one chunk and return it as a frozen <code>Chunk</code>, or <code>None</code> at the end. On a <code>File</code>, <code>Chunk.timestamp</code> is the chunk's position in seconds of file time from the start of the recording, not a <code>time.monotonic()</code> snapshot, and <code>Chunk.is_speaking</code> applies the holdoff in file time. See <a href="#value-types">Value types</a>.</p>
+
+      <h4><code>file.iter_with_metadata()</code></h4>
+      <p>Generator yielding <code>Chunk</code> objects until the end of the source.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-32-python" aria-controls="code-panel-32-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-32-python" aria-labelledby="code-tab-32-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">with decibri.File("clip.wav", vad="silero") as file:
+    for chunk in file.iter_with_metadata():
+        if chunk.is_speaking:
+            send_to_stt(chunk.data)</code></pre>
+        </div>
+      </div>
+
+      <h4><code>iter(file)</code> and <code>next(file)</code></h4>
+      <p>The <code>File</code> is itself an iterator. <code>for chunk in file:</code> yields the raw data shape (<code>bytes</code> or <code>numpy.ndarray</code>) and raises <code>StopIteration</code> at the end of the source.</p>
+
+      <h4><code>file.analyze()</code> and <code>file.analyse()</code></h4>
+      <p>Score the whole recording for voice activity in one pass and return a <code>VadReport</code>. Requires <code>vad="silero"</code>: a <code>File</code> built without a VAD configuration raises <code>VadNotConfigured</code>, and energy mode raises <code>ValueError</code> because it has no whole-recording analysis. On the sync class the two spellings are one object: <code>File.analyse is File.analyze</code> is <code>True</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-33-python" aria-controls="code-panel-33-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-33-python" aria-labelledby="code-tab-33-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">report = decibri.File("clip.wav", vad="silero").analyze()
+
+report.scores    # list[VadWindow]: start, end, vad_score, is_speech
+report.segments  # list[Segment]:   start, end</code></pre>
+        </div>
+      </div>
+
+      <h4><code>file.close()</code></h4>
+      <p>Release the source. Idempotent; a closed <code>File</code> reads as ended.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>file.sample_rate</code></h4>
+      <p><code>int</code> (read-only). The target output rate every delivered chunk carries.</p>
+
+      <h4><code>file.input_rate</code></h4>
+      <p><code>int</code> (read-only). The source's own rate, read from the WAV header or taken from the <code>input_rate</code> passed to <code>File.buffer</code>. Differs from <code>sample_rate</code> whenever the recording is resampled.</p>
+
+      <h4><code>file.is_speaking</code></h4>
+      <p><code>bool</code> (read-only). Whether per-chunk VAD currently considers speech present. The holdoff is measured in file time (sample positions), not wall-clock time, so processing speed never changes the reported state. Always <code>False</code> when <code>vad=False</code>.</p>
+
+      <h4><code>file.vad_score</code></h4>
+      <p><code>float</code> in <code>[0, 1]</code> (read-only). The most recent per-chunk score, computed on the signal before conditioning. Always <code>0.0</code> when <code>vad=False</code>.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> Rate conversion and the denoise stage both lengthen the output, because each flushes its internal state at the end of the stream and those samples are delivered rather than discarded. Code that sizes an output buffer from <code>duration * sample_rate</code> will come up short. Only the identity case (source rate equal to target rate, denoise off) yields exactly the input sample count.
+      </div>
+
+      <h3 id="file-errors">Errors</h3>
+      <p>Every class below except the plain <code>ValueError</code>, <code>TypeError</code>, and <code>ImportError</code> rows is a <code>DecibriError</code> subclass, so a single <code>except decibri.DecibriError</code> catches the typed failures.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Trigger</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Missing file</td>
+              <td><code>FileReadFailed</code></td>
+              <td><code>Failed to read audio file &lt;path&gt;: &lt;os error&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Not RIFF/WAVE</td>
+              <td><code>WavInvalid</code></td>
+              <td><code>invalid WAV file: not a RIFF/WAVE file</code></td>
+            </tr>
+            <tr>
+              <td>Truncated header</td>
+              <td><code>WavInvalid</code></td>
+              <td><code>invalid WAV file: missing fmt chunk</code></td>
+            </tr>
+            <tr>
+              <td>Unsupported encoding (8-bit or 24-bit PCM, for example)</td>
+              <td><code>WavInvalid</code></td>
+              <td><code>invalid WAV file: unsupported encoding; 16-bit PCM or 32-bit float required</code></td>
+            </tr>
+            <tr>
+              <td><code>sample_rate</code> or <code>input_rate</code> out of range</td>
+              <td><code>SampleRateOutOfRange</code></td>
+              <td><code>sample rate must be between 1000 and 384000</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>dtype</code></td>
+              <td><code>InvalidFormat</code></td>
+              <td><code>dtype must be 'int16' or 'float32'; got 'int32'</code></td>
+            </tr>
+            <tr>
+              <td><code>agc</code> out of range</td>
+              <td><code>AgcTargetOutOfRange</code></td>
+              <td><code>agc must be in [-40, -3]; got -41</code></td>
+            </tr>
+            <tr>
+              <td><code>limiter</code> out of range</td>
+              <td><code>LimiterCeilingOutOfRange</code></td>
+              <td><code>limiter must be in [-3.0, 0.0]; got -3.1</code></td>
+            </tr>
+            <tr>
+              <td><code>highpass</code> not 80 or 100</td>
+              <td><code>ValueError</code></td>
+              <td><code>highpass must be one of: 80, 100; got 60</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>denoise</code> value</td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid denoise value: 'rnnoise'. Expected 'fastenhancer-t'.</code></td>
+            </tr>
+            <tr>
+              <td><code>vad=True</code></td>
+              <td><code>ValueError</code></td>
+              <td><code>vad=True is no longer supported. Specify the mode explicitly: vad='silero' or vad='energy'.</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>vad</code> value</td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid vad value: 'bogus'. Expected False, 'silero', 'energy', or a Vad config object.</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> without VAD</td>
+              <td><code>VadNotConfigured</code></td>
+              <td><code>analysis requires VAD; construct the File with a vad configuration</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> with energy VAD</td>
+              <td><code>ValueError</code></td>
+              <td><code>analyze() requires vad='silero'; energy mode does not support whole-file analysis</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> after iterating</td>
+              <td><code>FileEngaged</code></td>
+              <td><code>File iteration has begun; construct a new File to analyze the whole recording</code></td>
+            </tr>
+            <tr>
+              <td>Second pass</td>
+              <td><code>FileConsumed</code></td>
+              <td><code>File already consumed; construct a new File for another pass</code></td>
+            </tr>
+            <tr>
+              <td><code>model_path</code> missing</td>
+              <td><code>VadModelLoadFailed</code></td>
+              <td><code>Silero VAD model not found at &lt;path&gt;. Ensure model_path points to an existing ONNX model file.</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given an integer dtype</td>
+              <td><code>ValueError</code></td>
+              <td><code>samples must have a floating dtype; got int16. Convert with samples.astype(numpy.float32), scaling integer PCM to [-1.0, 1.0].</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given a 2-D array</td>
+              <td><code>ValueError</code></td>
+              <td><code>samples must be one channel; got an array of shape (100, 2). Select a single channel or mix down to mono before passing it.</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given the wrong type</td>
+              <td><code>TypeError</code></td>
+              <td><code>samples must be a list of floats or a numpy ndarray</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> without <code>input_rate</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>File.buffer() missing 1 required keyword-only argument: 'input_rate'</code></td>
+            </tr>
+            <tr>
+              <td><code>as_ndarray=True</code> with NumPy absent</td>
+              <td><code>ImportError</code></td>
+              <td><code>numpy is not installed. Install with: pip install decibri[numpy]</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>Vad(threshold=...)</code> and <code>Vad(holdoff_ms=...)</code> validate inside the <code>Vad</code> constructor, so those errors are raised before <code>File</code> is reached. See <a href="#vad">Voice activity detection</a>.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> <code>as_ndarray=True</code> fails at construction rather than at the first read, so an ordinary <code>try</code> around the constructor is enough; nothing needs to be wrapped around the read loop. The failure is a builtin <code>ImportError</code>, which <code>except Exception</code> catches.
+      </div>
+
       <h2 id="async-microphone">AsyncMicrophone</h2>
 
       <h3>When to use async</h3>
@@ -632,6 +982,65 @@ async with mic:
       <h4><code>await AsyncSpeaker.devices()</code></h4>
       <p>Async parallel of <code>Speaker.devices()</code>.</p>
 
+      <h2 id="async-file">AsyncFile</h2>
+      <p>Asyncio mirror of <code>File</code>. Same parameters, same single-pass lifecycle, same errors; the file read, the conditioning pass, and detection each run in the default <code>ThreadPoolExecutor</code> so the event loop keeps spinning.</p>
+
+      <h3>Constructors</h3>
+      <p><code>AsyncFile(path, **kwargs)</code> takes exactly the parameters <code>File</code> takes, and reads the WAV inline. Prefer the factory inside a running event loop:</p>
+      <ul>
+        <li><code>await AsyncFile.open(path, **kwargs)</code>: the async factory. Identical result to the bare constructor, with the read dispatched off the event loop.</li>
+        <li><code>await AsyncFile.buffer(samples, *, input_rate, **kwargs)</code>: the async parallel of <code>File.buffer</code>. Unlike the sync class, this one is a coroutine.</li>
+      </ul>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-34-python" aria-controls="code-panel-34-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-34-python" aria-labelledby="code-tab-34-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import asyncio
+import decibri
+
+async def main():
+    file = await decibri.AsyncFile.open("clip.wav", denoise="fastenhancer-t")
+    async with file:
+        async for chunk in file:
+            await handle(chunk)
+
+asyncio.run(main())</code></pre>
+        </div>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>await file.read()</code></h4>
+      <p>Read one chunk. Returns the chunk, or <code>None</code> at the end of the source. Same return-type rules as the sync <code>read()</code>.</p>
+
+      <h4><code>await file.read_with_metadata()</code></h4>
+      <p>Async parallel of <code>File.read_with_metadata()</code>. Returns a frozen <code>Chunk</code> whose <code>timestamp</code> is file time in seconds, or <code>None</code> at the end.</p>
+
+      <h4><code>file.aiter_with_metadata()</code></h4>
+      <p>Async-generator function yielding <code>Chunk</code> objects until the end of the source. Iterate it with <code>async for chunk in file.aiter_with_metadata():</code>; do not <code>await</code> the call itself.</p>
+
+      <h4><code>await file.analyze()</code> and <code>await file.analyse()</code></h4>
+      <p>Score the whole recording and return a <code>VadReport</code>, with the single pass running off the event loop. The same requirements as the sync method: <code>vad="silero"</code>, and a source that iteration has not yet touched. Unlike the sync class, the two spellings are two callables here (<code>AsyncFile.analyse is AsyncFile.analyze</code> is <code>False</code>); they return equal reports.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-35-python" aria-controls="code-panel-35-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-35-python" aria-labelledby="code-tab-35-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">file = await decibri.AsyncFile.open("clip.wav", vad="silero")
+report = await file.analyze()
+
+for segment in report.segments:
+    print(segment.start, segment.end)</code></pre>
+        </div>
+      </div>
+
+      <h4><code>await file.close()</code></h4>
+      <p>Release the source. Idempotent. <code>AsyncFile</code> is an async context manager, so <code>async with file:</code> closes it on exit.</p>
+
+      <h3>Properties</h3>
+      <p>The four accessors are synchronous attribute access, with the same semantics as the sync class: <code>sample_rate</code>, <code>input_rate</code>, <code>is_speaking</code>, and <code>vad_score</code>.</p>
+
       <h2 id="helpers">Module-level helpers</h2>
       <p>Convenience entry points exposed directly on the <code>decibri</code> module.</p>
 
@@ -688,7 +1097,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <p>Small typed return shapes used across the API.</p>
 
       <h3><code>Chunk</code></h3>
-      <p>Frozen dataclass returned by <code>read_with_metadata()</code> and <code>iter_with_metadata()</code> on both <code>Microphone</code> and <code>AsyncMicrophone</code>.</p>
+      <p>Frozen dataclass returned by <code>read_with_metadata()</code> and <code>iter_with_metadata()</code> on <code>Microphone</code>, <code>AsyncMicrophone</code>, <code>File</code>, and <code>AsyncFile</code>.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -707,12 +1116,12 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>timestamp</code></td>
               <td><code>float</code></td>
-              <td><code>time.monotonic()</code> snapshot at the chunk boundary, in seconds. Useful for relative timing within a session.</td>
+              <td>On a capture stream, a <code>time.monotonic()</code> snapshot at the chunk boundary, in seconds, useful for relative timing within a session. On a <code>File</code>, the chunk's position in seconds of file time from the start of the recording.</td>
             </tr>
             <tr>
               <td><code>sequence</code></td>
               <td><code>int</code></td>
-              <td>Per-session chunk counter starting at 0. Resets on each new <code>start()</code>.</td>
+              <td>Chunk counter starting at 0. On a capture stream it resets on each new <code>start()</code>; on a <code>File</code> it counts from the start of the source.</td>
             </tr>
             <tr>
               <td><code>is_speaking</code></td>
@@ -723,6 +1132,94 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
               <td><code>vad_score</code></td>
               <td><code>float</code></td>
               <td>VAD score snapshot in <code>[0, 1]</code>. Always <code>0.0</code> when VAD is disabled.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>VadReport</code></h3>
+      <p>Frozen dataclass returned by <code>File.analyze()</code> and <code>await AsyncFile.analyze()</code>. It has exactly two attributes.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>scores</code></td>
+              <td><code>list[VadWindow]</code></td>
+              <td>Per-window speech scores across the whole recording, in file order.</td>
+            </tr>
+            <tr>
+              <td><code>segments</code></td>
+              <td><code>list[Segment]</code></td>
+              <td>Merged speech regions across the whole recording, in file order.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>VadWindow</code></h3>
+      <p>One scored analysis window, carried in <code>VadReport.scores</code>. Windows tile the recording from zero, contiguous and non-overlapping, 0.032 seconds each; a trailing remainder shorter than one window is left unscored.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>start</code></td>
+              <td><code>float</code></td>
+              <td>Window start, in seconds of file time.</td>
+            </tr>
+            <tr>
+              <td><code>end</code></td>
+              <td><code>float</code></td>
+              <td>Window end, in seconds of file time.</td>
+            </tr>
+            <tr>
+              <td><code>vad_score</code></td>
+              <td><code>float</code></td>
+              <td>Speech probability for this window in <code>[0, 1]</code>.</td>
+            </tr>
+            <tr>
+              <td><code>is_speech</code></td>
+              <td><code>bool</code></td>
+              <td>Whether <code>vad_score</code> met the configured threshold. The raw per-window test, not the debounced <code>is_speaking</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>Segment</code></h3>
+      <p>One merged speech region, carried in <code>VadReport.segments</code>. Consecutive speech windows whose silence gaps fall within the configured holdoff collapse into one segment, and a segment ends at its last speech window rather than at the holdoff expiry.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>start</code></td>
+              <td><code>float</code></td>
+              <td>Region start, in seconds of file time.</td>
+            </tr>
+            <tr>
+              <td><code>end</code></td>
+              <td><code>float</code></td>
+              <td>Region end, in seconds of file time.</td>
             </tr>
           </tbody>
         </table>
@@ -1081,6 +1578,31 @@ chunk = mic.read()
               <td><code>AlreadyRunning</code></td>
               <td><code>DecibriError</code></td>
               <td><code>start()</code> called on an instance that is already capturing.</td>
+            </tr>
+            <tr>
+              <td><code>FileReadFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File</code> source could not be read from disk (missing path, a directory, a permission failure).</td>
+            </tr>
+            <tr>
+              <td><code>WavInvalid</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The WAV is not RIFF/WAVE, has no <code>fmt</code> chunk, or uses an encoding other than 16-bit PCM or 32-bit float.</td>
+            </tr>
+            <tr>
+              <td><code>VadNotConfigured</code></td>
+              <td><code>DecibriError</code></td>
+              <td><code>File.analyze()</code> called on a source built without a <code>vad</code> configuration.</td>
+            </tr>
+            <tr>
+              <td><code>FileEngaged</code></td>
+              <td><code>DecibriError</code></td>
+              <td><code>File.analyze()</code> called after iteration has begun. See <a href="#file">File</a>.</td>
+            </tr>
+            <tr>
+              <td><code>FileConsumed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A second pass was attempted over a <code>File</code> that has already been read.</td>
             </tr>
             <tr>
               <td><code>StreamOpenFailed</code></td>

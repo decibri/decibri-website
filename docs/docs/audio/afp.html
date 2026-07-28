@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <link rel="preload" href="/fonts/outfit-vf-latin-v15.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono-vf-latin-v24.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Audio File Processor (AFP) | decibri docs</title>
+  <meta name="description" content="Decibri AFP (Audio File Processor) runs recorded audio through the same conditioning chain as the live microphone, and scores a whole recording for speech in one pass. The File class in Python and Node.js: streaming, whole-recording analysis, and in-memory samples.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Audio File Processor (AFP) | decibri docs">
+  <meta property="og:description" content="Decibri AFP conditions recorded audio with the same chain as the live microphone, and can score a whole recording for speech in one pass. The File class in Python and Node.js.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/audio/afp">
+  <meta property="og:image" content="https://decibri.com/decibri-social-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Audio File Processor (AFP) | decibri docs">
+  <meta name="twitter:description" content="Decibri AFP conditions recorded audio with the same chain as the live microphone, and can score a whole recording for speech in one pass. The File class in Python and Node.js.">
+  <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
+  <link rel="canonical" href="https://decibri.com/docs/audio/afp">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/audio">Audio Processing</a>
+        <span class="sep">/</span>
+        <span class="current">Audio File Processor (AFP)</span>
+      </div>
+
+      <h1>Audio File Processor (AFP)</h1>
+      <p class="lead">The Audio File Processor (AFP) is decibri's offline audio source. It runs a recording through the same conditioning chain the live microphone uses, and, because a recording has an end, it can also score the whole file for speech in one pass. The class is called <code>File</code>, in both Python and Node.js.</p>
+
+      <p>Where a <code>Microphone</code> hands you conditioned audio as it arrives, a <code>File</code> hands you conditioned audio from something you already have: a WAV on disk, or samples already in memory. The options are the same options, with the same names and the same ranges, and the chunks come out in the same shape. Like the rest of the engine it is keyless and local: no API key, no account, no network call.</p>
+
+      <h2 id="two-modes">The two things a File does</h2>
+      <p>A <code>File</code> does exactly two things, and each one reads the source from beginning to end:</p>
+      <ol>
+        <li><strong>Stream.</strong> Deliver conditioned mono audio at your target rate, chunk by chunk. This is the same conditioning the live capture path applies, run over a recording instead of a microphone.</li>
+        <li><strong>Analyse.</strong> Score the whole recording for voice activity in one pass and return the per-window scores plus the merged speech segments. A live stream cannot do this, because it has no end.</li>
+      </ol>
+
+      <div class="callout">
+        <strong>One File, one operation.</strong> The two are alternatives, not a sequence. Each consumes the source once, so beginning one forecloses the other on that instance. To do both over the same recording, construct a second <code>File</code>. See <a href="#example">the complete example</a>.
+      </div>
+
+      <h2 id="quick-example">Quick example</h2>
+      <p>Open a WAV, turn on the conditioning stages you want, and read conditioned chunks:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
+    for chunk in file:
+        handle(chunk)  # conditioned int16 PCM bytes</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+const file = await File.open('clip.wav', { denoise: 'fastenhancer-t', agc: -18 });
+
+for await (const chunk of file) {
+  handle(chunk); // Buffer of conditioned Int16 LE PCM
+}
+file.close();</code></pre>
+        </div>
+      </div>
+      <p>Leave an option unset to keep that stage off. With every stage off, a <code>File</code> simply reads the recording, downmixes it to mono, and resamples it to your target rate.</p>
+
+      <div class="callout">
+        <strong>Node.js also has a global <code>File</code>.</strong> The web File API defines one. Import decibri's explicitly with <code>const { File } = require('decibri')</code>, or reference it as <code>decibri.File</code>, so the two do not shadow each other.
+      </div>
+
+      <h2 id="constructors">Opening a source</h2>
+      <p>There are three ways in, and the right one depends on where the audio is and whether you are on an event loop.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Situation</th>
+              <th>Python</th>
+              <th>Node.js</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A WAV on disk, blocking is fine</td>
+              <td><code>decibri.File(path)</code></td>
+              <td><code>new File(path)</code></td>
+            </tr>
+            <tr>
+              <td>A WAV on disk, inside async code</td>
+              <td><code>await decibri.AsyncFile.open(path)</code></td>
+              <td><code>await File.open(path)</code></td>
+            </tr>
+            <tr>
+              <td>Samples already in memory</td>
+              <td><code>decibri.File.buffer(samples, input_rate=...)</code></td>
+              <td><code>File.buffer(samples, { inputRate: ... })</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Two spellings are easy to mix up. In Python, <code>File.open(path)</code> is a plain alternate spelling of <code>File(path)</code> and returns the same object; the async form is a separate class, <code>AsyncFile</code>. In Node.js, <code>File.open()</code> is the async factory and reads the file off the event loop, while <code>File.buffer()</code> is synchronous because no I/O is involved.</p>
+
+      <p>The buffer constructor takes mono samples in the range -1.0 to 1.0: a list of floats or a one-channel NumPy array with a floating dtype in Python, a <code>Float32Array</code> in Node.js. Raw samples carry no header, so their native rate has to be passed explicitly on <code>input_rate</code> (<code>inputRate</code> in Node.js). It is required, and range-checked from 1,000 to 384,000 exactly as the target rate is.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# samples: mono floats in -1.0 to 1.0, at their own native rate
+file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)
+
+for chunk in file:
+    handle(chunk)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+// samples: a Float32Array of mono samples in -1.0 to 1.0, at their own rate
+const file = File.buffer(samples, { inputRate: 48000, sampleRate: 16000 });
+
+file.on('data', (chunk) => handle(chunk));</code></pre>
+        </div>
+      </div>
+
+      <h2 id="formats">What a File accepts</h2>
+      <p>The path constructors read WAV. Two encodings are supported, and both are accepted inside the <code>WAVE_FORMAT_EXTENSIBLE</code> container as well as the plain one, which matters because several common encoders emit extensible by default:</p>
+      <ul>
+        <li>16-bit PCM</li>
+        <li>32-bit IEEE float</li>
+      </ul>
+      <p>Anything else, 8-bit and 24-bit PCM among them, is rejected at construction with the message <code>invalid WAV file: unsupported encoding; 16-bit PCM or 32-bit float required</code>. For those, and for any other codec, decode the audio yourself and pass the samples to the buffer constructor: the conditioning behaves identically either way.</p>
+      <p>Two more things worth knowing before you rely on them. Multi-channel WAVs are accepted and downmixed to mono, where the <code>Microphone</code> rejects multi-channel input outright. And a header-only WAV is valid rather than an error: it constructs, reports its rates, yields no chunks, and analyses to an empty report.</p>
+
+      <h2 id="conditioning">The conditioning chain</h2>
+      <p>A <code>File</code> takes the same five conditioning options as a <code>Microphone</code>, with the same names, the same ranges, and the same fixed order: <code>DC removal &rarr; denoise &rarr; high-pass &rarr; AGC &rarr; limiter</code>. Every stage is off by default. The <a href="/docs/audio/ace">Audio Capture Engine</a> page documents what each stage does and how to choose its value; everything there applies to a <code>File</code> unchanged.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">file = decibri.File(
+    "clip.wav",
+    sample_rate=16000,
+    dc_removal=True,
+    denoise="fastenhancer-t",
+    highpass=100,
+    agc=-18,
+    limiter=-1.0,
+)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const file = await File.open('clip.wav', {
+  sampleRate: 16000,
+  dcRemoval: true,
+  denoise: 'fastenhancer-t',
+  highpass: 100,
+  agc: -18,
+  limiter: -1.0,
+});</code></pre>
+        </div>
+      </div>
+      <p>As on the microphone, voice activity detection reads the signal before the conditioning chain, so turning on enhancement does not change what counts as speech. It only changes the audio you receive.</p>
+
+      <h2 id="chunks">Chunks and rates</h2>
+      <p>A full chunk is 1,600 samples at the target rate, in both bindings. That is 3,200 bytes as int16 and 6,400 bytes as float32. The final chunk is shorter whenever the total does not divide evenly.</p>
+      <p>The count is fixed and the rate is not, so the chunk <em>duration</em> moves with the target rate: 100 ms at 16 kHz, 200 ms at 8 kHz, and about 33 ms at 48 kHz. Size buffers and reason about latency from the duration, not the count.</p>
+      <p>Two rates are visible on the instance. <code>sample_rate</code> (<code>sampleRate</code>) is the target rate every delivered chunk carries. <code>input_rate</code> (<code>inputRate</code>) is the source's own rate, read from the WAV header or taken from the value you passed to the buffer constructor. They differ whenever the recording is resampled.</p>
+
+      <div class="callout">
+        <strong>Rate conversion and denoise both lengthen the output.</strong> The resampler's internal state is flushed at the end of the stream and those samples are delivered rather than discarded, and the denoise stage does the same. A one-second recording resampled to a different rate therefore yields slightly more than one second of samples. Code that allocates an output buffer from <code>duration &times; rate</code> will come up short. The one case with no tail is the identity case: source rate equal to target rate, with denoise off, gives exactly the input sample count.
+      </div>
+
+      <p>In Node.js, the total number of bytes is exact but the number of chunks depends on how you consume the stream: a <code>for await</code> loop and a <code>'data'</code> listener over the same recording produce the same total in a different number of pieces, because <code>Readable</code> coalesces its internal buffer. Treat the total as exact and the chunk count as a property of the consumption style, not of decibri.</p>
+
+      <h2 id="vad">Voice activity detection</h2>
+      <p>VAD is opt-in through the <code>vad</code> option, exactly as on the <code>Microphone</code>: pass <code>"silero"</code> or <code>"energy"</code> for the defaults, or a config object to tune the threshold and the holdoff. Without it, a <code>File</code> just conditions audio.</p>
+      <p>While you are streaming, Python exposes the speaking state as the <code>is_speaking</code> property and the raw score as <code>vad_score</code>. Node.js emits <code>'speech'</code> and <code>'silence'</code> events and exposes the raw score as <code>vadScore</code>.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+with decibri.File("clip.wav", vad="silero") as file:
+    for chunk in file:
+        if file.is_speaking:
+            send_to_stt(chunk)  # file.vad_score holds the raw score</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+const file = await File.open('clip.wav', { vad: 'silero' });
+
+let speaking = false;
+file.on('speech', () => { speaking = true; });
+file.on('silence', () => { speaking = false; });
+
+file.on('data', (chunk) => {
+  if (speaking) {
+    sendToStt(chunk); // file.vadScore holds the raw score
+  }
+});</code></pre>
+        </div>
+      </div>
+      <p>The holdoff on a <code>File</code> is measured in file time, not wall-clock time. A recording processes faster than real time, so a wall-clock timer would collapse the reported speech timing; measuring it in sample positions means a file reports the same state sequence a live stream of the identical audio would.</p>
+
+      <p>Three different things carry a speech signal here, and they are not interchangeable:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>What you want</th>
+              <th>What to use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>The speech regions of a whole recording</td>
+              <td><code>analyze().segments</code></td>
+            </tr>
+            <tr>
+              <td>Per-window scores across a whole recording</td>
+              <td><code>analyze().scores</code></td>
+            </tr>
+            <tr>
+              <td>The speech score while streaming chunks</td>
+              <td><code>vad_score</code> (Python), <code>vadScore</code> (Node.js)</td>
+            </tr>
+            <tr>
+              <td>The debounced speech state while streaming</td>
+              <td><code>is_speaking</code> (Python), the <code>'speech'</code> and <code>'silence'</code> events (Node.js)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="analysis">Whole-recording analysis</h2>
+      <p><code>analyze()</code> runs the recording once and returns a report of where the speech is. It requires <code>vad="silero"</code>: a <code>File</code> built without a VAD configuration is refused with <code>analysis requires VAD; construct the File with a vad configuration</code>, and energy mode has no whole-recording analysis. <code>analyse()</code> is the same call under the other spelling.</p>
+      <p>The report has exactly two parts, both in seconds of file time:</p>
+      <ul>
+        <li><code>scores</code>: one entry per analysis window, carrying <code>start</code>, <code>end</code>, the window's speech score, and whether that score met the threshold. Windows tile the recording from zero, contiguous and non-overlapping, 0.032 seconds each. A trailing remainder shorter than one window is left unscored.</li>
+        <li><code>segments</code>: the merged speech regions, each with a <code>start</code> and an <code>end</code>. Consecutive speech windows whose silence gaps fall within the holdoff collapse into one segment, and a segment ends at its last speech window rather than at the holdoff expiry.</li>
+      </ul>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+report = decibri.File("clip.wav", vad="silero").analyze()
+
+for segment in report.segments:
+    print(f"speech from {segment.start:.3f}s to {segment.end:.3f}s")
+
+for window in report.scores:
+    print(window.start, window.end, window.vad_score, window.is_speech)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+const file = await File.open('clip.wav', { vad: 'silero' });
+const report = await file.analyze();
+
+for (const segment of report.segments) {
+  console.log(`speech from ${segment.start}s to ${segment.end}s`);
+}
+
+for (const window of report.scores) {
+  console.log(window.start, window.end, window.vadScore, window.isSpeech);
+}</code></pre>
+        </div>
+      </div>
+      <p>The threshold and the holdoff shape the result: raising the threshold trims the segment edges, and a long holdoff merges neighbouring segments into one. Both are set on the <code>vad</code> config object at construction, so changing them means constructing a new <code>File</code>.</p>
+
+      <h2 id="example">Complete example</h2>
+      <p>This is the two-pass shape the single-pass rule leads to: analyse one <code>File</code> to find the speech, then construct a second <code>File</code> over the same recording to stream the conditioned audio.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+# Pass one: where is the speech? This File is consumed by the analysis.
+report = decibri.File("clip.wav", vad="silero").analyze()
+
+# Pass two: a second File over the same recording, conditioned and streamed.
+# chunk.timestamp is the chunk's position in seconds of file time, which is
+# the same clock report.segments is measured on.
+with decibri.File(
+    "clip.wav",
+    denoise="fastenhancer-t",
+    agc=-18,
+    limiter=-1.0,
+) as file:
+    for chunk in file.iter_with_metadata():
+        if any(s.start &lt;= chunk.timestamp &lt;= s.end for s in report.segments):
+            send_to_stt(chunk.data)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+// Pass one: where is the speech? This File is consumed by the analysis.
+const scan = await File.open('clip.wav', { vad: 'silero' });
+const report = await scan.analyze();
+
+// Pass two: a second File over the same recording, conditioned and streamed.
+const file = await File.open('clip.wav', {
+  denoise: 'fastenhancer-t',
+  agc: -18,
+  limiter: -1.0,
+});
+
+let position = 0; // seconds of file time, the clock report.segments uses
+for await (const chunk of file) {
+  const inSpeech = report.segments.some(
+    (s) =&gt; s.start &lt;= position &amp;&amp; position &lt;= s.end
+  );
+  if (inSpeech) {
+    sendToStt(chunk);
+  }
+  position += chunk.length / 2 / file.sampleRate; // int16: 2 bytes per sample
+}
+file.close();</code></pre>
+        </div>
+      </div>
+      <p>Constructing a second <code>File</code> over the same source is the supported way to do both. Neither pass waits on real time, so the second one costs a second read of the recording rather than a second playback of it.</p>
+
+      <h2 id="per-language">Per-language detail</h2>
+      <p>The full constructor surface, the metadata iteration, and the error tables live on the binding reference pages:</p>
+      <ul>
+        <li><a href="/docs/apis/python#file">Python API</a>: the <code>File</code> and <code>AsyncFile</code> classes, including <code>read_with_metadata()</code>, <code>iter_with_metadata()</code>, <code>as_ndarray</code>, and the exception surface.</li>
+        <li><a href="/docs/apis/node#file">Node.js API</a>: the <code>File</code> stream, its <code>FileOptions</code> surface, the speech events, and the error classes with their <code>code</code> values.</li>
+      </ul>
+      <p>AFP is a native stage of the engine, so it is available in the Python and Node.js builds but not in the browser build. See the <a href="/docs/apis/browser">Browser API</a>.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/audio">Audio Processing</a>: the built-in audio processing overview</li>
+          <li><a href="/docs/audio/ace">Audio Capture Engine (ACE)</a>: the conditioning chain a File shares with the microphone</li>
+          <li><a href="/docs/apis/python">Python API</a>: the full constructor surface</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the JavaScript / TypeScript surface</li>
+          <li><a href="/docs/integrations/vad">Voice activity detection</a>: the detector behind the scores and segments</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of conditioned audio</li>
+          <li><a href="https://github.com/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script>
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+  </script>
+  <script src="/docs/code-tabs.js" defer></script>
+</body>
+</html>
