@@ -604,6 +604,366 @@ console.log(devices);
         </table>
       </div>
 
+      <h2 id="file">File</h2>
+      <p>Offline audio source. A <code>File</code> runs a recording, or samples you already hold, through the same conditioning chain as <code>Microphone</code> and delivers it as a finite <code>Readable</code> stream that ends at EOF. Because a recording has an end, it can also score the whole thing for speech in one pass with <code>analyze()</code>. The feature page is <a href="/docs/audio/afp">Audio File Processor (AFP)</a>.</p>
+
+      <div class="callout">
+        <strong>Node.js also has a global <code>File</code>.</strong> The web File API defines one. Import decibri's explicitly with <code>const { File } = require('decibri')</code>, or reference it as <code>decibri.File</code>, so the two do not shadow each other.
+      </div>
+
+      <h3><code>new File(path, options?)</code></h3>
+      <p>Opens a WAV file synchronously: the read, the WAV parse, and the chain construction all happen inline, so this blocks the event loop on disk I/O and throws from the constructor on a bad path. Fine for a script; prefer <a href="#file-open"><code>File.open()</code></a> in servers. <code>path</code> must be a string; anything else throws <code>TypeError: path must be a string</code>.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code></td>
+              <td><code>number</code></td>
+              <td><code>16000</code></td>
+              <td>Target output rate in Hz (1,000 to 384,000). The source is resampled from its own rate to this one, so a 44.1 kHz recording comes out at 16 kHz unless you set it</td>
+            </tr>
+            <tr>
+              <td><code>dtype</code></td>
+              <td><code>'int16' | 'float32'</code></td>
+              <td><code>'int16'</code></td>
+              <td>Sample encoding of the delivered chunks</td>
+            </tr>
+            <tr>
+              <td><code>vad</code></td>
+              <td><code>false | 'energy' | 'silero' | VadOptions</code></td>
+              <td><code>false</code></td>
+              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>. <code>analyze()</code> requires <code>'silero'</code>. See <a href="#vad">Voice activity detection</a></td>
+            </tr>
+            <tr>
+              <td><code>modelPath</code></td>
+              <td><code>string</code></td>
+              <td>(bundled)</td>
+              <td>Path to a custom Silero VAD ONNX model. Only used when <code>vad</code> is <code>'silero'</code></td>
+            </tr>
+            <tr>
+              <td><code>dcRemoval</code></td>
+              <td><code>boolean</code></td>
+              <td>off</td>
+              <td>Remove a constant DC offset. See <a href="/docs/audio/ace#dc-removal">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>denoise</code></td>
+              <td><code>'fastenhancer-t'</code></td>
+              <td>off</td>
+              <td>Neural speech enhancement using the bundled model. Unknown value throws <code>TypeError</code>. See <a href="/docs/audio/ace#denoise">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>highpass</code></td>
+              <td><code>80 | 100</code></td>
+              <td>off</td>
+              <td>Butterworth high-pass cutoff in Hz. Any other value throws <code>RangeError</code>. See <a href="/docs/audio/ace#highpass">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>agc</code></td>
+              <td><code>number</code></td>
+              <td>off</td>
+              <td>Automatic gain control target in dBFS, <code>-40</code> to <code>-3</code>. Out-of-range throws <code>RangeError</code>. See <a href="/docs/audio/ace#agc">Audio Capture Engine</a></td>
+            </tr>
+            <tr>
+              <td><code>limiter</code></td>
+              <td><code>number</code></td>
+              <td>off</td>
+              <td>Peak limiter ceiling in dBFS, <code>-3.0</code> to <code>0.0</code>. Out-of-range throws <code>RangeError</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Omit an option, or pass <code>undefined</code>, to leave that stage off. The live-capture-only options (<code>device</code>, <code>channels</code>, <code>framesPerBuffer</code>) do not apply to an offline source. Standard Node.js <code>ReadableOptions</code> such as <code>highWaterMark</code> are accepted, because <code>FileOptions</code> extends them. The package's own TypeScript declarations ship with it, so <code>FileOptions</code> and <code>FileBufferOptions</code> type-check in an editor without a separate <code>@types</code> package.</p>
+
+      <h3 id="file-open"><code>File.open(path, options?)</code></h3>
+      <p>Static async factory. Returns <code>Promise&lt;File&gt;</code>. Runs the disk read, the WAV parse, and the chain construction on the native thread pool instead of the event loop, then resolves to a ready instance. Options are identical to the constructor. This is the recommended form, mirroring <a href="#mic-open"><code>Microphone.open()</code></a>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-12-node" aria-controls="code-panel-12-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-12-node" aria-labelledby="code-tab-12-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+const file = await File.open('clip.wav', { denoise: 'fastenhancer-t', agc: -18 });
+
+for await (const chunk of file) {
+  handle(chunk); // Buffer of conditioned Int16 LE PCM
+}
+file.close();</code></pre>
+        </div>
+      </div>
+
+      <h3><code>File.buffer(samples, options)</code></h3>
+      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> must be a <code>Float32Array</code> of mono samples in <code>-1.0</code> to <code>1.0</code>; a raw <code>Buffer</code> of PCM bytes is rejected as ambiguous, with its own message. Raw samples carry no header, so <code>options.inputRate</code> (their native rate, 1,000 to 384,000) is required. No I/O is involved, so unlike <code>File.open()</code> this one is synchronous and returns a <code>File</code> directly, not a promise.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-13-node" aria-controls="code-panel-13-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-13-node" aria-labelledby="code-tab-13-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+// samples: a Float32Array of mono samples in -1.0 to 1.0, at their own rate
+const file = File.buffer(samples, { inputRate: 48000, sampleRate: 16000 });
+
+file.on('data', (chunk) => handle(chunk));</code></pre>
+        </div>
+      </div>
+      <p>This is also the route for any audio the WAV reader rejects: decode it yourself, convert to mono floats in <code>-1.0</code> to <code>1.0</code>, and pass the source rate as <code>inputRate</code>.</p>
+
+      <h3>Single-pass lifecycle</h3>
+      <p>Streaming and analysis are two alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
+      <ul>
+        <li>Asking the stream for data <em>engages</em> it, and <code>analyze()</code> is refused from that point on with a <code>DecibriError</code> carrying the code <code>FILE_ENGAGED</code>. <code>resume()</code>, <code>read()</code>, and attaching a <code>'data'</code> or <code>'readable'</code> listener all engage it, synchronously with your own call, whether or not any chunk has arrived yet. <code>pause()</code> on its own and <code>prependListener()</code> do not.</li>
+        <li>A second pass reports <code>FILE_CONSUMED</code>. That covers calling <code>analyze()</code> twice and streaming a <code>File</code> that has already been analysed.</li>
+        <li>Streaming a <code>File</code> that has been drained or closed yields nothing rather than erroring. Only a second pass reports the consumed state.</li>
+        <li>An <code>analyze()</code> rejected before it touched the source leaves the <code>File</code> streamable: both the no-VAD and the energy-mode refusals return before the pass begins, and no <code>'error'</code> event is emitted.</li>
+        <li><code>close()</code> is idempotent, and the three properties keep returning their pre-close values afterwards.</li>
+      </ul>
+
+      <h3>Methods</h3>
+
+      <h4><code>file.analyze()</code> and <code>file.analyse()</code></h4>
+      <p>Score the whole recording for voice activity in one pass, off the event loop. Returns <code>Promise&lt;VadReport&gt;</code>, a plain object with exactly the keys <code>scores</code> and <code>segments</code>, all times in seconds of file time. Requires <code>vad: 'silero'</code>. <code>analyse()</code> is the same analysis under the other spelling.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
+const report = await file.analyze();
+
+report.scores;   // [{ start, end, vadScore, isSpeech }, ...]
+report.segments; // [{ start, end }, ...]</code></pre>
+        </div>
+      </div>
+      <p><code>scores</code> holds one entry per analysis window. Windows tile the recording from zero, contiguous and non-overlapping, 0.032 seconds each; a trailing remainder shorter than one window is left unscored. <code>segments</code> holds the merged speech regions: consecutive speech windows whose silence gaps fall within the holdoff collapse into one, and a segment ends at its last speech window rather than at the holdoff expiry.</p>
+
+      <h4><code>file.close()</code></h4>
+      <p>Releases the source. Idempotent; a closed <code>File</code> reads as ended.</p>
+
+      <h3>Properties</h3>
+
+      <h4><code>file.sampleRate</code></h4>
+      <p><code>number</code> (read-only). The target output rate every delivered chunk carries.</p>
+
+      <h4><code>file.inputRate</code></h4>
+      <p><code>number</code> (read-only). The source's own rate, read from the WAV header or taken from the <code>inputRate</code> passed to <code>File.buffer</code>. Differs from <code>sampleRate</code> whenever the recording is resampled.</p>
+
+      <h4><code>file.vadScore</code></h4>
+      <p><code>number</code> (read-only). Most recent per-chunk VAD score for the active mode, computed on the signal before conditioning. <code>0</code> when VAD is disabled or before the first chunk.</p>
+
+      <h3>Events</h3>
+      <p><code>File</code> extends <code>Readable</code>, so the standard stream events apply: <code>'data'</code> (payload <code>Buffer</code>), <code>'end'</code> at EOF, <code>'error'</code>, and <code>'close'</code>. When <code>vad</code> is enabled it additionally emits <code>'speech'</code> and <code>'silence'</code>, the same pair the <code>Microphone</code> emits, with the holdoff measured in file time rather than wall-clock time.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-15-node" aria-controls="code-panel-15-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
+
+file.on('speech', () => console.log('speech starts'));
+file.on('silence', () => console.log('speech ends'));
+file.on('error', (err) => console.error(err.code, err.message));
+
+file.on('data', (chunk) => {
+  // file.vadScore holds the score for the chunk just delivered
+});</code></pre>
+        </div>
+      </div>
+      <p>A freshly constructed <code>File</code> has no listeners of its own, so nothing is subscribed for you.</p>
+
+      <div class="callout">
+        <strong>Note:</strong> Chunk framing depends on how you consume the stream. A <code>for await</code> loop and a <code>'data'</code> listener over the same recording deliver the same total number of bytes in a different number of chunks, because <code>Readable</code> coalesces its internal buffer. Treat the total as exact and the chunk count as a property of the consumption style. A full chunk is 1,600 samples at the target rate: 3,200 bytes as <code>'int16'</code>, 6,400 as <code>'float32'</code>.
+      </div>
+
+      <h3>File errors</h3>
+      <p>The same split the rest of the Node API uses. Failures that crossed the native boundary are a <code>DecibriError</code> with a stable <code>code</code>; failures the JavaScript wrapper caught first are built-in <code>RangeError</code> or <code>TypeError</code> with <code>code</code> undefined.</p>
+      <p>With a <code>code</code>:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Trigger</th>
+              <th>Class</th>
+              <th>Code</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Missing file, a directory, or an empty path</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_READ_FAILED</code></td>
+              <td><code>Failed to read audio file &lt;path&gt;: &lt;os error&gt;</code></td>
+            </tr>
+            <tr>
+              <td>Not RIFF/WAVE</td>
+              <td><code>DecibriError</code></td>
+              <td><code>WAV_INVALID</code></td>
+              <td><code>invalid WAV file: not a RIFF/WAVE file</code></td>
+            </tr>
+            <tr>
+              <td>Truncated header</td>
+              <td><code>DecibriError</code></td>
+              <td><code>WAV_INVALID</code></td>
+              <td><code>invalid WAV file: missing fmt chunk</code></td>
+            </tr>
+            <tr>
+              <td>Unsupported encoding (8-bit or 24-bit PCM, for example)</td>
+              <td><code>DecibriError</code></td>
+              <td><code>WAV_INVALID</code></td>
+              <td><code>invalid WAV file: unsupported encoding; 16-bit PCM or 32-bit float required</code></td>
+            </tr>
+            <tr>
+              <td><code>modelPath</code> missing</td>
+              <td><code>OrtError</code></td>
+              <td><code>VAD_MODEL_LOAD_FAILED</code></td>
+              <td><code>Silero VAD model not found at &lt;path&gt;. Ensure the models/ directory is included in your installation.</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> after the stream was engaged</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_ENGAGED</code></td>
+              <td><code>File iteration has begun; construct a new File to analyze the whole recording</code></td>
+            </tr>
+            <tr>
+              <td>Second pass</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_CONSUMED</code></td>
+              <td><code>File already consumed; construct a new File for another pass</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Without a <code>code</code>, raised by the wrapper before the native layer is reached:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Trigger</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Non-string path</td>
+              <td><code>TypeError</code></td>
+              <td><code>path must be a string</code></td>
+            </tr>
+            <tr>
+              <td>Called without <code>new</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>Class constructor File cannot be invoked without 'new'</code></td>
+            </tr>
+            <tr>
+              <td><code>sampleRate</code> out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>sample rate must be between 1000 and 384000</code></td>
+            </tr>
+            <tr>
+              <td><code>inputRate</code> out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>inputRate must be between 1000 and 384000</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>dtype</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>dtype must be 'int16' or 'float32'</code></td>
+            </tr>
+            <tr>
+              <td><code>agc</code> out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>agc target level must be between -40 and -3</code></td>
+            </tr>
+            <tr>
+              <td><code>limiter</code> out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>limiter ceiling must be between -3.0 and 0.0</code></td>
+            </tr>
+            <tr>
+              <td><code>highpass</code> not 80 or 100</td>
+              <td><code>RangeError</code></td>
+              <td><code>highpass must be one of: 80, 100</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>denoise</code> value</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid denoise value: "rnnoise". Expected 'fastenhancer-t'.</code></td>
+            </tr>
+            <tr>
+              <td><code>vad: true</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>vad: true is no longer supported. Specify the mode explicitly: vad: 'silero' or vad: 'energy'.</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>vad</code> value</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid vad value: "bogus". Expected false, 'silero', 'energy', or a config object { model, threshold, holdoffMs }.</code></td>
+            </tr>
+            <tr>
+              <td>Bad <code>vad.model</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid vad model: "x". Expected 'silero' or 'energy'.</code></td>
+            </tr>
+            <tr>
+              <td><code>vad</code> threshold out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad threshold must be between 0 and 1</code></td>
+            </tr>
+            <tr>
+              <td><code>vad</code> <code>holdoffMs</code> negative</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad holdoffMs must be non-negative</code></td>
+            </tr>
+            <tr>
+              <td>Legacy flat VAD options</td>
+              <td><code>TypeError</code></td>
+              <td><code>vadThreshold and vadHoldoff are no longer supported. Pass them on the vad config object: vad: { model: 'silero', threshold: 0.5, holdoffMs: 300 }.</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> without VAD</td>
+              <td><code>RangeError</code></td>
+              <td><code>analysis requires VAD; construct the File with a vad configuration</code></td>
+            </tr>
+            <tr>
+              <td><code>analyze()</code> with energy VAD</td>
+              <td><code>RangeError</code></td>
+              <td><code>analyze() requires vad: 'silero'; energy mode does not support whole-file analysis</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given a <code>Buffer</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>File.buffer requires a Float32Array of samples, not a Buffer of bytes</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given the wrong type</td>
+              <td><code>TypeError</code></td>
+              <td><code>File.buffer requires a Float32Array of samples</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> without <code>inputRate</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>inputRate is required for File.buffer (samples carry no header)</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> The same lifecycle failure arrives by two routes. <code>analyze()</code> rejects its promise, while a read on a consumed <code>File</code> emits <code>'error'</code> instead, carrying the same <code>DecibriError</code> and code. Attach an <code>'error'</code> listener before streaming anything you are not consuming with <code>for await</code>, which rethrows at the loop.
+      </div>
+
       <h2>Module-level helpers</h2>
       <p>Convenience functions exported directly from the <code>decibri</code> package.</p>
 

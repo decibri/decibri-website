@@ -93,7 +93,9 @@
     + group('/docs/integrations/vad', 'Voice activity detection (VAD)', vadChildren, 'sidebar-subsection-title-link', subsectionStyle)
     + group('/docs/integrations/kws', 'Keyword spotting (KWS)',       kwsChildren, 'sidebar-subsection-title-link', subsectionStyle);
 
-  var audioChildren = link('/docs/audio/ace', 'Audio Capture Engine (ACE)');
+  var audioChildren =
+      link('/docs/audio/ace', 'Audio Capture Engine (ACE)')
+    + link('/docs/audio/afp', 'Audio File Processor (AFP)');
 
   var apisChildren =
       link('/docs/apis/python',  'Python')
@@ -188,7 +190,9 @@
     + mgroup('/docs/integrations/vad', 'Voice activity detection (VAD)', mVadChildren, 'mobile-menu-subsection-link')
     + mgroup('/docs/integrations/kws', 'Keyword spotting (KWS)',       mKwsChildren, 'mobile-menu-subsection-link');
 
-  var mAudioChildren = mlink('/docs/audio/ace', 'Audio Capture Engine (ACE)');
+  var mAudioChildren =
+      mlink('/docs/audio/ace', 'Audio Capture Engine (ACE)')
+    + mlink('/docs/audio/afp', 'Audio File Processor (AFP)');
 
   var mApisChildren =
       mlink('/docs/apis/python',  'Python')
