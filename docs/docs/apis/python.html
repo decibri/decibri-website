@@ -282,6 +282,7 @@ asyncio.run(main())</code></pre>
       </div>
 
       <p>The five conditioning options (<code>dc_removal</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p>Echo cancellation is a separate opt-in capture parameter, <code>aec</code>, documented in <a href="#aec">Acoustic Echo Cancellation (AEC)</a> below. It is the one capture option that also needs a second audio stream from you at run time.</p>
 
       <h3>Context manager usage</h3>
       <p>The canonical Python pattern. Entering the <code>with</code> block opens the stream and starts capture; exiting stops the stream and resets VAD state, even if an exception propagates out.</p>
@@ -1445,6 +1446,346 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-21-python" aria-labelledby="code-tab-21-python" data-lang="python" role="tabpanel">
           <pre><code class="language-python">mic = decibri.Microphone(vad="silero", model_path="/opt/models/silero_vad_v4.onnx")</code></pre>
+        </div>
+      </div>
+
+      <h2 id="aec">Acoustic Echo Cancellation (AEC)</h2>
+      <p>Echo cancellation removes the sound of your own loudspeaker from the microphone capture. It is opt-in through the <code>aec</code> parameter on <code>Microphone</code> and <code>AsyncMicrophone</code>. Unlike every other capture option, it also needs a second audio stream at run time: the audio you are playing, pushed block by block for as long as you are playing it.</p>
+      <p>The plumbing, the diagnostics procedure, and the limits of the technique are on the <a href="/docs/audio/aec">Acoustic Echo Cancellation (AEC)</a> feature page. This section is the Python surface.</p>
+
+      <h3>The <code>aec</code> parameter</h3>
+      <p>Signature: <code>aec: str | Aec | None = None</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>aec</code></td>
+              <td><code>str | Aec | None</code></td>
+              <td><code>None</code> (off)</td>
+              <td>Echo cancellation. <code>None</code> disables it; <code>"tau"</code> selects the model with its defaults; pass a <code>decibri.Aec(...)</code> object to tune it.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-36-python" aria-controls="code-panel-36-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-36-python" aria-labelledby="code-tab-36-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">from decibri import Aec, Microphone
+
+# Short form: the model with its defaults.
+a = Microphone(sample_rate=16000, aec="tau")
+
+# Object form: the same model, every option set to its default.
+b = Microphone(
+    sample_rate=16000,
+    aec=Aec(
+        model="tau",
+        tail_ms=200,
+        suppression="conservative",
+        reference_sample_rate=16000,
+    ),
+)</code></pre>
+        </div>
+      </div>
+      <p>Echo cancellation requires <code>sample_rate</code> between 8000 and 48000, narrower than the range <code>sample_rate</code> otherwise accepts. Capture is mono, as it is for every decibri capture. The option is available on native capture only; the browser build does not take it. See the <a href="/docs/apis/browser">Browser API</a>.</p>
+
+      <h3><code>decibri.Aec</code></h3>
+      <p>Frozen dataclass carrying the tuning. Assigning to a field after construction raises <code>dataclasses.FrozenInstanceError</code>. Build a new instance instead.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-37-python" aria-controls="code-panel-37-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-37-python" aria-labelledby="code-tab-37-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">@dataclass(frozen=True, slots=True)
+class Aec:
+    model: str = "tau"
+    tail_ms: int | None = None                 # 16 to 500, None takes 200
+    suppression: str | None = None             # "conservative" or "off", None takes "conservative"
+    reference_sample_rate: int | None = None   # 1000 to 384000, None takes the capture rate</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>model</code></td>
+              <td><code>str</code></td>
+              <td><code>"tau"</code></td>
+              <td>The model to run. <code>'tau'</code> is the model available today; it carries no model file and needs no download. An unrecognised name raises from the <code>Microphone</code> constructor.</td>
+            </tr>
+            <tr>
+              <td><code>tail_ms</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code> takes 200</td>
+              <td>How much echo delay spread the canceller can account for, in milliseconds. 16 to 500.</td>
+            </tr>
+            <tr>
+              <td><code>suppression</code></td>
+              <td><code>str | None</code></td>
+              <td><code>None</code> takes <code>"conservative"</code></td>
+              <td><code>"conservative"</code> attenuates the residue the linear stage leaves behind. <code>"off"</code> delivers the linear output as it stands.</td>
+            </tr>
+            <tr>
+              <td><code>reference_sample_rate</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code> takes the capture rate</td>
+              <td>The rate of the audio you push, in Hz. 1000 to 384000. Set it whenever your playback rate differs from your capture rate.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>mic.push_aec_reference(samples)</code></h4>
+      <p>Signature <code>push_aec_reference(samples: SampleData) -&gt; None</code>, identical on <code>Microphone</code> and <code>AsyncMicrophone</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, mono.</p>
+      <p>The push method never blocks and never raises on a full queue. Samples that do not fit are discarded and counted in <code>reference_dropped</code>. A push while capture is not running, or with the option unset, does nothing. A bad input type raises regardless of capture state.</p>
+
+      <h4><code>mic.aec_metrics()</code></h4>
+      <p>Signature <code>aec_metrics() -&gt; AecMetrics | None</code>. Returns <code>None</code> when the <code>aec</code> option is unset or capture is not running, and an <code>AecMetrics</code> otherwise. Read it while capture is still running; after <code>stop()</code> it returns <code>None</code>.</p>
+
+      <h3><code>AecMetrics</code></h3>
+      <p>Frozen dataclass returned by <code>aec_metrics()</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-38-python" aria-controls="code-panel-38-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-38-python" aria-labelledby="code-tab-38-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">@dataclass(frozen=True, slots=True)
+class AecMetrics:
+    delay_samples: int | None
+    erle_db: float
+    double_talk: bool
+    reference_starved: int
+    acquisition_parked: int
+    reference_reanchors: int
+    reference_dropped: int
+    reference_silence: int</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delay_samples</code></td>
+              <td><code>int | None</code></td>
+              <td>Active alignment between reference and capture. <code>None</code> while searching.</td>
+            </tr>
+            <tr>
+              <td><code>erle_db</code></td>
+              <td><code>float</code></td>
+              <td>Smoothed estimate of how much echo is being removed, in dB.</td>
+            </tr>
+            <tr>
+              <td><code>double_talk</code></td>
+              <td><code>bool</code></td>
+              <td>Whether the near-end talker is believed active. Adaptation is held while true.</td>
+            </tr>
+            <tr>
+              <td><code>reference_starved</code></td>
+              <td><code>int</code></td>
+              <td>Near-end samples with no far-end sample available while aligned.</td>
+            </tr>
+            <tr>
+              <td><code>acquisition_parked</code></td>
+              <td><code>int</code></td>
+              <td>Near-end samples processed while no alignment was active.</td>
+            </tr>
+            <tr>
+              <td><code>reference_reanchors</code></td>
+              <td><code>int</code></td>
+              <td>Times the alignment was rebuilt after a capture discontinuity.</td>
+            </tr>
+            <tr>
+              <td><code>reference_dropped</code></td>
+              <td><code>int</code></td>
+              <td>Far-end samples discarded because a push exceeded the queue, at the reference rate.</td>
+            </tr>
+            <tr>
+              <td><code>reference_silence</code></td>
+              <td><code>int</code></td>
+              <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The <a href="/docs/audio/aec#diagnostics">diagnostics section</a> of the feature page reads these fields as a procedure rather than a field list.</p>
+
+      <h3>The async surface</h3>
+      <p>On <code>AsyncMicrophone</code>, the two members do not match, and the difference is deliberate.</p>
+      <p><code>push_aec_reference</code> is a plain method. You call it, you do not await it. The push never blocks, so making it a coroutine would add an await to a call that has nothing to wait for, and would stop you calling it from a synchronous render callback. It has the same signature on <code>Microphone</code> and <code>AsyncMicrophone</code>.</p>
+      <p><code>aec_metrics</code> is a coroutine and must be awaited. Reading the metrics serialises against block processing on the capture chain, so it can wait; awaiting keeps that wait off the event loop.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-39-python" aria-controls="code-panel-39-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-39-python" aria-labelledby="code-tab-39-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">mic.push_aec_reference(block)      # no await
+metrics = await mic.aec_metrics()  # await</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Class</th>
+              <th>Signature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Microphone</code></td>
+              <td><code>push_aec_reference(samples: SampleData) -&gt; None</code></td>
+            </tr>
+            <tr>
+              <td><code>Microphone</code></td>
+              <td><code>aec_metrics() -&gt; AecMetrics | None</code></td>
+            </tr>
+            <tr>
+              <td><code>AsyncMicrophone</code></td>
+              <td><code>push_aec_reference(samples: SampleData) -&gt; None</code></td>
+            </tr>
+            <tr>
+              <td><code>AsyncMicrophone</code></td>
+              <td><code>async aec_metrics() -&gt; AecMetrics | None</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-40-python" aria-controls="code-panel-40-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-40-python" aria-labelledby="code-tab-40-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import asyncio
+
+from decibri import AsyncFile, AsyncMicrophone, AsyncSpeaker
+
+RATE = 16000
+
+
+async def main():
+    async with AsyncFile("speech.wav", sample_rate=RATE) as f:
+        audio = b"".join([chunk async for chunk in f])
+
+    block_bytes = RATE // 10 * 2
+
+    async with (
+        AsyncMicrophone(sample_rate=RATE, aec="tau") as mic,
+        AsyncSpeaker(sample_rate=RATE) as speaker,
+    ):
+        for i in range(0, len(audio), block_bytes):
+            block = audio[i : i + block_bytes]
+            await speaker.write(block)
+            mic.push_aec_reference(block)     # not awaited
+            near = await mic.read(timeout_ms=100)
+
+        metrics = await mic.aec_metrics()     # awaited
+
+
+asyncio.run(main())</code></pre>
+        </div>
+      </div>
+
+      <h3 id="aec-errors">Errors</h3>
+      <p>Python has typed exceptions for its own failure modes and uses them. Catch them in the idiom of the language you are in, not in a shape shared across both bindings; the <a href="/docs/apis/node#aec-errors">Node.js API</a> raises different classes on purpose.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>aec</code> is neither a string nor an <code>Aec</code></td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid aec value: &lt;value&gt;. Expected None, a model name such as 'tau', or an Aec config object.</code></td>
+            </tr>
+            <tr>
+              <td><code>model</code> is not a string</td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid aec model: &lt;value&gt;. Expected a model name such as 'tau'.</code></td>
+            </tr>
+            <tr>
+              <td><code>model</code> names no known model</td>
+              <td><code>AecConfigInvalid</code></td>
+              <td><code>echo canceller configuration error: model must be one of: 'tau'; got '&lt;value&gt;'</code></td>
+            </tr>
+            <tr>
+              <td><code>tail_ms</code> is out of range</td>
+              <td><code>AecConfigInvalid</code></td>
+              <td><code>tail_ms must be in [16, 500]; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>suppression</code> is not one of the two values</td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid aec suppression: &lt;value&gt;. Expected 'conservative' or 'off'.</code></td>
+            </tr>
+            <tr>
+              <td><code>reference_sample_rate</code> is out of range</td>
+              <td><code>SampleRateOutOfRange</code></td>
+              <td><code>reference_sample_rate must be in [1000, 384000]; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>sample_rate</code> outside 8000 to 48000 with <code>aec</code> set</td>
+              <td><code>AecSampleRateUnsupported</code></td>
+              <td><code>echo cancellation only supports sample rates 8000 to 48000</code></td>
+            </tr>
+            <tr>
+              <td><code>push_aec_reference</code> given a wrong type</td>
+              <td><code>TypeError</code></td>
+              <td><code>samples must be bytes or numpy.ndarray with dtype matching the configured format (int16 or float32); the reference is mono</code></td>
+            </tr>
+            <tr>
+              <td><code>push_aec_reference</code> given an array of the wrong dtype</td>
+              <td><code>TypeError</code></td>
+              <td><code>format='&lt;configured&gt;' configured but 1-D ndarray dtype is &lt;actual&gt;; convert with arr.astype(np.&lt;configured&gt;) or construct Microphone with format='&lt;actual&gt;'</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Where the check happens differs. <code>Aec(...)</code> validates <code>tail_ms</code>, <code>suppression</code> and <code>reference_sample_rate</code> at construction, before any microphone exists, so those raise from the config object. The model name is not checked there; an unknown name raises from the <code>Microphone</code> constructor, as does the capture rate constraint.</p>
+      <p><code>AecConfigInvalid</code>, <code>AecSampleRateUnsupported</code> and <code>SampleRateOutOfRange</code> all subclass <code>DecibriError</code>, so <code>except DecibriError</code> catches all three. They are importable from <code>decibri</code> and from <code>decibri.exceptions</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-41-python" aria-controls="code-panel-41-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-41-python" aria-labelledby="code-tab-41-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">from decibri import Aec, Microphone
+from decibri.exceptions import AecConfigInvalid, AecSampleRateUnsupported
+
+try:
+    mic = Microphone(sample_rate=64000, aec="tau")
+except AecSampleRateUnsupported:
+    mic = Microphone(sample_rate=48000, aec="tau")</code></pre>
         </div>
       </div>
 

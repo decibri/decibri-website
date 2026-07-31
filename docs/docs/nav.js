@@ -95,6 +95,7 @@
 
   var audioChildren =
       link('/docs/audio/ace', 'Audio Capture Engine (ACE)')
+    + link('/docs/audio/aec', 'Acoustic Echo Cancellation (AEC)')
     + link('/docs/audio/afp', 'Audio File Processor (AFP)');
 
   var apisChildren =
@@ -192,6 +193,7 @@
 
   var mAudioChildren =
       mlink('/docs/audio/ace', 'Audio Capture Engine (ACE)')
+    + mlink('/docs/audio/aec', 'Acoustic Echo Cancellation (AEC)')
     + mlink('/docs/audio/afp', 'Audio File Processor (AFP)');
 
   var mApisChildren =
