@@ -24,6 +24,12 @@
 //     <button class="code-copy-btn" aria-label="Copy code">...</button>
 //   </div>
 // When only one panel is present, the tab bar is hidden via CSS (:has selector or .single-tab fallback).
+// A group that switches on some axis other than programming language (for example
+// operating system) opts out of the shared preference with data-tab-pref="off" on
+// the container. Such a group still renders, switches and syncs like any other, but
+// it neither reads the stored language preference on load nor writes to it on click,
+// so it cannot change which language every other page opens on:
+//   <div class="code-tabs code-tabs-flat" data-tab-group="install" data-tab-pref="off">
 (function () {
   var KEY = 'decibri-docs-code-tab';
 
@@ -76,17 +82,21 @@
     var pref = readPref();
 
     groups.forEach(function (group) {
+      // Groups that switch on an axis other than programming language opt out of
+      // the shared preference with data-tab-pref="off". They ignore the stored
+      // value on load (below) and never write to it on click (further below).
+      var usesPref = group.getAttribute('data-tab-pref') !== 'off';
       var panels = group.querySelectorAll('.code-tab-panel');
       var langs = [];
       for (var i = 0; i < panels.length; i++) langs.push(panels[i].getAttribute('data-lang'));
-      var active = (pref && langs.indexOf(pref) !== -1) ? pref : langs[0];
+      var active = (usesPref && pref && langs.indexOf(pref) !== -1) ? pref : langs[0];
       setActive(group, active);
 
       var btns = group.querySelectorAll('.code-tab-btn');
       btns.forEach(function (btn) {
         btn.addEventListener('click', function () {
           var lang = btn.getAttribute('data-lang');
-          writePref(lang);
+          if (usesPref) writePref(lang);
           // Sync every group on the page that has this lang available.
           document.querySelectorAll('.code-tabs').forEach(function (g) {
             var has = false;
