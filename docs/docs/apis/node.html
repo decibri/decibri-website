@@ -154,6 +154,7 @@
       </div>
 
       <p>The five conditioning options (<code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p>Echo cancellation is a separate opt-in capture option, <code>aec</code>, documented in <a href="#aec">Acoustic Echo Cancellation (AEC)</a> below. It is the one capture option that also needs a second audio stream from you at run time.</p>
       <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted. Voice activity detection (the <code>vad</code> and <code>modelPath</code> options) is documented in the <a href="#vad">Voice activity detection</a> section below.</p>
       <p>To construct without blocking the event loop on the open work (notably the Silero model load when <code>vad: 'silero'</code> is set), use the <a href="#mic-open"><code>Microphone.open()</code></a> async factory.</p>
 
@@ -381,6 +382,272 @@ mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
 
       <h3>Bundled Silero model</h3>
       <p>The Silero VAD ONNX model and ONNX Runtime ship inside the npm package. No separate download, no API key, and no system <code>onnxruntime</code> dependency are required for <code>vad: 'silero'</code>. To use a different Silero ONNX variant, pass an absolute path on the <code>modelPath</code> option; it is consulted only when <code>vad</code> is <code>'silero'</code>.</p>
+
+      <h2 id="aec">Acoustic Echo Cancellation (AEC)</h2>
+      <p>Echo cancellation removes the sound of your own loudspeaker from the microphone capture. It is opt-in through the <code>aec</code> option on the <code>Microphone</code> constructor. Unlike every other capture option, it also needs a second audio stream at run time: the audio you are playing, pushed block by block for as long as you are playing it.</p>
+      <p>The plumbing, the diagnostics procedure, and the limits of the technique are on the <a href="/docs/audio/aec">Acoustic Echo Cancellation (AEC)</a> feature page. This section is the Node.js surface.</p>
+
+      <h3>The <code>aec</code> option</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>aec</code></td>
+              <td><code>'tau' | AecOptions</code></td>
+              <td><code>undefined</code> (off)</td>
+              <td>Echo cancellation. Omit it to leave the stage off; pass <code>'tau'</code> for the model with its defaults; pass an <code>AecOptions</code> object to tune it</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The declared signature is <code>aec?: 'tau' | AecOptions</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-16-node" aria-controls="code-panel-16-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-16-node" aria-labelledby="code-tab-16-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+
+// Short form: the model with its defaults.
+const a = new Microphone({ sampleRate: 16000, aec: 'tau' });
+
+// Object form: the same model, every option set to its default.
+const b = new Microphone({
+  sampleRate: 16000,
+  aec: {
+    model: 'tau',
+    tailMs: 200,
+    suppression: 'conservative',
+    referenceSampleRate: 16000,
+  },
+});</code></pre>
+        </div>
+      </div>
+      <p>Echo cancellation requires <code>sampleRate</code> between 8000 and 48000, narrower than the range <code>sampleRate</code> otherwise accepts. Capture is mono, as it is for every decibri capture. The option is available on native capture only; the browser build does not take it, because browser capture carries the platform's own <code>echoCancellation</code> constraint, which is on by default. See the <a href="/docs/apis/browser">Browser API</a>.</p>
+
+      <h3><code>AecOptions</code></h3>
+      <pre class="language-typescript"><code class="language-typescript">interface AecOptions {
+  model: 'tau';                                // required in the object form
+  tailMs?: number;                             // 16 to 500, default 200
+  suppression?: 'conservative' | 'off';        // default 'conservative'
+  referenceSampleRate?: number;                // 1000 to 384000, default: the capture rate
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>model</code></td>
+              <td><code>'tau'</code></td>
+              <td>required in the object form</td>
+              <td>The model to run. <code>'tau'</code> is the model available today; it carries no model file and needs no download. An unrecognised name is rejected when the microphone is constructed</td>
+            </tr>
+            <tr>
+              <td><code>tailMs</code></td>
+              <td><code>number</code></td>
+              <td><code>200</code></td>
+              <td>How much echo delay spread the canceller can account for, in milliseconds. 16 to 500</td>
+            </tr>
+            <tr>
+              <td><code>suppression</code></td>
+              <td><code>'conservative' | 'off'</code></td>
+              <td><code>'conservative'</code></td>
+              <td><code>'conservative'</code> attenuates the residue the linear stage leaves behind. <code>'off'</code> delivers the linear output as it stands</td>
+            </tr>
+            <tr>
+              <td><code>referenceSampleRate</code></td>
+              <td><code>number</code></td>
+              <td>the capture rate</td>
+              <td>The rate of the audio you push, in Hz. 1000 to 384000. Set it whenever your playback rate differs from your capture rate</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Methods</h3>
+
+      <h4><code>mic.pushAecReference(data)</code></h4>
+      <p>Signature <code>pushAecReference(data: Buffer | NodeJS.ArrayBufferView): void</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, mono.</p>
+      <p>The push method never blocks and never raises on a full queue. Samples that do not fit are discarded and counted in <code>referenceDropped</code>. A push while capture is not running, or with the option unset, does nothing. A bad input type raises regardless of capture state. Because a <code>Microphone</code> stream starts when you begin consuming it, push from inside your <code>'data'</code> handler or your playback loop, not immediately after the constructor returns.</p>
+
+      <h4><code>mic.aecMetrics()</code></h4>
+      <p>Signature <code>aecMetrics(): AecMetrics | null</code>. Returns <code>null</code> when the <code>aec</code> option is unset or capture is not running, and an <code>AecMetrics</code> otherwise. Read it while capture is still running; after <code>stop()</code> it returns <code>null</code>.</p>
+
+      <h3><code>AecMetrics</code></h3>
+      <pre class="language-typescript"><code class="language-typescript">interface AecMetrics {
+  delaySamples: number | null;
+  erleDb: number;
+  doubleTalk: boolean;
+  referenceStarved: number;
+  acquisitionParked: number;
+  referenceReanchors: number;
+  referenceDropped: number;
+  referenceSilence: number;
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delaySamples</code></td>
+              <td><code>number | null</code></td>
+              <td>Active alignment between reference and capture. <code>null</code> while searching.</td>
+            </tr>
+            <tr>
+              <td><code>erleDb</code></td>
+              <td><code>number</code></td>
+              <td>Smoothed estimate of how much echo is being removed, in dB.</td>
+            </tr>
+            <tr>
+              <td><code>doubleTalk</code></td>
+              <td><code>boolean</code></td>
+              <td>Whether the near-end talker is believed active. Adaptation is held while true.</td>
+            </tr>
+            <tr>
+              <td><code>referenceStarved</code></td>
+              <td><code>number</code></td>
+              <td>Near-end samples with no far-end sample available while aligned.</td>
+            </tr>
+            <tr>
+              <td><code>acquisitionParked</code></td>
+              <td><code>number</code></td>
+              <td>Near-end samples processed while no alignment was active.</td>
+            </tr>
+            <tr>
+              <td><code>referenceReanchors</code></td>
+              <td><code>number</code></td>
+              <td>Times the alignment was rebuilt after a capture discontinuity.</td>
+            </tr>
+            <tr>
+              <td><code>referenceDropped</code></td>
+              <td><code>number</code></td>
+              <td>Far-end samples discarded because a push exceeded the queue, at the reference rate.</td>
+            </tr>
+            <tr>
+              <td><code>referenceSilence</code></td>
+              <td><code>number</code></td>
+              <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The <a href="/docs/audio/aec#diagnostics">diagnostics section</a> of the feature page reads these fields as a procedure rather than a field list. This is that procedure as code:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-17-node" aria-controls="code-panel-17-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-17-node" aria-labelledby="code-tab-17-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-javascript">function diagnose(mic) {
+  const m = mic.aecMetrics();
+
+  if (m === null) {
+    return 'echo cancellation is off, or capture is not running';
+  }
+  if (m.delaySamples !== null) {
+    return `aligned at ${m.delaySamples} samples, double talk ${m.doubleTalk}`;
+  }
+  if (m.referenceSilence &gt;= m.acquisitionParked) {
+    return 'no reference is reaching the canceller';
+  }
+  if (m.referenceDropped &gt; 0) {
+    return 'pushes are being discarded: push smaller blocks, in step with playback';
+  }
+  return 'reference is arriving but nothing has aligned: check the rate';
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Note:</strong> Node has no separate async microphone class, so both members are synchronous on <code>Microphone</code>. The Python binding splits them: <code>push_aec_reference</code> is a plain method on both classes, while <code>aec_metrics</code> is a coroutine on <code>AsyncMicrophone</code>. See the <a href="/docs/apis/python#aec">Python API</a>.
+      </div>
+
+      <h3 id="aec-errors">AEC errors</h3>
+      <p>Node follows its own convention: built-in <code>TypeError</code> and <code>RangeError</code> for argument validation, and a decibri class carrying a <code>code</code> for everything else. The two bindings raise different classes on purpose; catch them in the idiom of the language you are in, not in a shape shared across both.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>aec</code> is neither a string nor an object</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid aec value: &lt;value&gt;. Expected a model name such as 'tau', or a config object { model, tailMs, suppression, referenceSampleRate }.</code></td>
+            </tr>
+            <tr>
+              <td><code>model</code> is not a string</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid aec model: &lt;value&gt;. Expected a model name string such as 'tau'.</code></td>
+            </tr>
+            <tr>
+              <td><code>model</code> names no known model</td>
+              <td><code>DecibriError</code>, <code>code: 'AEC_CONFIG_INVALID'</code></td>
+              <td><code>echo canceller configuration error: model must be one of: 'tau'; got '&lt;value&gt;'</code></td>
+            </tr>
+            <tr>
+              <td><code>tailMs</code> is not a number</td>
+              <td><code>TypeError</code></td>
+              <td><code>aec tailMs must be a number</code></td>
+            </tr>
+            <tr>
+              <td><code>tailMs</code> is out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>aec tailMs must be between 16 and 500</code></td>
+            </tr>
+            <tr>
+              <td><code>suppression</code> is not one of the two values</td>
+              <td><code>TypeError</code></td>
+              <td><code>aec suppression must be 'conservative' or 'off'; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>referenceSampleRate</code> is not a number</td>
+              <td><code>TypeError</code></td>
+              <td><code>aec referenceSampleRate must be a number</code></td>
+            </tr>
+            <tr>
+              <td><code>referenceSampleRate</code> is out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>aec referenceSampleRate must be between 1000 and 384000</code></td>
+            </tr>
+            <tr>
+              <td><code>sampleRate</code> outside 8000 to 48000 with <code>aec</code> set</td>
+              <td><code>RangeError</code></td>
+              <td><code>echo cancellation only supports sample rates 8000 to 48000</code></td>
+            </tr>
+            <tr>
+              <td><code>pushAecReference</code> given something that is not a buffer view</td>
+              <td><code>TypeError</code></td>
+              <td><code>pushAecReference requires a Buffer, TypedArray, or DataView of PCM samples in the configured dtype</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every one of these is raised by the <code>Microphone</code> constructor, except the last. <code>DecibriError</code> is exported from the package and satisfies <code>instanceof</code>; the <code>RangeError</code> and <code>TypeError</code> cases are built-ins and do not.</p>
 
       <h2>Audio format</h2>
 

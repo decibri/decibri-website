@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
+  <link rel="preload" href="/fonts/outfit-vf-latin-v15.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/jetbrains-mono-vf-latin-v24.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    (function() {
+      var t = localStorage.getItem('decibri-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+      else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <title>Acoustic Echo Cancellation (AEC) | decibri docs</title>
+  <meta name="description" content="Decibri AEC (Acoustic Echo Cancellation) removes the sound of your own loudspeaker from your microphone capture. Pushing the reference signal, declaring its sample rate, reading the diagnostics, and the limits of the technique, in Python and Node.js.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Acoustic Echo Cancellation (AEC) | decibri docs">
+  <meta property="og:description" content="Decibri AEC removes the sound of your own loudspeaker from your microphone capture. Pushing the reference signal, declaring its rate, diagnostics, and limits. Python and Node.js.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://decibri.com/docs/audio/aec">
+  <meta property="og:image" content="https://decibri.com/decibri-social-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Acoustic Echo Cancellation (AEC) | decibri docs">
+  <meta name="twitter:description" content="Decibri AEC removes the sound of your own loudspeaker from your microphone capture. Pushing the reference signal, declaring its rate, diagnostics, and limits. Python and Node.js.">
+  <meta name="twitter:image" content="https://decibri.com/decibri-social-og.png">
+  <link rel="canonical" href="https://decibri.com/docs/audio/aec">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/docs/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+
+  <nav class="docs-nav">
+    <div class="nav-inner">
+      <a href="/docs/" class="nav-logo">deci<span>bri</span> docs</a>
+      <div class="mobile-nav">
+        <a href="https://github.com/decibri" class="nav-cta" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+        <button class="mobile-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="mobile-nav-btn" onclick="toggleMobileMenu()" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-menu-overlay" onclick="toggleMobileMenu()"></div>
+  <div class="mobile-menu"></div>
+  <div class="sidebar-overlay"></div>
+  <aside id="sidebar" class="sidebar"></aside>
+
+  <div class="doc-content">
+    <div class="doc-container">
+
+      <div class="breadcrumb">
+        <a href="/docs/">Docs</a>
+        <span class="sep">/</span>
+        <a href="/docs/audio">Audio Processing</a>
+        <span class="sep">/</span>
+        <span class="current">Acoustic Echo Cancellation (AEC)</span>
+      </div>
+
+      <h1>Acoustic Echo Cancellation (AEC)</h1>
+      <p class="lead">When a device listens and talks at the same time, the sound leaving the speaker feeds back into the microphone that is listening for input. Acoustic echo cancellation removes that output from the capture.</p>
+
+      <h2 id="the-problem">The problem</h2>
+      <p>Whatever leaves the speaker travels back to the microphone a few milliseconds later, mixed in with whatever the person is actually saying. The microphone cannot tell the two apart, so everything downstream treats your own output as though someone in the room had said it.</p>
+      <p>In practice that means:</p>
+      <ul>
+        <li>A speech recogniser transcribes your own output, so an interactive agent ends up answering itself.</li>
+        <li>A speech detector reports that someone is talking for as long as the speaker is playing, so nothing can tell a genuine interruption apart from your own audio.</li>
+        <li>On a call, the person at the far end hears their own voice come back at them a beat later.</li>
+      </ul>
+      <p>AEC is built into Decibri. It takes the audio going to the speaker and removes that sound from the microphone capture. Switching it on is one option on the microphone, plus one call each time a block of audio goes to the speaker.</p>
+
+      <h2 id="when-to-use">When to use AEC</h2>
+      <p>Use it when playback and capture overlap in time and the sound is leaving through a loudspeaker. The test is simply whether the two are ever live at the same moment.</p>
+      <p>Common cases: an assistant you can interrupt mid-sentence, a conferencing client on laptop speakers, a speakerphone, a kiosk, or a robot that talks to you while still listening for your next instruction.</p>
+      <p>An agent you can interrupt is the clearest case. It is only pleasant to talk to if you can cut in while it is still speaking, and that means leaving the microphone open through its own reply. Without cancellation, the first thing it hears when it starts speaking is itself.</p>
+
+      <h2 id="when-not-to-use">When not to use AEC</h2>
+      <ul>
+        <li><strong>The user is on headphones.</strong> There is no acoustic path from the earpiece back to the microphone, so there is no echo to remove, and the canceller spends effort searching for something that was never there. If your application supports both routes, enable it only for the loudspeaker case.</li>
+        <li><strong>Playback and capture never overlap.</strong> Push-to-talk, or record-then-play, or any design where the microphone is closed while the speaker is live. Nothing is arriving that needs cancelling.</li>
+        <li><strong>The audio never passes through your code.</strong> Cancellation needs the exact samples that went to the speaker. If the sound belongs to a different application, or a browser tab you do not control, you cannot supply them.</li>
+        <li><strong>You are working with a recording.</strong> Echo cancellation applies to live capture only, and it is not an option on the <a href="/docs/audio/afp">Audio File Processor</a>. Cancelling needs the played audio as a separate stream, lined up against a live capture. In a recording the echo is already mixed into the samples with nothing left to subtract it against. AFP conditions recorded audio; it cannot take echo back out of it.</li>
+      </ul>
+
+      <h2 id="chain">Where it sits in the chain</h2>
+      <p>Capture is normalised to mono at the sample rate you asked for, and cancellation runs on that, ahead of every ACE conditioning stage. The speech detector reads the signal the moment cancellation has finished with it.</p>
+      <p style="text-align: center;"><code>capture &rarr; echo cancellation &rarr; ACE conditioning</code></p>
+
+      <p>That ordering has two consequences.</p>
+
+      <div class="callout">
+        <strong>The detector reads after cancellation.</strong> With echo cancellation on, <code>vadScore</code> and the <code>speech</code> and <code>silence</code> events describe the person in the room, not your own playback. Read <a href="#limits">the limits section</a> before relying on this, because it reduces false triggering rather than eliminating it.
+      </div>
+
+      <div class="callout">
+        <strong>Gain stages run after cancellation, never before.</strong> The canceller sees the capture at its natural level. If you set <code>agc</code> or <code>limiter</code>, they act on the already-cancelled signal. There is no ordering for you to configure.
+      </div>
+
+      <p>Cancellation subtracts an estimate, and where the estimate is wrong the result can exceed the level of the original capture. With <code>dtype: 'int16'</code> the format clamps, so a sample arrives at full scale rather than wrapping. With <code>float32</code> and no limiter, clamp in your own code or set <code>limiter</code>, which runs last and holds the output at its ceiling.</p>
+
+      <h2 id="quick-example">A working example</h2>
+      <p>The simplest case: the audio is already prepared, and you are playing it through Decibri's own speaker. Feed each block to both the speaker and the canceller.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">from decibri import File, Microphone, Speaker
+
+RATE = 16000
+
+# Whatever you are about to play. Any mono PCM at the capture rate works.
+with File("speech.wav", sample_rate=RATE) as f:
+    audio = b"".join(f)
+
+block_bytes = RATE // 10 * 2  # 100 ms of int16
+
+with Microphone(sample_rate=RATE, aec="tau") as mic, Speaker(sample_rate=RATE) as speaker:
+    for i in range(0, len(audio), block_bytes):
+        block = audio[i : i + block_bytes]
+        speaker.write(block)             # play it
+        mic.push_aec_reference(block)    # and tell the canceller you played it
+        near = mic.read(timeout_ms=100)  # microphone audio, echo removed</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
+
+const RATE = 16000;
+
+async function main() {
+  // Whatever you are about to play. Any mono PCM at the capture rate works.
+  const file = await File.open('speech.wav', { sampleRate: RATE });
+  const chunks = [];
+  for await (const chunk of file) chunks.push(chunk);
+  const audio = Buffer.concat(chunks);
+
+  const mic = new Microphone({ sampleRate: RATE, aec: 'tau' });
+  const speaker = new Speaker({ sampleRate: RATE });
+
+  mic.on('data', (chunk) => {
+    // chunk is the microphone audio with the speaker's echo removed
+  });
+  mic.on('error', (err) => console.error(err.message));
+
+  const BLOCK = (RATE / 10) * 2; // 100 ms of int16
+
+  for (let i = 0; i &lt; audio.length; i += BLOCK) {
+    const block = audio.subarray(i, Math.min(i + BLOCK, audio.length));
+    speaker.write(block);        // play it
+    mic.pushAecReference(block); // and tell the canceller you played it
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  mic.stop();
+  speaker.stop();
+}
+
+main();</code></pre>
+        </div>
+      </div>
+      <p>That is the whole integration. One option on the microphone, one call per block of playback.</p>
+
+      <h2 id="reference">The reference signal</h2>
+      <p>This is the part to get right. Everything else on this page is defaults.</p>
+
+      <h3 id="reference-what">What the reference is</h3>
+      <p>The reference is the audio that went out to the speaker: the same samples you handed to the output device, at the moment you handed them over.</p>
+      <p>It is not the source material as it stood before you processed it. It is not the file as it sat on disk. It is not what the microphone picked up. It is the output itself, as sent.</p>
+      <p>So if you change the audio on its way to the speaker, by adjusting the volume, resampling it, or mixing in a notification chime, hand over what came out of that step rather than what went into it. The canceller is searching your capture for this exact signal, and the closer it matches what actually left the speaker, the more it can remove.</p>
+      <p>The reference is always mono, and always in the same sample format as the microphone, <code>int16</code> or <code>float32</code> as your <code>dtype</code> says.</p>
+
+      <h3 id="reference-silence">Silence counts</h3>
+      <p>The reference is a continuous stream. Every moment of capture has a matching moment of playback, and while nothing is being played, that playback is silence.</p>
+      <p>You do not have to push that silence yourself. Decibri fills the gaps, so a caller that simply stops pushing between one utterance and the next has told the canceller that nothing played, which is true. The alignment survives the gap and carries on when you start pushing again.</p>
+      <p>Worth stating plainly, because the next rule depends on it: not pushing does not mean "nothing happened", it means "silence played".</p>
+
+      <h3 id="reference-order">Push in played order</h3>
+      <p>Push blocks in the order they were played, with nothing left out. Decibri lays the reference down against the capture in the order it arrives, so a block you skip is not treated as a gap. It is treated as silence, and everything you push after it lands in the wrong place.</p>
+      <p>If an error path drops a block, or an async boundary reorders them, push what actually played in the order it actually played. If you truly cannot, pushing nothing is better than pushing something out of order.</p>
+      <p>Push in step with playback, block by block, rather than handing over a long buffer in advance. The reference is held in a queue that spans two seconds at the reference rate; a single push longer than that loses the excess, counted in <code>referenceDropped</code>.</p>
+
+      <h3 id="reference-rate">Matching the playback rate</h3>
+      <p><strong>This is the one that fails silently.</strong> Playback and capture rates commonly differ. Speech synthesis services typically return 24 kHz audio, while a capture feeding a speech recogniser usually runs at 16 kHz. A browser or conferencing stack will hand you 48 kHz.</p>
+
+      <div class="callout">
+        <strong>A mismatched rate raises nothing.</strong> If the reference arrives at a rate other than the capture rate and you have not said so, Decibri treats the samples as if they were at the capture rate. The timing is wrong, the canceller never finds the echo, and nothing reports an error. Capture keeps running, audio keeps flowing, no exception is raised, and the echo is still there.
+      </div>
+
+      <p>Declare the reference rate and Decibri converts it for you:</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">Microphone(
+    sample_rate=16000,
+    aec=Aec(model="tau", reference_sample_rate=24000),
+)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">new Microphone({
+  sampleRate: 16000,
+  aec: { model: 'tau', referenceSampleRate: 24000 },
+});</code></pre>
+        </div>
+      </div>
+      <p>Then push the audio at its own rate, unconverted. Do not resample it yourself first; if you do, do not declare the rate, because the two together apply the conversion twice.</p>
+      <p>The check that catches this: with playback running, read the metrics. If <code>delaySamples</code> is <code>null</code> after a few seconds of far-end audio, the rate is the first thing to look at.</p>
+
+      <h3 id="reference-external">When something else plays the audio</h3>
+      <p>Decibri does not have to be the thing playing. A speech synthesis service, a conferencing track, a browser player, a game engine: any of them can do the playing and cancellation still works. What matters is that your code handles the samples on their way out. Wherever it hands them to the player is where you push, with the same buffer and the rate declared.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">from decibri import Aec, File, Microphone, Speaker
+
+CAPTURE_RATE = 16000
+PLAYBACK_RATE = 24000  # whatever the player runs at
+
+# Audio from somewhere else, at that source's own rate.
+with File("speech.wav", sample_rate=PLAYBACK_RATE) as f:
+    audio = b"".join(f)
+
+mic = Microphone(
+    sample_rate=CAPTURE_RATE,
+    aec=Aec(model="tau", reference_sample_rate=PLAYBACK_RATE),
+)
+player = Speaker(sample_rate=PLAYBACK_RATE)
+
+block_bytes = PLAYBACK_RATE // 10 * 2  # 100 ms at the playback rate
+
+with mic, player:
+    for i in range(0, len(audio), block_bytes):
+        block = audio[i : i + block_bytes]
+        player.write(block)            # hand it to the player
+        mic.push_aec_reference(block)  # and push the same bytes, unconverted
+        near = mic.read(timeout_ms=100)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
+
+const CAPTURE_RATE = 16000;
+const PLAYBACK_RATE = 24000; // whatever the player runs at
+
+async function main() {
+  // Audio from somewhere else, at that source's own rate.
+  const file = await File.open('speech.wav', { sampleRate: PLAYBACK_RATE });
+  const chunks = [];
+  for await (const chunk of file) chunks.push(chunk);
+  const audio = Buffer.concat(chunks);
+
+  const mic = new Microphone({
+    sampleRate: CAPTURE_RATE,
+    aec: { model: 'tau', referenceSampleRate: PLAYBACK_RATE },
+  });
+  const player = new Speaker({ sampleRate: PLAYBACK_RATE });
+
+  mic.on('data', (chunk) => {
+    // near-end audio, echo removed
+  });
+  mic.on('error', (err) => console.error(err.message));
+
+  const BLOCK = (PLAYBACK_RATE / 10) * 2; // 100 ms at the playback rate
+
+  for (let i = 0; i &lt; audio.length; i += BLOCK) {
+    const block = audio.subarray(i, Math.min(i + BLOCK, audio.length));
+    player.write(block);         // hand it to the player
+    mic.pushAecReference(block); // and push the same bytes, unconverted
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  mic.stop();
+  player.stop();
+}
+
+main();</code></pre>
+        </div>
+      </div>
+
+      <p>One thing this pattern does not cover: if the player converts the audio again before it reaches the speaker, push what you gave the player and accept that the reference is one step removed from what was actually played. It usually still works.</p>
+
+      <h3 id="reference-running">Push only while capture is running</h3>
+      <p>A push before capture is running is discarded silently. It is not counted as a drop, and no error is raised.</p>
+      <p>The reliable check is the metrics accessor: it returns <code>null</code> until capture is running, and an object once it is. In Python, the context manager and <code>start()</code> both return with capture running, so a push straight afterwards is accepted. In Node the stream starts when you begin consuming it, so push from inside your <code>data</code> handler or your playback loop, not immediately after the constructor returns.</p>
+
+      <h2 id="configuration">Configuration</h2>
+      <p><code>aec</code> accepts a model name for the defaults, or an object to tune it.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">from decibri import Aec, Microphone
+
+# Short form: the model with its defaults.
+a = Microphone(sample_rate=16000, aec="tau")
+
+# Object form: the same model, every option set to its default.
+b = Microphone(
+    sample_rate=16000,
+    aec=Aec(
+        model="tau",
+        tail_ms=200,
+        suppression="conservative",
+        reference_sample_rate=16000,
+    ),
+)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+
+// Short form: the model with its defaults.
+const a = new Microphone({ sampleRate: 16000, aec: 'tau' });
+
+// Object form: the same model, every option set to its default.
+const b = new Microphone({
+  sampleRate: 16000,
+  aec: {
+    model: 'tau',
+    tailMs: 200,
+    suppression: 'conservative',
+    referenceSampleRate: 16000,
+  },
+});</code></pre>
+        </div>
+      </div>
+
+      <h3 id="model">model</h3>
+      <p><code>'tau'</code> is the model available today. It carries no model file and needs no download. Passing the short form and passing <code>{ model: 'tau' }</code> are the same thing.</p>
+      <p>An unrecognised name is rejected when the microphone is constructed, with a message naming the accepted set. Leave this alone unless a future release adds another name.</p>
+
+      <h3 id="tail-ms">tailMs / tail_ms</h3>
+      <p>How much echo delay spread the canceller can account for, in milliseconds. Accepted range 16 to 500, default 200.</p>
+      <p>Raise it when the room is large or reverberant, or when the audio path adds delay, for example Bluetooth output or a device with deep buffering. Lower it for a small enclosure with a short direct path. Longer settings ask more of the machine, so prefer the default unless you have a reason.</p>
+
+      <h3 id="suppression">suppression</h3>
+      <p><code>'conservative'</code> (the default) attenuates the residue the linear stage leaves behind. <code>'off'</code> delivers the linear output as it stands.</p>
+      <p>Leave it at <code>'conservative'</code> for a normal capture. Choose <code>'off'</code> when downstream processing expects an unmodified near-end signal and you would rather handle the residue yourself.</p>
+
+      <h3 id="reference-sample-rate">referenceSampleRate / reference_sample_rate</h3>
+      <p>The rate of the audio you push, in Hz. Accepted range 1000 to 384000. Unset means the reference is already at the capture rate.</p>
+      <p>Set it whenever your playback rate differs from your capture rate. See <a href="#reference-rate">the rate section</a> above; this is the option that exists for it.</p>
+
+      <h3 id="capture-constraints">Constraints on the capture</h3>
+      <p>Echo cancellation requires <code>sampleRate</code> between 8000 and 48000, narrower than the range <code>sampleRate</code> otherwise accepts. A rate that is fine for a plain capture is rejected once echo cancellation is on.</p>
+      <p>Capture is mono, as it is for every decibri capture.</p>
+      <p>Echo cancellation is available on native capture only. The browser build does not take this option, because browser capture carries the platform's own <code>echoCancellation</code> constraint, which is on by default.</p>
+
+      <h2 id="diagnostics">Diagnostics</h2>
+      <p><code>aecMetrics()</code> in Node, <code>aec_metrics()</code> in Python. Both return <code>null</code> / <code>None</code> when the <code>aec</code> option is unset or capture is not running, and an object otherwise.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Node</th>
+              <th>Python</th>
+              <th>Type</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delaySamples</code></td>
+              <td><code>delay_samples</code></td>
+              <td>number or null</td>
+              <td>Active alignment between reference and capture. <code>null</code> while searching.</td>
+            </tr>
+            <tr>
+              <td><code>erleDb</code></td>
+              <td><code>erle_db</code></td>
+              <td>number</td>
+              <td>Smoothed estimate of how much echo is being removed, in dB.</td>
+            </tr>
+            <tr>
+              <td><code>doubleTalk</code></td>
+              <td><code>double_talk</code></td>
+              <td>boolean</td>
+              <td>Whether the near-end talker is believed active. Adaptation is held while true.</td>
+            </tr>
+            <tr>
+              <td><code>referenceStarved</code></td>
+              <td><code>reference_starved</code></td>
+              <td>number</td>
+              <td>Near-end samples with no far-end sample available while aligned.</td>
+            </tr>
+            <tr>
+              <td><code>acquisitionParked</code></td>
+              <td><code>acquisition_parked</code></td>
+              <td>number</td>
+              <td>Near-end samples processed while no alignment was active.</td>
+            </tr>
+            <tr>
+              <td><code>referenceReanchors</code></td>
+              <td><code>reference_reanchors</code></td>
+              <td>number</td>
+              <td>Times the alignment was rebuilt after a capture discontinuity.</td>
+            </tr>
+            <tr>
+              <td><code>referenceDropped</code></td>
+              <td><code>reference_dropped</code></td>
+              <td>number</td>
+              <td>Far-end samples discarded because a push exceeded the queue, at the reference rate.</td>
+            </tr>
+            <tr>
+              <td><code>referenceSilence</code></td>
+              <td><code>reference_silence</code></td>
+              <td>number</td>
+              <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="diagnostics-procedure">Working out what is wrong</h3>
+      <p>Read the metrics while far-end audio is actually playing, and give it a few seconds. Then work down this list. The first match is your answer.</p>
+      <ul>
+        <li><strong>The accessor returned null.</strong> Echo cancellation is off, or capture is not running. Check that you passed <code>aec</code>, and that capture has started. Any pushes you made in this state were discarded.</li>
+        <li><strong><code>delaySamples</code> is a number.</strong> The canceller has found your echo and is working. If echo is still audible, that is <a href="#limits">the limits section</a>, not a fault. Nothing below applies.</li>
+        <li><strong><code>delaySamples</code> is null and <code>referenceSilence</code> is climbing at the same rate as <code>acquisitionParked</code>.</strong> No reference is reaching the canceller. Every sample it processed was silence it filled in for you. Either you are not calling the push method, or you are calling it before capture is running, or you are calling it on a different microphone instance than the one capturing.</li>
+        <li><strong><code>delaySamples</code> is null and <code>referenceDropped</code> is climbing.</strong> You are pushing faster than capture consumes, or in blocks longer than the queue. Push smaller blocks, in step with playback, rather than handing over long buffers.</li>
+        <li><strong><code>delaySamples</code> is null, <code>referenceSilence</code> is not climbing, and nothing is being dropped.</strong> The reference is arriving and is being consumed, but it does not line up with the echo. In order of likelihood: the rate is wrong and undeclared; the audio you are pushing is not the audio that played; or the far end is material the canceller cannot lock onto, which is covered in <a href="#limits">the limits</a>.</li>
+        <li><strong><code>referenceStarved</code> is climbing.</strong> You have run further ahead of your own capture than the canceller's history reaches. Push in step with playback.</li>
+        <li><strong><code>referenceReanchors</code> is climbing steadily.</strong> Capture is being interrupted and the alignment keeps being rebuilt. Look at overruns and at whatever is stalling your capture loop, not at the canceller.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>A note on <code>erleDb</code>.</strong> It rises while echo is being removed, sits near zero before the filter settles, and dips while adaptation is held during double talk. It moves around continuously in normal operation. Use it to see change over time, not as a pass mark; there is no threshold that means "working".
+      </div>
+
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">def diagnose(mic: Microphone) -&gt; str:
+    m = mic.aec_metrics()
+
+    if m is None:
+        return "echo cancellation is off, or capture is not running"
+    if m.delay_samples is not None:
+        return f"aligned at {m.delay_samples} samples, double talk {m.double_talk}"
+    if m.reference_silence &gt;= m.acquisition_parked:
+        return "no reference is reaching the canceller"
+    if m.reference_dropped &gt; 0:
+        return "pushes are being discarded: push smaller blocks, in step with playback"
+    return "reference is arriving but nothing has aligned: check the rate"</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">function diagnose(mic) {
+  const m = mic.aecMetrics();
+
+  if (m === null) {
+    return 'echo cancellation is off, or capture is not running';
+  }
+  if (m.delaySamples !== null) {
+    return `aligned at ${m.delaySamples} samples, double talk ${m.doubleTalk}`;
+  }
+  if (m.referenceSilence &gt;= m.acquisitionParked) {
+    return 'no reference is reaching the canceller';
+  }
+  if (m.referenceDropped &gt; 0) {
+    return 'pushes are being discarded: push smaller blocks, in step with playback';
+  }
+  return 'reference is arriving but nothing has aligned: check the rate';
+}</code></pre>
+        </div>
+      </div>
+
+      <h2 id="limits">Limits</h2>
+      <p>Read this before you design around echo cancellation. These are properties of the problem, and knowing them will save you building on an assumption that does not hold.</p>
+
+      <h3 id="limits-room">How much echo is removed depends on the room</h3>
+      <p>Echo reduction is governed by the acoustic path between your speaker and your microphone, and that path is out of decibri's hands. A path that is stable, direct, and free of clipping gives good reduction. Ordinary laptop speakers or desktop monitor speakers, a few tens of centimetres from the microphone, in a normal room, give modest reduction. That is the common case, and modest is the expected outcome, not a sign that something is broken.</p>
+      <p>What helps, in rough order: lower the playback volume, increase the distance between speaker and microphone, avoid driving the speaker into distortion, and keep the physical arrangement fixed while capture runs. Moving the laptop mid-call invalidates the alignment.</p>
+
+      <h3 id="limits-vad">Speech detection may still trigger on far-end audio</h3>
+      <p>The detector reads after cancellation, so it sees less of your playback than it otherwise would. It does not follow that it stops firing on your playback altogether.</p>
+      <p>Whether it fires depends on whether the residual echo sits below the room's noise, not on how much was removed. Loud playback in a quiet room can leave a residue that is quiet in absolute terms and still well clear of the noise floor, and the detector will call that speech.</p>
+      <p>If you are enabling echo cancellation specifically to stop your own output triggering speech detection, it will help, and it will not reliably solve it. The robust approach is to also track when you are playing and treat detections during playback accordingly. Do not build a barge-in design that depends on the detector alone staying quiet through your own output.</p>
+
+      <h3 id="limits-double-talk">Double talk</h3>
+      <p>Double talk is the moment someone cuts in while your own audio is still playing, which is exactly the moment a barge-in design cares about most. With both ends live at once, the canceller holds its adaptation rather than learning from a signal that is no longer only echo. Two consequences: echo reduction during those stretches is lower than when the far end talks alone, and the near-end talker is very slightly affected. <code>doubleTalk</code> in the metrics tells you when this is happening.</p>
+
+      <h3 id="limits-music">Music and sustained tones may never lock</h3>
+      <p>Alignment is found by looking for the far-end signal inside the capture. That needs something aperiodic to lock onto. Speech has it. Music with a steady beat, a held tone, a ringtone, a hum, a test sine can all fail to produce a usable alignment, and <code>delaySamples</code> can stay <code>null</code> for the whole of a musical passage.</p>
+      <p>This is a real use case and worth planning for. If your far end is a media stream, expect echo cancellation to work during speech and to be unreliable during music. An alignment found during speech does carry across into the music that follows, so a stream that opens with a spoken introduction fares better than one that opens on a note.</p>
+
+      <h2 id="mistakes">Common mistakes</h2>
+
+      <h3 id="mistake-rate">The reference at the wrong rate</h3>
+      <p><strong>Symptom:</strong> everything runs, no error is raised, and the echo is untouched. <code>delaySamples</code> stays <code>null</code> while <code>acquisitionParked</code> climbs and <code>referenceSilence</code> does not.</p>
+      <p><strong>Fix:</strong> set <code>referenceSampleRate</code> / <code>reference_sample_rate</code> to the rate of the audio you are pushing, and push it unconverted.</p>
+
+      <h3 id="mistake-invisible-playback">Playback that never reaches your code, and nobody pushed</h3>
+      <p><strong>Symptom:</strong> the echo is untouched, <code>delaySamples</code> stays <code>null</code>, and <code>referenceSilence</code> climbs in step with <code>acquisitionParked</code>.</p>
+      <p><strong>Fix:</strong> push at the point where your code hands audio to the player. If the audio never passes through your code, echo cancellation cannot help.</p>
+
+      <h3 id="mistake-headphones">Enabled with headphones</h3>
+      <p><strong>Symptom:</strong> no benefit, and a canceller searching for an echo that does not exist.</p>
+      <p><strong>Fix:</strong> leave the option off. Detect the output route if your application supports both, and only enable it for the loudspeaker case.</p>
+
+      <h3 id="mistake-early-push">Pushing before capture is running</h3>
+      <p><strong>Symptom:</strong> pushes vanish. <code>referenceDropped</code> stays at zero, because a discarded push is not a dropped sample.</p>
+      <p><strong>Fix:</strong> check that the metrics accessor returns an object before you rely on pushes. In Node, push from inside the playback loop or the <code>data</code> handler.</p>
+
+      <h3 id="mistake-one-push">Handing over a whole utterance in one push</h3>
+      <p><strong>Symptom:</strong> <code>referenceDropped</code> jumps by a large count on a single call, and alignment does not appear.</p>
+      <p><strong>Fix:</strong> the queue spans two seconds at the reference rate. Push in blocks, in step with playback.</p>
+
+      <h3 id="mistake-format">Pushing a buffer in the wrong sample format</h3>
+      <p><strong>Symptom:</strong> in Python, a <code>TypeError</code> naming the mismatch. In Node, no error at all: the bytes are taken as they are and reinterpreted in the microphone's <code>dtype</code>, so a <code>Float32Array</code> pushed into an <code>int16</code> capture is read as noise and nothing aligns.</p>
+      <p><strong>Fix:</strong> push in the same <code>dtype</code> the microphone was constructed with.</p>
+
+      <h3 id="mistake-metrics-after-stop">Expecting <code>stop()</code> to preserve the metrics</h3>
+      <p><strong>Symptom:</strong> the accessor returns <code>null</code> after capture stops, and a final reading you meant to log is lost.</p>
+      <p><strong>Fix:</strong> read the metrics while capture is still running.</p>
+
+      <h2 id="per-language">Per-language detail</h2>
+      <p>The exhaustive signatures, the config and metrics types, the async surface, and the error tables live on the binding reference pages:</p>
+      <ul>
+        <li><a href="/docs/apis/python#aec">Python API</a>: the <code>aec</code> option, the <code>Aec</code> and <code>AecMetrics</code> dataclasses, <code>push_aec_reference()</code>, <code>aec_metrics()</code>, the <code>AsyncMicrophone</code> surface, and the exception rows.</li>
+        <li><a href="/docs/apis/node#aec">Node.js API</a>: the <code>aec</code> option, the <code>AecOptions</code> and <code>AecMetrics</code> interfaces, <code>pushAecReference()</code>, <code>aecMetrics()</code>, and the error classes with their <code>code</code> values.</li>
+      </ul>
+      <p>The same capability is available in the Rust API, where the option and the reference push sit on the capture builder. See the crate documentation for the Rust signatures.</p>
+
+      <div class="related-links">
+        <h2>Related</h2>
+        <ul>
+          <li><a href="/docs/audio">Audio Processing</a>: the built-in audio processing overview</li>
+          <li><a href="/docs/audio/ace">Audio Capture Engine (ACE)</a>: the conditioning stages that run after cancellation</li>
+          <li><a href="/docs/audio/afp">Audio File Processor (AFP)</a>: the same conditioning chain over recorded audio</li>
+          <li><a href="/docs/apis/python">Python API</a>: the full constructor surface</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the JavaScript / TypeScript surface</li>
+          <li><a href="/docs/integrations/vad">Voice activity detection</a>: the detector that reads after cancellation</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: consumers of conditioned audio</li>
+          <li><a href="https://github.com/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
+        </ul>
+      </div>
+
+      <footer class="doc-footer">
+        <p>&copy; Copyright 2026 <a href="https://decibri.com">Decibri</a></p>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/docs/nav.js"></script>
+  <script>
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+  </script>
+  <script src="/docs/code-tabs.js" defer></script>
+</body>
+</html>

@@ -71,6 +71,10 @@
           <h3>Audio Capture Engine (ACE)</h3>
           <p>The built-in conditioning chain: DC removal, denoise, high-pass filter, automatic gain control, and limiter. Concept, processing order, and the configuration options for each stage across Python, Node.js, and Rust.</p>
         </a>
+        <a href="/docs/audio/aec" class="doc-card">
+          <h3>Acoustic Echo Cancellation (AEC)</h3>
+          <p>Remove the sound of your own loudspeaker from the microphone capture. The <code>aec</code> option, the reference signal you push while you play, the diagnostics, and the limits. Python and Node.js.</p>
+        </a>
         <a href="/docs/audio/afp" class="doc-card">
           <h3>Audio File Processor (AFP)</h3>
           <p>The offline source: run a recording, or samples already in memory, through the same conditioning chain, or score the whole recording for speech in one pass. The <code>File</code> class in Python and Node.js.</p>
@@ -89,6 +93,7 @@
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/audio/ace">Audio Capture Engine (ACE)</a>: the built-in conditioning chain and its options</li>
+          <li><a href="/docs/audio/aec">Acoustic Echo Cancellation (AEC)</a>: remove your own loudspeaker from the microphone capture</li>
           <li><a href="/docs/audio/afp">Audio File Processor (AFP)</a>: the same chain over recorded audio, plus whole-recording speech analysis</li>
           <li><a href="/docs/getting-started">Getting started</a>: install and first capture</li>
           <li><a href="/docs/integrations">Integrations</a>: connect conditioned audio to STT, TTS, VAD, and KWS providers</li>
