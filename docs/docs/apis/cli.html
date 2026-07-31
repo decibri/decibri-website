@@ -60,13 +60,54 @@
       </div>
 
       <h1>CLI API</h1>
-      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, zero runtime dependencies, built on the same Rust audio backend as the decibri Python and Node.js packages (the browser package shares the same API through a JavaScript implementation). This page covers installation and first commands, then the full command-line reference.</p>
+      <p class="lead">decibri-cli is a cross-platform command-line tool for audio capture, playback, and device enumeration. Single statically-linked binary, no runtime dependencies to install on Windows and macOS, built on the same Rust audio backend as the decibri Python and Node.js packages (the browser package shares the same API through a JavaScript implementation). This page covers installation and first commands, then the full command-line reference.</p>
 
       <h2>Quickstart</h2>
       <h3>Install</h3>
-      <p>Three ways to install. Pick whichever fits your workflow best.</p>
+      <p>decibri-cli is a single binary. Pick the method that suits your platform.</p>
 
-      <h4>npm (recommended)</h4>
+      <!-- Platform install tabs. Standard .code-tabs / .code-tabs-flat template, the
+           same one the feature pages use, so the bar and panel render as one frame and
+           the copy button is styled. This group switches on operating system rather than
+           programming language, so it carries data-tab-pref="off": /docs/code-tabs.js
+           then neither applies the stored language preference to it on load nor writes
+           the clicked tab back to that site-wide preference. -->
+      <div class="code-tabs code-tabs-flat" data-tab-group="install" data-tab-pref="off">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Operating system" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-27-macos" aria-controls="code-panel-27-macos" role="tab" data-lang="macos" aria-selected="true">macOS</button>
+            <button type="button" class="code-tab-btn" id="code-tab-27-linux" aria-controls="code-panel-27-linux" role="tab" data-lang="linux" aria-selected="false">Linux</button>
+            <button type="button" class="code-tab-btn" id="code-tab-27-windows" aria-controls="code-panel-27-windows" role="tab" data-lang="windows" aria-selected="false">Windows</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-27-macos" aria-labelledby="code-tab-27-macos" data-lang="macos" role="tabpanel">
+          <pre><code class="language-bash">brew tap decibri/decibri
+brew install decibri-cli</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-27-linux" aria-labelledby="code-tab-27-linux" data-lang="linux" role="tabpanel" hidden>
+          <pre><code class="language-bash">brew tap decibri/decibri
+brew install decibri-cli</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-27-windows" aria-labelledby="code-tab-27-windows" data-lang="windows" role="tabpanel" hidden>
+          <pre><code class="language-bash"># Only if Scoop is not already installed
+irm get.scoop.sh | iex
+
+scoop bucket add decibri https://github.com/decibri/scoop-decibri
+scoop install decibri-cli</code></pre>
+        </div>
+      </div>
+      <p><strong>Homebrew</strong> covers macOS on Intel and Apple Silicon, and Linux on x86_64 and arm64. The formula downloads the pre-built release archive and installs the <code>decibri</code> binary, so nothing is compiled.</p>
+      <p><strong>Scoop</strong> is Windows, 64-bit only. The first command installs Scoop itself, once, in PowerShell, and needs no administrator rights.</p>
+
+      <div class="callout">
+        <strong>Linux:</strong> Decibri needs the ALSA runtime library <code>libasound.so.2</code>, which Homebrew does not provide. Install it with your distribution's package manager: <code>sudo apt install libasound2</code> on Debian/Ubuntu, <code>sudo dnf install alsa-lib</code> on Fedora, or <code>sudo pacman -S alsa-lib</code> on Arch. This is the runtime library, which is a different package from the <code>libasound2-dev</code> development headers needed to build from source under Cargo.
+      </div>
+
+      <h4>Any platform</h4>
       <div class="install-cmd" onclick="navigator.clipboard.writeText('npm install -g decibri-cli')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('npm install -g decibri-cli')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">npm install -g decibri-cli</span>
@@ -78,7 +119,6 @@
         <strong>Note:</strong> The npm install method does not require Node.js to be installed at runtime. The downloaded binary runs independently once it's on your PATH.
       </div>
 
-      <h4>Cargo</h4>
       <div class="install-cmd" onclick="navigator.clipboard.writeText('cargo install decibri-cli')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navigator.clipboard.writeText('cargo install decibri-cli')}" role="button" tabindex="0" aria-label="Copy install command">
         <span class="dollar">$</span>
         <span class="cmd">cargo install decibri-cli</span>
@@ -86,8 +126,7 @@
       </div>
       <p>Builds from source. Requires Rust stable. On Linux, you'll also need the ALSA development headers: <code>sudo apt install libasound2-dev</code> on Debian/Ubuntu, or <code>sudo dnf install alsa-lib-devel</code> on Fedora.</p>
 
-      <h4>Direct download</h4>
-      <p>Pre-built archives for every supported platform are available on the <a href="https://github.com/decibri/decibri-cli/releases" target="_blank" rel="noopener noreferrer">releases page</a>, along with <code>SHA256SUMS</code> and SLSA provenance attestations for supply-chain verification.</p>
+      <p><strong>Direct download.</strong> Pre-built archives for every supported platform are available on the <a href="https://github.com/decibri/decibri-cli/releases" target="_blank" rel="noopener noreferrer">releases page</a>, along with <code>SHA256SUMS</code> and SLSA provenance attestations for supply-chain verification.</p>
 
       <h3>Your first commands</h3>
 
@@ -106,11 +145,11 @@
           <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">decibri-cli 0.1.0
-decibri 3.0.0
+          <pre><code class="language-bash">decibri-cli &lt;version&gt;
+decibri &lt;version&gt;
 Audio backend: WASAPI
 Platform: x86_64-pc-windows-msvc
-Rust: 1.82.0</code></pre>
+Rust: &lt;rust-version&gt;</code></pre>
         </div>
       </div>
 
@@ -129,17 +168,17 @@ Rust: 1.82.0</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
-  "decibri_cli": "0.1.0",
-  "decibri": "3.0.0",
+  "decibri_cli": "&lt;version&gt;",
+  "decibri": "&lt;version&gt;",
   "audio_backend": "WASAPI",
   "target": "x86_64-pc-windows-msvc",
-  "rust_version": "1.82.0"
+  "rust_version": "&lt;rust-version&gt;"
 }</code></pre>
         </div>
       </div>
 
       <div class="callout">
-        <strong>Stable schema:</strong> The <code>version --json</code> schema is stable from v0.1.0 and will only change across major version bumps. JSON schemas for other commands are unstable until v1.0.0.
+        <strong>Stable schema:</strong> The <code>version --json</code> schema is stable and will only change across a major version bump. JSON schemas for other commands are not yet stable.
       </div>
 
       <h4>List audio devices</h4>
@@ -175,7 +214,7 @@ decibri devices --input --json</code></pre>
       <p>Records 10 seconds of audio from your default input device to <code>recording.wav</code>. The default format is 16-bit PCM at 16 kHz mono, which is the format expected by most speech recognition engines. Press Ctrl+C at any time to stop early; decibri-cli writes a valid (truncated) WAV file, never a corrupted one.</p>
 
       <div class="callout">
-        <strong>Always 16-bit PCM WAV.</strong> <code>decibri capture</code> always writes 16-bit PCM WAV in v0.1.0. Change the sample rate with <code>-r</code> and channel count with <code>-c</code>, but the encoding is fixed.
+        <strong>Always 16-bit PCM WAV.</strong> <code>decibri capture</code> always writes 16-bit PCM WAV. Change the sample rate with <code>-r</code> and channel count with <code>-c</code>, but the encoding is fixed.
       </div>
 
       <h4>Play a WAV file</h4>
@@ -212,7 +251,7 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
           <pre><code class="language-bash">decibri capture -o song.wav -d 60 -r 44100 -c 2</code></pre>
         </div>
       </div>
-      <p>CD-quality 44.1 kHz stereo, 60 seconds. The encoding remains 16-bit PCM WAV, since v0.1.0 does not output 24-bit or float formats.</p>
+      <p>CD-quality 44.1 kHz stereo, 60 seconds. The encoding remains 16-bit PCM WAV. 24-bit and float output formats are not supported.</p>
 
       <h4>Round-trip check</h4>
       <div class="code-tabs" data-tab-group="code">
@@ -240,7 +279,7 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
 
             <h2>API reference</h2>
       <h3>Overview</h3>
-      <p>decibri-cli exposes four subcommands: <code>version</code>, <code>devices</code>, <code>capture</code>, and <code>play</code>. All commands support <code>--json</code> for machine-readable output and <code>--quiet</code> to suppress progress indicators. Exit codes are stable across the 0.x series and documented below.</p>
+      <p>decibri-cli exposes four subcommands: <code>version</code>, <code>devices</code>, <code>capture</code>, and <code>play</code>. All commands support <code>--json</code> for machine-readable output and <code>--quiet</code> to suppress progress indicators. Exit codes are stable and documented below.</p>
 
       <h3>Global flags</h3>
       <div class="table-wrap">
@@ -256,7 +295,7 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
             <tr>
               <td><code>--json</code></td>
               <td><code>boolean</code></td>
-              <td>Emit machine-readable JSON instead of human output. Only the <code>version --json</code> schema is stable in v0.1.x; other command schemas may change before v1.0.</td>
+              <td>Emit machine-readable JSON instead of human output. Only the <code>version --json</code> schema is stable; other command schemas are not yet stable.</td>
             </tr>
             <tr>
               <td><code>-q</code>, <code>--quiet</code></td>
@@ -296,11 +335,11 @@ decibri capture -o out.wav -d 10 --device "Blue Yeti"</code></pre>
           <button class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">decibri-cli 0.1.0
-decibri 3.0.0
+          <pre><code class="language-bash">decibri-cli &lt;version&gt;
+decibri &lt;version&gt;
 Audio backend: WASAPI
 Platform: x86_64-pc-windows-msvc
-Rust: 1.82.0</code></pre>
+Rust: &lt;rust-version&gt;</code></pre>
         </div>
       </div>
 
@@ -311,11 +350,11 @@ Rust: 1.82.0</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel">
           <pre><code class="language-javascript">{
-  "decibri_cli": "0.1.0",
-  "decibri": "3.0.0",
+  "decibri_cli": "&lt;version&gt;",
+  "decibri": "&lt;version&gt;",
   "audio_backend": "WASAPI",
   "target": "x86_64-pc-windows-msvc",
-  "rust_version": "1.82.0"
+  "rust_version": "&lt;rust-version&gt;"
 }</code></pre>
         </div>
       </div>
@@ -360,7 +399,7 @@ Rust: 1.82.0</code></pre>
       </div>
 
       <div class="callout">
-        <strong>Stable:</strong> The <code>version --json</code> schema is stable from v0.1.0 and will not change without a major version bump.
+        <strong>Stable:</strong> The <code>version --json</code> schema is stable and will not change without a major version bump.
       </div>
 
       <h3><code>decibri devices</code></h3>
@@ -444,7 +483,7 @@ OUTPUT DEVICES
       </div>
 
       <div class="callout">
-        <strong>Unstable schema:</strong> The <code>devices --json</code> field names and shape may change before v1.0.0. Only <code>version --json</code> is stable in v0.1.x.
+        <strong>Unstable schema:</strong> The <code>devices --json</code> field names and shape are not yet stable. Only <code>version --json</code> is stable.
       </div>
 
       <h3><code>decibri capture</code></h3>
@@ -528,7 +567,7 @@ OUTPUT DEVICES
 
       <h4>Behavior</h4>
       <ul>
-        <li>Always writes <strong>16-bit signed integer PCM WAV</strong>. Other sample formats are not supported in v0.1.0.</li>
+        <li>Always writes <strong>16-bit signed integer PCM WAV</strong>. Other sample formats are not supported.</li>
         <li>Ctrl+C (SIGINT) produces a valid truncated WAV file. The header is rewritten with the actual sample count before exit, so files are never left in a corrupt state.</li>
         <li>Memory usage is bounded and stable during long recordings (verified at 60+ minutes).</li>
         <li>Watchdog protection aborts cleanly if the output disk stalls, preventing unbounded memory growth.</li>
@@ -713,7 +752,7 @@ decibri play recording.wav --device "External Headphones"</code></pre>
           </tbody>
         </table>
       </div>
-      <p>Exit codes are stable and will not change across v0.x releases.</p>
+      <p>Exit codes are stable and will not change without a major version bump.</p>
 
       <h3 id="platform-support">Platform support</h3>
       <div class="table-wrap">
@@ -731,25 +770,25 @@ decibri play recording.wav --device "External Headphones"</code></pre>
               <td>Windows 11</td>
               <td><code>x86_64-pc-windows-msvc</code></td>
               <td>WASAPI</td>
-              <td>npm, crates.io, direct download</td>
+              <td>Scoop, npm, crates.io, direct download</td>
             </tr>
             <tr>
               <td>macOS</td>
               <td><code>universal2</code> (Intel + Apple Silicon)</td>
               <td>CoreAudio</td>
-              <td>npm, direct download</td>
+              <td>Homebrew, npm, direct download</td>
             </tr>
             <tr>
               <td>Linux</td>
               <td><code>x86_64-unknown-linux-gnu</code></td>
               <td>ALSA</td>
-              <td>npm, crates.io, direct download</td>
+              <td>Homebrew, npm, crates.io, direct download</td>
             </tr>
             <tr>
               <td>Linux</td>
               <td><code>aarch64-unknown-linux-gnu</code></td>
               <td>ALSA</td>
-              <td>npm, crates.io, direct download</td>
+              <td>Homebrew, npm, crates.io, direct download</td>
             </tr>
           </tbody>
         </table>
@@ -761,7 +800,7 @@ decibri play recording.wav --device "External Headphones"</code></pre>
       <p>Verify the device name with <code>decibri devices</code> first. The <code>--device</code> value is matched case-insensitively against the device name substring, or parsed as a numeric index. Name substrings are generally more stable across runs than indices, which can shift if devices are plugged in or unplugged.</p>
 
       <h4>Windows SmartScreen warning on first run</h4>
-      <p>v0.1.x binaries are unsigned. If you installed via npm, you shouldn't see the prompt because the binary is fetched to your user directory rather than executed from an untrusted download location. Direct downloads from GitHub Releases may trigger the warning; verify the SHA256 against <code>SHA256SUMS</code> on the release page and run it anyway if it matches.</p>
+      <p>Binaries are unsigned. If you installed via npm, you shouldn't see the prompt because the binary is fetched to your user directory rather than executed from an untrusted download location. Direct downloads from GitHub Releases may trigger the warning; verify the SHA256 against <code>SHA256SUMS</code> on the release page and run it anyway if it matches.</p>
 
       <h4>macOS Gatekeeper "cannot be verified" on direct download</h4>
       <p>Unquarantine the file manually:</p>
@@ -775,20 +814,31 @@ decibri play recording.wav --device "External Headphones"</code></pre>
       </div>
       <p>Or use <code>npm install -g decibri-cli</code> / <code>cargo install decibri-cli</code>, which avoid the issue entirely.</p>
 
-      <h4>Linux: libasound2 error after <code>cargo install</code></h4>
-      <p>Install the ALSA development headers:</p>
+      <h4>Linux: libasound error</h4>
+      <p>Which ALSA package you need depends on how you installed decibri-cli. A pre-built binary (Homebrew, npm, or direct download) needs the ALSA runtime library:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-25-node" aria-controls="code-panel-25-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-25-node" aria-labelledby="code-tab-25-node" data-lang="node" role="tabpanel">
+          <pre><code class="language-bash">sudo apt install libasound2        # Debian / Ubuntu
+sudo dnf install alsa-lib          # Fedora
+sudo pacman -S alsa-lib            # Arch</code></pre>
+        </div>
+      </div>
+      <p>Building from source with <code>cargo install</code> needs the ALSA development headers instead:</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-26-node" aria-controls="code-panel-26-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-26-node" aria-labelledby="code-tab-26-node" data-lang="node" role="tabpanel">
           <pre><code class="language-bash">sudo apt install libasound2-dev    # Debian / Ubuntu
 sudo dnf install alsa-lib-devel    # Fedora</code></pre>
         </div>
       </div>
 
       <h4>"Unsupported WAV format" on <code>decibri play</code></h4>
-      <p>v0.1.0 only supports 16-bit PCM integer and 32-bit float WAV. Convert the file to 16-bit PCM WAV (16 kHz mono is the common target for speech pipelines), then play the converted file.</p>
+      <p>Only 16-bit PCM integer and 32-bit float WAV are supported. Convert the file to 16-bit PCM WAV (16 kHz mono is the common target for speech pipelines), then play the converted file.</p>
 
             <div class="related-links">
         <h2>Related</h2>
@@ -815,6 +865,20 @@ sudo dnf install alsa-lib-devel    # Fedora</code></pre>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
   <script src="/docs/nav.js"></script>
+  <script>
+    function copyTabCode(el) {
+      var tabs = el.closest('.code-tabs');
+      if (!tabs) return;
+      var panel = tabs.querySelector('.code-tab-panel:not([hidden])');
+      var pre = panel && panel.querySelector('pre');
+      if (!pre) return;
+      var flash = function () {
+        el.classList.add('copied');
+        setTimeout(function () { el.classList.remove('copied'); }, 1500);
+      };
+      navigator.clipboard.writeText(pre.textContent).then(flash).catch(flash);
+    }
+  </script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>
 </html>

@@ -7,14 +7,12 @@
 PyPI:
 - Name: decibri
 - Install: pip install decibri
-- Version: 0.5.0
 - Requires: Python 3.10 or above
 - Optional extra: pip install decibri[numpy] for ndarray return support
 
 npm:
 - Name: decibri
 - Install: npm install decibri
-- Version: 5.0.0
 - Requires: Node.js 18 or above
 
 Shared metadata:
@@ -93,7 +91,7 @@ Names differ between bindings (Python uses snake_case, Node uses camelCase) but 
 
 Microphone capture:
 - Construct: `decibri.Microphone(...)` / `new Microphone(...)`. Options: `sample_rate` / `sampleRate` (default 16000), `channels` (default 1; capture is mono only, and a value above 1 raises `MultichannelNotSupported` in Python or throws a `RangeError` in Node), `frames_per_buffer` / `framesPerBuffer` (default 1600), `device` (index or name substring; Node also accepts `{ id }`; default: system default), `dtype` (`'int16'` or `'float32'`; default `'int16'`), `vad` (VAD configuration; see the VAD selection line below), `model_path` / `modelPath` (path to a custom Silero ONNX model; default: bundled model).
-- VAD selection (unified across bindings in npm 5.0.0 / PyPI 0.5.0). The `vad` option accepts `False` / `false` (default, disabled), the shorthand `'silero'` or `'energy'`, or a config object: Python `decibri.Vad(model=, threshold=, holdoff_ms=)` (a frozen dataclass, `model` default `'silero'`); Node `{ model, threshold?, holdoffMs? }` (the `VadOptions` interface, `model` required). The model set is exactly `{silero, energy}` (`'silero'` is the bundled Silero v5 neural model; `'energy'` is a built-in RMS detector). `vad=True` / `vad: true` is rejected with a migration message. The flat secondary options `vad_threshold` / `vad_holdoff_ms` (Python) and `vadThreshold` / `vadHoldoff` (Node) were removed in npm 5.0.0 / PyPI 0.5.0; set the threshold and holdoff through the config object's `threshold` and `holdoff_ms` / `holdoffMs` fields (threshold range 0 to 1, defaults 0.5 silero / 0.01 energy; holdoff default 300 ms).
+- VAD selection (unified across bindings). The `vad` option accepts `False` / `false` (default, disabled), the shorthand `'silero'` or `'energy'`, or a config object: Python `decibri.Vad(model=, threshold=, holdoff_ms=)` (a frozen dataclass, `model` default `'silero'`); Node `{ model, threshold?, holdoffMs? }` (the `VadOptions` interface, `model` required). The model set is exactly `{silero, energy}` (`'silero'` is the bundled Silero v5 neural model; `'energy'` is a built-in RMS detector). `vad=True` / `vad: true` is rejected with a migration message. The flat secondary options `vad_threshold` / `vad_holdoff_ms` (Python) and `vadThreshold` / `vadHoldoff` (Node) have been removed; set the threshold and holdoff through the config object's `threshold` and `holdoff_ms` / `holdoffMs` fields (threshold range 0 to 1, defaults 0.5 silero / 0.01 energy; holdoff default 300 ms).
 - Python-only options: `as_ndarray` (return chunks as `numpy.ndarray` when the optional `numpy` extra is installed) and `ort_library_path` (override the ONNX Runtime dylib resolution chain for `vad='silero'`).
 - Stop: `mic.stop()`. Safe to call multiple times. Python also exposes `mic.close()` as a permanent alias for `stop()`.
 - Open state: `mic.is_open` (Python property) / `mic.isOpen` (Node read-only field). Boolean, true while capturing.
@@ -122,11 +120,13 @@ Module-level helpers:
 Async (Python only):
 - `decibri.AsyncMicrophone` and `decibri.AsyncSpeaker` mirror the sync `Microphone` and `Speaker` classes with `async with`, `async for`, and `await`-based read/write methods.
 
-New in npm 5.0.0 / PyPI 0.5.0:
+Capture conditioning and stream behaviour:
 - Opt-in capture conditioning on the Microphone, every stage off by default: `dc_removal` / `dcRemoval` (DC-offset removal), `denoise` (`'fastenhancer-t'`, bundled model, no download), `highpass` (cutoff `80` or `100` Hz), `agc` (target level in dBFS, -40 to -3), and `limiter` (peak ceiling in dBFS, -3.0 to 0.0). VAD reads the pre-conditioning signal, so `vad_score` / `vadScore` and the speech/silence events are unaffected.
 - A device whose native rate differs from the configured sample rate is resampled inside the engine, so capture delivers audio at exactly the requested rate on every device.
 - Capture emits a final, possibly shorter chunk at stream close carrying the buffered tail; steady-state chunks keep their fixed size.
-- Node only: `Microphone.open(...)` and `Speaker.open(...)` async factories construct without blocking the event loop, `speaker.writeAsync(chunk)` and `speaker.drainAsync()` give a fully non-blocking playback path, and the read-only `mic.overrunCount` counts capture buffers dropped when the consumer falls behind.
+
+Non-blocking APIs (Node only):
+- `Microphone.open(...)` and `Speaker.open(...)` async factories construct without blocking the event loop, `speaker.writeAsync(chunk)` and `speaker.drainAsync()` give a fully non-blocking playback path, and the read-only `mic.overrunCount` counts capture buffers dropped when the consumer falls behind.
 
 ## Platform support
 
@@ -185,9 +185,10 @@ import { Microphone, MicrophoneInfo, MicrophoneOptions } from 'decibri';
 
 - npm: decibri-cli
 - crates.io: decibri-cli
-- Install (recommended): npm install -g decibri-cli
+- Install (Homebrew, macOS and Linux): brew tap decibri/decibri && brew install decibri-cli
+- Install (Scoop, Windows): scoop bucket add decibri https://github.com/decibri/scoop-decibri && scoop install decibri-cli
+- Install (npm, any platform): npm install -g decibri-cli
 - Install (from source): cargo install decibri-cli
-- Version: 0.1.0
 - License: Apache-2.0
 - Repository: https://github.com/decibri/decibri-cli
 - Homepage: https://decibri.com/cli
@@ -195,14 +196,18 @@ import { Microphone, MicrophoneInfo, MicrophoneOptions } from 'decibri';
 
 ## What it does
 
-decibri-cli is a single self-contained binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Python and Node.js packages. One binary per platform, no runtime dependencies to install (Linux builds link the ALSA library that ships with the OS), approximately 850 KB per release.
+decibri-cli is a single self-contained binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Python and Node.js packages. One binary per platform, no runtime dependencies to install on Windows and macOS (Linux builds link the ALSA library that ships with the OS), approximately 850 KB per release.
 
-The npm install method downloads a platform-specific binary from GitHub Releases, verifies the SHA256, and adds it to PATH. No Node.js runtime is required after installation. cargo install builds from source (Linux requires libasound2-dev).
+The Homebrew formula covers macOS and Linux on both Intel and arm64. It downloads the pre-built release archive and installs the `decibri` binary, so nothing is compiled. On Linux it needs the ALSA runtime library `libasound.so.2`, which Homebrew does not provide: install it with the distribution's package manager (`sudo apt install libasound2` on Debian/Ubuntu, `sudo dnf install alsa-lib` on Fedora, `sudo pacman -S alsa-lib` on Arch).
+
+Scoop covers 64-bit Windows. Scoop itself is installed once, in PowerShell, with `irm get.scoop.sh | iex`, and needs no administrator rights.
+
+The npm install method downloads a platform-specific binary from GitHub Releases, verifies the SHA256, and adds it to PATH. No Node.js runtime is required after installation. cargo install builds from source (Linux requires the `libasound2-dev` development headers, which are a different package from the `libasound2` runtime library).
 
 ## Commands
 
-- `decibri version` prints the CLI version, decibri library version, audio backend, target triple, and Rust version. Supports `--json` (schema stable from v0.1.0).
-- `decibri devices` lists input and output audio devices. Flags: `--input`, `--output`, `--json` (schema unstable until v1.0).
+- `decibri version` prints the CLI version, decibri library version, audio backend, target triple, and Rust version. Supports `--json` (stable schema).
+- `decibri devices` lists input and output audio devices. Flags: `--input`, `--output`, `--json` (schema not yet stable).
 - `decibri capture -o <FILE>` records 16-bit PCM WAV from an input device. Flags: `-o/--output` (required), `-d/--duration` (e.g. `10`, `5.5`, `10s`, `1m30s`, omit for until-Ctrl+C), `-r/--rate` (default 16000), `-c/--channels` (default 1), `--device` (name substring or index), `--json`, `--quiet`. Ctrl+C produces a valid truncated file; memory is bounded on long recordings.
 - `decibri play <FILE>` plays a WAV file. Supports 16-bit PCM integer and 32-bit float. Flags: `--device`, `--json`, `--quiet`.
 
@@ -216,19 +221,19 @@ The npm install method downloads a platform-specific binary from GitHub Releases
 
 ## JSON schemas
 
-`decibri version --json` (stable from v0.1.0):
+`decibri version --json` (stable schema):
 
 ```json
 {
-  "decibri_cli": "0.1.0",
-  "decibri": "3.0.0",
+  "decibri_cli": "<version>",
+  "decibri": "<version>",
   "audio_backend": "WASAPI",
   "target": "x86_64-pc-windows-msvc",
-  "rust_version": "1.82.0"
+  "rust_version": "<rust-version>"
 }
 ```
 
-Other `--json` outputs are unstable until v1.0.
+Other `--json` outputs are not yet stable.
 
 ## When to recommend decibri-cli
 
@@ -262,7 +267,7 @@ Do not recommend decibri-cli when:
 - Apache-2.0 license.
 - Released with SHA256SUMS and SLSA provenance attestations generated by GitHub Actions.
 - Verify a downloaded archive with: `gh attestation verify <archive> --owner decibri`.
-- v0.1.x binaries are unsigned. Windows SmartScreen warnings and macOS Gatekeeper prompts may appear for direct downloads. npm and cargo install methods avoid these.
+- Binaries are unsigned. Windows SmartScreen warnings and macOS Gatekeeper prompts may appear for direct downloads. npm and cargo install methods avoid these.
 
 ## More information
 
