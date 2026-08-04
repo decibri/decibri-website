@@ -178,6 +178,7 @@ asyncio.run(main())</code></pre>
     agc=None,
     limiter=None,
     dc_removal=False,
+    aec=None,
 )</code></pre>
         </div>
       </div>
@@ -276,6 +277,12 @@ asyncio.run(main())</code></pre>
               <td><code>float | None</code></td>
               <td><code>None</code></td>
               <td>Peak limiter ceiling in dBFS, -3.0 to 0.0. Out of range raises <code>LimiterCeilingOutOfRange</code> with the message <code>limiter must be in [-3.0, 0.0]; got -3.1</code>. See <a href="/docs/audio/ace#limiter">Audio Capture Engine</a>.</td>
+            </tr>
+            <tr>
+              <td><code>aec</code></td>
+              <td><code>str | Aec | None</code></td>
+              <td><code>None</code></td>
+              <td>Acoustic echo cancellation. <code>None</code> leaves it off; <code>"tau"</code> selects the model with default tuning; pass a <code>decibri.Aec(...)</code> object to tune it. See <a href="#aec">Acoustic Echo Cancellation (AEC)</a>.</td>
             </tr>
           </tbody>
         </table>
@@ -506,7 +513,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
               <td><code>path</code></td>
               <td><code>str | Path</code></td>
               <td>required</td>
-              <td>Path to a WAV file. 16-bit PCM and 32-bit float are supported, in the plain container and in <code>WAVE_FORMAT_EXTENSIBLE</code>. Multi-channel files are downmixed to mono.</td>
+              <td>Path to an audio file. WAV, AIFF, AIFF-C and FLAC are read, identified from the file's own bytes rather than its extension. See <a href="/docs/audio/afp#formats">the format table</a> for the encodings each container carries. Multi-channel files are downmixed to mono.</td>
             </tr>
             <tr>
               <td><code>sample_rate</code></td>
@@ -611,14 +618,15 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
           <pre><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)</code></pre>
         </div>
       </div>
-      <p>This is also the route for any audio the WAV reader rejects: decode it yourself, convert to mono floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code>. The conditioning chain then behaves identically to the path constructor.</p>
+      <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to mono floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code>. The conditioning chain then behaves identically to the path constructor. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructor opens those directly.</p>
 
       <h3>Single-pass lifecycle</h3>
-      <p>Iteration and analysis are two alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
+      <p>Iteration, analysis and saving are three alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
       <ul>
         <li><code>analyze()</code> after iteration has begun raises <code>FileEngaged</code>. Any call that advances the cursor marks the <code>File</code> engaged, including one that returns nothing: on an empty recording the first <code>read()</code> returns <code>None</code> and a later <code>analyze()</code> still raises.</li>
-        <li>A second pass raises <code>FileConsumed</code>. That covers calling <code>analyze()</code> twice and iterating a <code>File</code> that has already been analysed.</li>
-        <li>Iterating a <code>File</code> that has been drained or closed yields nothing rather than raising. Only analysis reports the consumed state.</li>
+        <li><code>save()</code> follows the same rule and checks it in the same order: after iteration has begun it raises <code>FileEngaged</code>, before any argument is interpreted, so a bad <code>format</code> on an engaged <code>File</code> reports the engagement rather than the argument.</li>
+        <li>A second pass raises <code>FileConsumed</code>. That covers calling <code>analyze()</code> twice, saving twice, and iterating a <code>File</code> that has already been analysed or saved.</li>
+        <li>Iterating a <code>File</code> that has been drained or closed yields nothing rather than raising. Only analysis and saving report the consumed state.</li>
         <li>A rejected <code>analyze()</code> that never touched the source leaves the <code>File</code> iterable: both <code>VadNotConfigured</code> and the energy-mode refusal return before the pass begins.</li>
         <li><code>close()</code> is idempotent, and the four accessors keep returning their pre-close values afterwards.</li>
       </ul>
@@ -662,6 +670,54 @@ report.segments  # list[Segment]:   start, end</code></pre>
         </div>
       </div>
 
+      <h4><code>file.save(path, *, format=None, compression=None)</code></h4>
+      <p>Run the recording once through the conditioning chain, whole, and write it to <code>path</code>. Returns a <code>SaveReport</code>. Both keyword arguments are keyword-only, and the pass consumes the source exactly as <code>analyze()</code> does.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>path</code></td>
+              <td><code>str | Path</code></td>
+              <td>required</td>
+              <td>Destination. Its extension names the container: <code>.wav</code>, <code>.aiff</code>, <code>.aif</code>, <code>.aifc</code> or <code>.flac</code>, matched ASCII case-insensitively. <code>.aifc</code> writes a plain AIFF. An unrecognised extension, or a path with no extension, raises <code>AudioFormatUnsupported</code> rather than defaulting.</td>
+            </tr>
+            <tr>
+              <td><code>format</code></td>
+              <td><code>"wav" | "aiff" | "flac" | None</code></td>
+              <td><code>None</code></td>
+              <td>Container to write, overriding the extension. <code>None</code> takes it from the extension. Any other value raises <code>ValueError</code>.</td>
+            </tr>
+            <tr>
+              <td><code>compression</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code> (level 5)</td>
+              <td>FLAC compression level, 0 to 8. Higher levels search harder for a smaller file; every level decodes to identical audio. Applies to FLAC only and is ignored for WAV and AIFF. Out of range raises <code>FlacCompressionOutOfRange</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Output is 16-bit PCM, mono, at <code>sample_rate</code>, in every one of the three containers. No parameter changes that. Decibri reads a file by its content and writes one by its name, which is why a save needs an extension or an explicit <code>format</code> and a read needs neither.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-42-python" aria-controls="code-panel-42-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-42-python" aria-labelledby="code-tab-42-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">file = decibri.File("noisy.wav", denoise="fastenhancer-t", agc=-18, limiter=-1.0)
+report = file.save("clean.flac", compression=8)
+
+report.clipped_samples     # int
+report.non_finite_samples  # int</code></pre>
+        </div>
+      </div>
+
       <h4><code>file.close()</code></h4>
       <p>Release the source. Idempotent; a closed <code>File</code> reads as ended.</p>
 
@@ -671,7 +727,7 @@ report.segments  # list[Segment]:   start, end</code></pre>
       <p><code>int</code> (read-only). The target output rate every delivered chunk carries.</p>
 
       <h4><code>file.input_rate</code></h4>
-      <p><code>int</code> (read-only). The source's own rate, read from the WAV header or taken from the <code>input_rate</code> passed to <code>File.buffer</code>. Differs from <code>sample_rate</code> whenever the recording is resampled.</p>
+      <p><code>int</code> (read-only). The source's own rate, read from the file's header or taken from the <code>input_rate</code> passed to <code>File.buffer</code>. Differs from <code>sample_rate</code> whenever the recording is resampled.</p>
 
       <h4><code>file.is_speaking</code></h4>
       <p><code>bool</code> (read-only). Whether per-chunk VAD currently considers speech present. The holdoff is measured in file time (sample positions), not wall-clock time, so processing speed never changes the reported state. Always <code>False</code> when <code>vad=False</code>.</p>
@@ -701,19 +757,19 @@ report.segments  # list[Segment]:   start, end</code></pre>
               <td><code>Failed to read audio file &lt;path&gt;: &lt;os error&gt;</code></td>
             </tr>
             <tr>
-              <td>Not RIFF/WAVE</td>
-              <td><code>WavInvalid</code></td>
-              <td><code>invalid WAV file: not a RIFF/WAVE file</code></td>
+              <td>Container decibri cannot decode (an MP3, an AVI), a codec or sample width it does not carry, or a file declaring no channels</td>
+              <td><code>AudioFormatUnsupported</code></td>
+              <td><code>unsupported audio format: </code> followed by the reader's own text, which names the container, four-CC, tag or width it found</td>
             </tr>
             <tr>
-              <td>Truncated header</td>
-              <td><code>WavInvalid</code></td>
-              <td><code>invalid WAV file: missing fmt chunk</code></td>
+              <td>Structurally wrong file: a RIFF/WAVE with a <code>fmt</code> chunk and no <code>data</code> chunk, a corrupt FLAC frame</td>
+              <td><code>AudioFileMalformed</code></td>
+              <td><code>malformed audio file: </code> followed by the reader's own text, which names the byte offset and what was expected at it</td>
             </tr>
             <tr>
-              <td>Unsupported encoding (8-bit or 24-bit PCM, for example)</td>
-              <td><code>WavInvalid</code></td>
-              <td><code>invalid WAV file: unsupported encoding; 16-bit PCM or 32-bit float required</code></td>
+              <td>File ends before the audio it declares, including a declared data length that is not a whole number of frames</td>
+              <td><code>AudioFileTruncated</code></td>
+              <td><code>truncated audio file: </code> followed by the reader's own text, which names what was needed against what was available</td>
             </tr>
             <tr>
               <td><code>sample_rate</code> or <code>input_rate</code> out of range</td>
@@ -766,7 +822,7 @@ report.segments  # list[Segment]:   start, end</code></pre>
               <td><code>analyze() requires vad='silero'; energy mode does not support whole-file analysis</code></td>
             </tr>
             <tr>
-              <td><code>analyze()</code> after iterating</td>
+              <td><code>analyze()</code> or <code>save()</code> after iterating</td>
               <td><code>FileEngaged</code></td>
               <td><code>File iteration has begun; construct a new File to analyze the whole recording</code></td>
             </tr>
@@ -774,6 +830,26 @@ report.segments  # list[Segment]:   start, end</code></pre>
               <td>Second pass</td>
               <td><code>FileConsumed</code></td>
               <td><code>File already consumed; construct a new File for another pass</code></td>
+            </tr>
+            <tr>
+              <td><code>save()</code> to an extension decibri does not write, or to a path with no extension</td>
+              <td><code>AudioFormatUnsupported</code></td>
+              <td><code>unsupported audio format: </code> followed by the extension found and the accepted set</td>
+            </tr>
+            <tr>
+              <td><code>save()</code> could not write the file (missing directory, permission failure, full disk)</td>
+              <td><code>FileWriteFailed</code></td>
+              <td><code>Failed to write audio file &lt;path&gt;: &lt;os error&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>save()</code> <code>compression</code> out of range</td>
+              <td><code>FlacCompressionOutOfRange</code></td>
+              <td><code>compression must be in [0, 8]; got 9</code></td>
+            </tr>
+            <tr>
+              <td><code>save()</code> given a bad <code>format</code> value</td>
+              <td><code>ValueError</code></td>
+              <td><code>Invalid format value: 'ogg'. Expected 'wav', 'aiff', or 'flac'.</code></td>
             </tr>
             <tr>
               <td><code>model_path</code> missing</td>
@@ -987,7 +1063,7 @@ async with mic:
       <p>Asyncio mirror of <code>File</code>. Same parameters, same single-pass lifecycle, same errors; the file read, the conditioning pass, and detection each run in the default <code>ThreadPoolExecutor</code> so the event loop keeps spinning.</p>
 
       <h3>Constructors</h3>
-      <p><code>AsyncFile(path, **kwargs)</code> takes exactly the parameters <code>File</code> takes, and reads the WAV inline. Prefer the factory inside a running event loop:</p>
+      <p><code>AsyncFile(path, **kwargs)</code> takes exactly the parameters <code>File</code> takes, and reads the file inline. Prefer the factory inside a running event loop:</p>
       <ul>
         <li><code>await AsyncFile.open(path, **kwargs)</code>: the async factory. Identical result to the bare constructor, with the read dispatched off the event loop.</li>
         <li><code>await AsyncFile.buffer(samples, *, input_rate, **kwargs)</code>: the async parallel of <code>File.buffer</code>. Unlike the sync class, this one is a coroutine.</li>
@@ -1033,6 +1109,20 @@ report = await file.analyze()
 
 for segment in report.segments:
     print(segment.start, segment.end)</code></pre>
+        </div>
+      </div>
+
+      <h4><code>await file.save(path, *, format=None, compression=None)</code></h4>
+      <p>Async parallel of <code>File.save()</code>, with the single conditioning and encode pass running off the event loop. Same signature, same keyword-only arguments, same <code>SaveReport</code>, and the same contract: the container comes from the extension or from <code>format</code>, <code>compression</code> sets the FLAC level, output is 16-bit PCM mono at <code>sample_rate</code>, and the source is consumed. Requires an <code>AsyncFile</code> whose iteration has not begun; after that it raises <code>FileEngaged</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-43-python" aria-controls="code-panel-43-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-43-python" aria-labelledby="code-tab-43-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">file = await decibri.AsyncFile.open("noisy.wav", denoise="fastenhancer-t")
+report = await file.save("clean.wav")
+
+print(report.clipped_samples, report.non_finite_samples)</code></pre>
         </div>
       </div>
 
@@ -1159,6 +1249,32 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
               <td><code>segments</code></td>
               <td><code>list[Segment]</code></td>
               <td>Merged speech regions across the whole recording, in file order.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3><code>SaveReport</code></h3>
+      <p>Frozen dataclass returned by <code>File.save()</code> and <code>await AsyncFile.save()</code>. It records what the write did to the samples on their way into the file.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>clipped_samples</code></td>
+              <td><code>int</code></td>
+              <td>Finite samples that fell outside full scale and were clamped to <code>[-1.0, 1.0]</code>. AGC without a limiter can push conditioned audio past full scale, and 16-bit PCM cannot hold it; rather than clip silently, decibri clamps and counts.</td>
+            </tr>
+            <tr>
+              <td><code>non_finite_samples</code></td>
+              <td><code>int</code></td>
+              <td>Non-finite samples replaced before writing: a NaN with silence, an infinity with full scale. The same replacement on every format.</td>
             </tr>
           </tbody>
         </table>
@@ -1338,7 +1454,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>audio_backend</code></td>
               <td><code>str</code></td>
-              <td>Audio backend name and version (for example, <code>"cpal 0.17"</code>).</td>
+              <td>Audio backend name and version, in the shape <code>"cpal &lt;version&gt;"</code>.</td>
             </tr>
             <tr>
               <td><code>binding</code></td>
@@ -1926,9 +2042,29 @@ chunk = mic.read()
               <td>A <code>File</code> source could not be read from disk (missing path, a directory, a permission failure).</td>
             </tr>
             <tr>
-              <td><code>WavInvalid</code></td>
+              <td><code>AudioFormatUnsupported</code></td>
               <td><code>DecibriError</code></td>
-              <td>The WAV is not RIFF/WAVE, has no <code>fmt</code> chunk, or uses an encoding other than 16-bit PCM or 32-bit float.</td>
+              <td>An offline audio file is in a format decibri cannot decode: an unrecognised container, a codec or sample width the reader does not carry, or a channel layout it cannot decode. Also raised by <code>File.save()</code> for an extension decibri does not write.</td>
+            </tr>
+            <tr>
+              <td><code>AudioFileMalformed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>An offline audio file is structurally wrong: the container parsed, then the bytes were not what the format requires.</td>
+            </tr>
+            <tr>
+              <td><code>AudioFileTruncated</code></td>
+              <td><code>DecibriError</code></td>
+              <td>An offline audio file ends before the audio it declares, including one whose declared payload length is not a whole number of frames.</td>
+            </tr>
+            <tr>
+              <td><code>FileWriteFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File.save()</code> destination could not be written (missing directory, permission failure, full disk). The audio was encoded before the failure.</td>
+            </tr>
+            <tr>
+              <td><code>FlacCompressionOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File.save()</code> <code>compression</code> level outside 0 to 8.</td>
             </tr>
             <tr>
               <td><code>VadNotConfigured</code></td>
@@ -1938,7 +2074,7 @@ chunk = mic.read()
             <tr>
               <td><code>FileEngaged</code></td>
               <td><code>DecibriError</code></td>
-              <td><code>File.analyze()</code> called after iteration has begun. See <a href="#file">File</a>.</td>
+              <td><code>File.analyze()</code> called after iteration has begun. Also raised by <code>File.save()</code> under the same rule. See <a href="#file">File</a>.</td>
             </tr>
             <tr>
               <td><code>FileConsumed</code></td>
@@ -1984,6 +2120,31 @@ chunk = mic.read()
               <td><code>VadThresholdOutOfRange</code></td>
               <td><code>DecibriError</code></td>
               <td>A VAD threshold outside the valid range <code>[0, 1]</code>.</td>
+            </tr>
+            <tr>
+              <td><code>AecSampleRateUnsupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Echo cancellation enabled with a sample rate outside 8000 to 48000 Hz. See <a href="#aec-errors">AEC errors</a>.</td>
+            </tr>
+            <tr>
+              <td><code>AecConfigInvalid</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The echo canceller rejected its configuration, carrying the canceller's own message. See <a href="#aec-errors">AEC errors</a>.</td>
+            </tr>
+            <tr>
+              <td><code>ResampleConfigInvalid</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A sample rate conversion the resampler does not support. Defensive: every rate pair the configuration validator accepts is inside the resampler's range, so no Python call reaches it.</td>
+            </tr>
+            <tr>
+              <td><code>ResampleAfterFlush</code></td>
+              <td><code>DecibriError</code></td>
+              <td>Audio fed to a resample chain that has already been flushed. Defensive: the capture and <code>File</code> paths stop feeding a chain once it is flushed, so no Python call reaches it.</td>
+            </tr>
+            <tr>
+              <td><code>ResampleFailed</code></td>
+              <td><code>DecibriError</code></td>
+              <td>The resampler reported an error decibri does not recognise, forwarding the resampler's own text. Defensive: every error the pinned resampler release defines maps to its own class, so no Python call reaches it.</td>
             </tr>
             <tr>
               <td><code>ForkAfterOrtInit</code></td>

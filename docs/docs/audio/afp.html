@@ -15,7 +15,7 @@
     })();
   </script>
   <title>Audio File Processor (AFP) | decibri docs</title>
-  <meta name="description" content="Decibri AFP (Audio File Processor) runs recorded audio through the same conditioning chain as the live microphone, and scores a whole recording for speech in one pass. The File class in Python and Node.js: streaming, whole-recording analysis, and in-memory samples.">
+  <meta name="description" content="Decibri AFP (Audio File Processor) runs recorded audio through the same conditioning chain as the live microphone, and scores a whole recording for speech in one pass. The File class in Python and Node.js: streaming, whole-recording analysis, saving to WAV, AIFF or FLAC, and in-memory samples.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Audio File Processor (AFP) | decibri docs">
   <meta property="og:description" content="Decibri AFP conditions recorded audio with the same chain as the live microphone, and can score a whole recording for speech in one pass. The File class in Python and Node.js.">
@@ -69,21 +69,54 @@
       <h1>Audio File Processor (AFP)</h1>
       <p class="lead">The Audio File Processor (AFP) is decibri's offline audio source. It runs a recording through the same conditioning chain the live microphone uses, and, because a recording has an end, it can also score the whole file for speech in one pass. The class is called <code>File</code>, in both Python and Node.js.</p>
 
-      <p>Where a <code>Microphone</code> hands you conditioned audio as it arrives, a <code>File</code> hands you conditioned audio from something you already have: a WAV on disk, or samples already in memory. The options are the same options, with the same names and the same ranges, and the chunks come out in the same shape. Like the rest of the engine it is keyless and local: no API key, no account, no network call.</p>
+      <p>Where a <code>Microphone</code> hands you conditioned audio as it arrives, a <code>File</code> hands you conditioned audio from something you already have: a recording on disk, or samples already in memory. It also writes what it produced, so a conditioned recording can go straight back out to a file. The options are the same options, with the same names and the same ranges, and the chunks come out in the same shape. Like the rest of the engine it is keyless and local: no API key, no account, no network call.</p>
 
-      <h2 id="two-modes">The two things a File does</h2>
-      <p>A <code>File</code> does exactly two things, and each one reads the source from beginning to end:</p>
+      <h2 id="formats">What a File reads and writes</h2>
+      <p>The path constructors read four containers: WAV, AIFF, AIFF-C and FLAC. Every encoding below opens through the same <code>File(path)</code> call, so nothing about the call changes with the format. Every conditioning option works on every one of them, and <code>analyze()</code> returns the same scores and the same segments for the same recording whichever container carried it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Container</th>
+              <th>Encodings</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>WAV</td>
+              <td>8-bit unsigned, 16-bit, 24-bit and 32-bit integer PCM, 32-bit and 64-bit IEEE float, mu-law and A-law. Also <code>WAVE_FORMAT_EXTENSIBLE</code>, which several common encoders emit by default, and RF64.</td>
+            </tr>
+            <tr>
+              <td>AIFF and AIFF-C</td>
+              <td>8-bit, 16-bit, 24-bit and 32-bit integer PCM, 32-bit and 64-bit IEEE float, mu-law and A-law, plus AIFF-C's little-endian <code>sowt</code> alongside the big-endian forms.</td>
+            </tr>
+            <tr>
+              <td>FLAC</td>
+              <td>Bit depths 4 through 32.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>save()</code> writes three of those four: WAV, AIFF and FLAC, always as 16-bit PCM mono. See <a href="#save">Saving the result</a>.</p>
+      <p>The container is identified from the file's first twelve bytes rather than from its name, so a FLAC called <code>clip.wav</code> opens as a FLAC. Writing goes the other way: <code>save()</code> takes the container from the extension you chose. The asymmetry is deliberate, and it is worth holding both halves in mind at once. On a read there is a file to inspect; on a write there is only the name the caller supplied.</p>
+      <p>MP3, AAC, m4a, Ogg Vorbis, Opus, WMA and every ADPCM variant are not supported, and support for them is not planned: decoding them needs codecs decibri does not carry. For audio in one of those, decode it yourself and pass the samples to <a href="#constructors">the buffer constructor</a>; the conditioning behaves identically either way.</p>
+      <p>Multi-channel recordings are accepted and downmixed to mono, where the <code>Microphone</code> rejects multi-channel input outright.</p>
+      <p>Two structural cases are refused rather than tolerated. A WAV carrying a <code>fmt</code> chunk and no <code>data</code> chunk raises <code>AudioFileMalformed</code>, because it promises audio it does not contain; a <code>data</code> chunk of length zero is a legitimate empty recording and still opens, reports its rates, yields no chunks and analyses to an empty report. And a WAV whose declared data length is not a whole number of frames raises <code>AudioFileTruncated</code> instead of quietly delivering audio a fraction of a frame short of its own declaration. That second case is not the interrupted download, which declares more bytes than it holds and already failed to open; it is what a repair tool or an unfinalised writer leaves behind.</p>
+
+      <h2 id="passes">The three things a File does</h2>
+      <p>A <code>File</code> does exactly three things, and each one reads the source from beginning to end:</p>
       <ol>
         <li><strong>Stream.</strong> Deliver conditioned mono audio at your target rate, chunk by chunk. This is the same conditioning the live capture path applies, run over a recording instead of a microphone.</li>
         <li><strong>Analyse.</strong> Score the whole recording for voice activity in one pass and return the per-window scores plus the merged speech segments. A live stream cannot do this, because it has no end.</li>
+        <li><strong>Save.</strong> Write the conditioned recording to a file: the same single pass, the same conditioning, ending at a WAV, AIFF or FLAC on disk instead of in your own buffers. See <a href="#save">Saving the result</a>.</li>
       </ol>
 
       <div class="callout">
-        <strong>One File, one operation.</strong> The two are alternatives, not a sequence. Each consumes the source once, so beginning one forecloses the other on that instance. To do both over the same recording, construct a second <code>File</code>. See <a href="#example">the complete example</a>.
+        <strong>One File, one operation.</strong> The three are alternatives, not a sequence. Each consumes the source once, so beginning one forecloses the others on that instance. <code>save()</code> consumes the source exactly as <code>analyze()</code> does, and raises the same engaged and consumed errors when it cannot. To do two of them over the same recording, construct a second <code>File</code>. See <a href="#example">the complete example</a>.
       </div>
 
       <h2 id="quick-example">Quick example</h2>
-      <p>Open a WAV, turn on the conditioning stages you want, and read conditioned chunks:</p>
+      <p>Open a recording, turn on the conditioning stages you want, and read conditioned chunks:</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar">
           <div role="tablist" aria-label="Language" style="display: contents">
@@ -132,12 +165,12 @@ file.close();</code></pre>
           </thead>
           <tbody>
             <tr>
-              <td>A WAV on disk, blocking is fine</td>
+              <td>A recording on disk, blocking is fine</td>
               <td><code>decibri.File(path)</code></td>
               <td><code>new File(path)</code></td>
             </tr>
             <tr>
-              <td>A WAV on disk, inside async code</td>
+              <td>A recording on disk, inside async code</td>
               <td><code>await decibri.AsyncFile.open(path)</code></td>
               <td><code>await File.open(path)</code></td>
             </tr>
@@ -182,15 +215,6 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
         </div>
       </div>
 
-      <h2 id="formats">What a File accepts</h2>
-      <p>The path constructors read WAV. Two encodings are supported, and both are accepted inside the <code>WAVE_FORMAT_EXTENSIBLE</code> container as well as the plain one, which matters because several common encoders emit extensible by default:</p>
-      <ul>
-        <li>16-bit PCM</li>
-        <li>32-bit IEEE float</li>
-      </ul>
-      <p>Anything else, 8-bit and 24-bit PCM among them, is rejected at construction with the message <code>invalid WAV file: unsupported encoding; 16-bit PCM or 32-bit float required</code>. For those, and for any other codec, decode the audio yourself and pass the samples to the buffer constructor: the conditioning behaves identically either way.</p>
-      <p>Two more things worth knowing before you rely on them. Multi-channel WAVs are accepted and downmixed to mono, where the <code>Microphone</code> rejects multi-channel input outright. And a header-only WAV is valid rather than an error: it constructs, reports its rates, yields no chunks, and analyses to an empty report.</p>
-
       <h2 id="conditioning">The conditioning chain</h2>
       <p>A <code>File</code> takes the same five conditioning options as a <code>Microphone</code>, with the same names, the same ranges, and the same fixed order: <code>DC removal &rarr; denoise &rarr; high-pass &rarr; AGC &rarr; limiter</code>. Every stage is off by default. The <a href="/docs/audio/ace">Audio Capture Engine</a> page documents what each stage does and how to choose its value; everything there applies to a <code>File</code> unchanged.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
@@ -231,7 +255,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
       <h2 id="chunks">Chunks and rates</h2>
       <p>A full chunk is 1,600 samples at the target rate, in both bindings. That is 3,200 bytes as int16 and 6,400 bytes as float32. The final chunk is shorter whenever the total does not divide evenly.</p>
       <p>The count is fixed and the rate is not, so the chunk <em>duration</em> moves with the target rate: 100 ms at 16 kHz, 200 ms at 8 kHz, and about 33 ms at 48 kHz. Size buffers and reason about latency from the duration, not the count.</p>
-      <p>Two rates are visible on the instance. <code>sample_rate</code> (<code>sampleRate</code>) is the target rate every delivered chunk carries. <code>input_rate</code> (<code>inputRate</code>) is the source's own rate, read from the WAV header or taken from the value you passed to the buffer constructor. They differ whenever the recording is resampled.</p>
+      <p>Two rates are visible on the instance. <code>sample_rate</code> (<code>sampleRate</code>) is the target rate every delivered chunk carries. <code>input_rate</code> (<code>inputRate</code>) is the source's own rate, read from the file's header or taken from the value you passed to the buffer constructor. They differ whenever the recording is resampled.</p>
 
       <div class="callout">
         <strong>Rate conversion and denoise both lengthen the output.</strong> The resampler's internal state is flushed at the end of the stream and those samples are delivered rather than discarded, and the denoise stage does the same. A one-second recording resampled to a different rate therefore yields slightly more than one second of samples. Code that allocates an output buffer from <code>duration &times; rate</code> will come up short. The one case with no tail is the identity case: source rate equal to target rate, with denoise off, gives exactly the input sample count.
@@ -355,6 +379,45 @@ for (const window of report.scores) {
       </div>
       <p>The threshold and the holdoff shape the result: raising the threshold trims the segment edges, and a long holdoff merges neighbouring segments into one. Both are set on the <code>vad</code> config object at construction, so changing them means constructing a new <code>File</code>.</p>
 
+      <h2 id="save">Saving the result</h2>
+      <p><code>save()</code> is the third pass. It runs the recording once through whatever conditioning the <code>File</code> was built with, whole, and writes the result to a path you name. Like the other two passes it consumes the source, so a <code>File</code> that has saved cannot then be streamed or analysed.</p>
+      <div class="code-tabs code-tabs-flat" data-tab-group="code">
+        <div class="code-tab-bar">
+          <div role="tablist" aria-label="Language" style="display: contents">
+            <button type="button" class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+            <button type="button" class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="false">Node.js</button>
+          </div>
+          <button type="button" class="code-copy-btn" onclick="copyTabCode(this)" aria-label="Copy code">
+            <svg class="copy-icon icon-copy" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <svg class="copy-icon icon-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
+          <pre><code class="language-python">import decibri
+
+file = decibri.File("noisy.wav", denoise="fastenhancer-t", agc=-18, limiter=-1.0)
+report = file.save("clean.flac")
+
+print(report.clipped_samples, report.non_finite_samples)</code></pre>
+        </div>
+        <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
+          <pre><code class="language-javascript">const { File } = require('decibri');
+
+const file = await File.open('noisy.wav', {
+  denoise: 'fastenhancer-t',
+  agc: -18,
+  limiter: -1.0,
+});
+const report = await file.save('clean.flac');
+
+console.log(report.clippedSamples, report.nonFiniteSamples);</code></pre>
+        </div>
+      </div>
+      <p>The container comes from the extension: <code>.wav</code>, <code>.aiff</code>, <code>.aif</code>, <code>.aifc</code> and <code>.flac</code>, matched without regard to case. An extension decibri does not recognise, and a path carrying no extension at all, are both refused with <code>AudioFormatUnsupported</code> rather than defaulted to something. One name is not quite what it looks like: <code>.aifc</code> writes a plain AIFF, not an AIFF-C. To decide the container yourself, set <code>format</code> to <code>"wav"</code>, <code>"aiff"</code> or <code>"flac"</code>, which overrides the extension entirely.</p>
+      <p>What comes out is 16-bit PCM, mono, at the <code>File</code>'s target rate, in all three containers. No option changes that. <code>compression</code> sets the FLAC compression level, 0 through 8, default 5: higher levels search harder for a smaller file, and every level decodes to identical audio. It applies to FLAC only and is ignored for WAV and AIFF, and a value outside the range is refused.</p>
+      <p>The call returns a report of what the write did to the samples, carrying two counts. <code>clipped_samples</code> (<code>clippedSamples</code> in Node.js) counts finite samples that fell outside full scale and were clamped back into the -1.0 to 1.0 range. That count is the reason to read the report at all: AGC without a limiter can push a signal past full scale, and 16-bit PCM cannot hold it. Rather than clip silently, decibri clamps and tells you how often, which makes the fix visible: turn the limiter on and save again. <code>non_finite_samples</code> (<code>nonFiniteSamples</code>) counts samples that were NaN or infinite and were repaired on the way out, a NaN written as silence and an infinity as full scale.</p>
+      <p>Reading four containers and writing three does mean some conversions work. Open a FLAC, save a WAV, and you have converted it. That falls out of saving conditioned output rather than being a feature with a surface of its own, and the shape of the result says as much: 16-bit PCM mono at the <code>File</code>'s target rate, through whatever conditioning the <code>File</code> carries, with no encoder to choose. What is not coming is a codec decibri does not carry. MP3, AAC and Ogg are not supported and are not planned.</p>
+
       <h2 id="example">Complete example</h2>
       <p>This is the two-pass shape the single-pass rule leads to: analyse one <code>File</code> to find the speech, then construct a second <code>File</code> over the same recording to stream the conditioned audio.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
@@ -419,8 +482,8 @@ file.close();</code></pre>
       <h2 id="per-language">Per-language detail</h2>
       <p>The full constructor surface, the metadata iteration, and the error tables live on the binding reference pages:</p>
       <ul>
-        <li><a href="/docs/apis/python#file">Python API</a>: the <code>File</code> and <code>AsyncFile</code> classes, including <code>read_with_metadata()</code>, <code>iter_with_metadata()</code>, <code>as_ndarray</code>, and the exception surface.</li>
-        <li><a href="/docs/apis/node#file">Node.js API</a>: the <code>File</code> stream, its <code>FileOptions</code> surface, the speech events, and the error classes with their <code>code</code> values.</li>
+        <li><a href="/docs/apis/python#file">Python API</a>: the <code>File</code> and <code>AsyncFile</code> classes, including <code>read_with_metadata()</code>, <code>iter_with_metadata()</code>, <code>as_ndarray</code>, <code>save()</code> with its <code>SaveReport</code>, and the exception surface.</li>
+        <li><a href="/docs/apis/node#file">Node.js API</a>: the <code>File</code> stream, its <code>FileOptions</code> surface, <code>save()</code> with its <code>SaveReport</code>, the speech events, the <code>AudioWriter</code> sink, and the error classes with their <code>code</code> values.</li>
       </ul>
       <p>AFP is a native stage of the engine, so it is available in the Python and Node.js builds but not in the browser build. See the <a href="/docs/apis/browser">Browser API</a>.</p>
 
