@@ -1,0 +1,18 @@
+name: Shared CSS
+on:
+  push:
+    branches: [development]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shared-css:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: node tools/check-shared-css.mjs
