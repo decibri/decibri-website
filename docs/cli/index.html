@@ -1192,6 +1192,7 @@
       right: 0;
       width: 260px;
       height: 100vh;
+      height: 100dvh;
       background: var(--bg-elevated);
       border-left: 1px solid var(--border);
       z-index: 151;
@@ -1201,6 +1202,8 @@
       display: flex;
       flex-direction: column;
       gap: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .mobile-menu.open { transform: translateX(0); }
