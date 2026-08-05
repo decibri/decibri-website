@@ -30,6 +30,7 @@ Smaller changes do not need the template, an issue, or coordination ahead of tim
 - API identifiers must match the actual Decibri code repository at <https://github.com/decibri/decibri>. Class names, method signatures, constructor option names, event names, property names, and error message strings must be copied from source, not guessed.
 - Documented URLs do not have trailing slashes. Use `/docs/integrations/stt/openai`, not `/docs/integrations/stt/openai/`.
 - Provider lists are alphabetical. The parent index page order and any cross-references in Related lists follow the same order.
+- Stick to ordinary Latin characters and standard punctuation in page text. The site inlines a small font subset so headings paint immediately on a slow mobile connection, and a character outside that subset renders in a different typeface next to the ones around it. Running `node tools/check-shared-css.mjs` reports any character that would do this, along with the page and the surrounding text. Box-drawing characters and arrows in code comments already fall outside it, so prefer plain ASCII there too.
 
 ## Larger changes
 

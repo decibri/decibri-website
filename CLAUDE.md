@@ -140,7 +140,45 @@ Notes that are load-bearing, not incidental:
 
 ### Coverage risk
 
-A page that adds a character outside the 104-codepoint subset falls through to the full font, which on a cold mobile load has not arrived, and then to Arial. The result is mixed typefaces inside one heading. This is silent and stays broken until someone looks. The guard is a codepoint check over the rendered text of all pages against the two subsets' `cmap`s. It is a good candidate for the CSS drift verifier rather than a standalone script.
+A page that adds a character outside the 104-codepoint subset falls through to the full font, which on a cold mobile load has not arrived, and then to Arial. The result is mixed typefaces inside one heading. This is silent and stays broken until someone looks. The guard is a codepoint check over the rendered text of all pages against the two subsets' `cmap`s, and it is the second assertion in `tools/check-shared-css.mjs` (see below). It reads the covered set out of the shipped base64 payloads rather than from a list written in the script, so regenerating the subsets updates what it checks with no edit to the tool.
+
+## The shared CSS drift verifier
+
+`tools/check-shared-css.mjs` is a standalone Node script, no dependencies and no build step. It reads files and exits non-zero; it writes nothing and has no effect on what ships. Delete it and the site is unchanged.
+
+```sh
+node tools/check-shared-css.mjs              # both checks
+node tools/check-shared-css.mjs --verbose    # list every rule in every guarded set
+node tools/check-shared-css.mjs --inventory  # every rule key and which files carry it
+node tools/check-shared-css.mjs --no-exceptions   # show what the exception list holds back
+node tools/check-shared-css.mjs --only=css
+node tools/check-shared-css.mjs --only=codepoints
+node tools/check-shared-css.mjs --root <dir>      # check a tree elsewhere
+```
+
+### What it guards
+
+Sources are found by listing `docs/*.html` and `docs/*/index.html`, never from a fixed list, so a root page added later is checked immediately. A page that links `/docs/styles.css` is treated as a docs page; a page that does not must carry the shared CSS inline. Each source is parsed into rules keyed by at-rule scope plus selector, with whitespace-normalised declaration bodies.
+
+Any rule appearing in two or more sources must carry identical declarations in all of them. On top of that, named groups assert presence and counts:
+
+- the two inline font-subset `@font-face` blocks, compared by hash so a mismatch never dumps 60 KB of base64 into the output;
+- the six linked `@font-face` blocks including both metric-matched fallbacks;
+- `--font-display` and `--font-mono`, which must still start with the inline families;
+- the shared tokens, chrome and footer present in all five sources;
+- the nav, footer container and theme toggle present in all four root pages;
+- the code-tab system shared between the homepage and the docs stylesheet;
+- everything else shared between root pages, which holds the 93-rule marketing block. A floor on the largest shared block catches that block being gutted out of one of its two copies, which the identity check alone cannot see because only one copy would be left.
+
+The docs stylesheet writes the footer under a `.doc-footer` prefix. `SELECTOR_PREFIX_MAP` strips it so `.doc-footer X` compares against `X`; without that the two sides could drift apart forever because their keys never match. The container itself is not mapped, because the two footers genuinely have different layout.
+
+### When it fails
+
+A drift failure names the rule, the files that disagree and the differing declarations. Decide which copy is right, then propagate the fix to every copy. If the divergence is deliberate, add an `EXCEPTIONS` entry naming the rule key, the file, ideally the specific properties, and a written reason. Use `--inventory` to find the exact key. An exception excuses one named file from agreeing on one named property; the remaining files must still agree with each other, so an exception can never quiet a divergence it does not name.
+
+Every entry needs a real reason. An exception added to silence a failure nobody understood is how the drift this tool exists to catch gets back in. An entry that stops holding anything back is reported as stale, and should be deleted.
+
+A codepoint failure names the character, the page and the surrounding text. It is not automatically a page bug: widening the subsets may be the right fix instead, using the regeneration command above. Characters that are absent from the linked full fonts as well are reported as `INFO` and do not fail, because no subset can carry a glyph the source font does not have; those already render from a system font on every load.
 
 ## Content conventions
 
