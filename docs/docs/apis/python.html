@@ -22,7 +22,6 @@
   <link rel="canonical" href="https://decibri.com/docs/apis/python">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -89,7 +88,7 @@
           <button class="code-tab-btn" id="code-tab-1-python" aria-controls="code-panel-1-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 decibri.record_to_file("output.wav", duration_seconds=10)</code></pre>
         </div>
@@ -102,7 +101,7 @@ decibri.record_to_file("output.wav", duration_seconds=10)</code></pre>
           <button class="code-tab-btn" id="code-tab-2-python" aria-controls="code-panel-2-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000) as mic:
     for chunk in mic:
@@ -118,7 +117,7 @@ with decibri.Microphone(sample_rate=16000) as mic:
           <button class="code-tab-btn" id="code-tab-3-python" aria-controls="code-panel-3-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import asyncio
+          <pre class="language-python"><code class="language-python">import asyncio
 import decibri
 
 async def main():
@@ -161,7 +160,7 @@ asyncio.run(main())</code></pre>
           <button class="code-tab-btn" id="code-tab-4-python" aria-controls="code-panel-4-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">decibri.Microphone(
+          <pre class="language-python"><code class="language-python">decibri.Microphone(
     sample_rate=16000,
     channels=1,
     frames_per_buffer=1600,
@@ -296,7 +295,7 @@ asyncio.run(main())</code></pre>
           <button class="code-tab-btn" id="code-tab-5-python" aria-controls="code-panel-5-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) as mic:
     for chunk in mic:
@@ -331,7 +330,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
           <button class="code-tab-btn" id="code-tab-6-python" aria-controls="code-panel-6-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with decibri.Microphone(vad="silero") as mic:
+          <pre class="language-python"><code class="language-python">with decibri.Microphone(vad="silero") as mic:
     for chunk in mic.iter_with_metadata():
         if chunk.is_speaking:
             send_to_stt(chunk.data)</code></pre>
@@ -361,7 +360,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
           <button class="code-tab-btn" id="code-tab-7-python" aria-controls="code-panel-7-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">for d in decibri.Microphone.devices():
+          <pre class="language-python"><code class="language-python">for d in decibri.Microphone.devices():
     print(d.index, d.name, d.default_sample_rate)</code></pre>
         </div>
       </div>
@@ -380,7 +379,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
           <button class="code-tab-btn" id="code-tab-8-python" aria-controls="code-panel-8-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-python" aria-labelledby="code-tab-8-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">decibri.Speaker(
+          <pre class="language-python"><code class="language-python">decibri.Speaker(
     sample_rate=16000,
     channels=1,
     dtype="int16",
@@ -434,7 +433,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
           <button class="code-tab-btn" id="code-tab-9-python" aria-controls="code-panel-9-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-python" aria-labelledby="code-tab-9-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.Speaker(sample_rate=16000, channels=1) as spk:
     spk.write(audio_bytes)
@@ -478,7 +477,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
           <button class="code-tab-btn" id="code-tab-29-python" aria-controls="code-panel-29-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-29-python" aria-labelledby="code-tab-29-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">decibri.File(
+          <pre class="language-python"><code class="language-python">decibri.File(
     path,
     sample_rate=16000,
     dtype="int16",
@@ -592,7 +591,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
           <button class="code-tab-btn" id="code-tab-30-python" aria-controls="code-panel-30-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-30-python" aria-labelledby="code-tab-30-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
     for chunk in file:
@@ -613,7 +612,7 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
           <button class="code-tab-btn" id="code-tab-31-python" aria-controls="code-panel-31-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-31-python" aria-labelledby="code-tab-31-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)</code></pre>
+          <pre class="language-python"><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)</code></pre>
         </div>
       </div>
       <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to mono floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code>. The conditioning chain then behaves identically to the path constructor. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructor opens those directly.</p>
@@ -644,7 +643,7 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
           <button class="code-tab-btn" id="code-tab-32-python" aria-controls="code-panel-32-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-32-python" aria-labelledby="code-tab-32-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with decibri.File("clip.wav", vad="silero") as file:
+          <pre class="language-python"><code class="language-python">with decibri.File("clip.wav", vad="silero") as file:
     for chunk in file.iter_with_metadata():
         if chunk.is_speaking:
             send_to_stt(chunk.data)</code></pre>
@@ -661,7 +660,7 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
           <button class="code-tab-btn" id="code-tab-33-python" aria-controls="code-panel-33-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-33-python" aria-labelledby="code-tab-33-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">report = decibri.File("clip.wav", vad="silero").analyze()
+          <pre class="language-python"><code class="language-python">report = decibri.File("clip.wav", vad="silero").analyze()
 
 report.scores    # list[VadWindow]: start, end, vad_score, is_speech
 report.segments  # list[Segment]:   start, end</code></pre>
@@ -708,7 +707,7 @@ report.segments  # list[Segment]:   start, end</code></pre>
           <button class="code-tab-btn" id="code-tab-42-python" aria-controls="code-panel-42-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-42-python" aria-labelledby="code-tab-42-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">file = decibri.File("noisy.wav", denoise="fastenhancer-t", agc=-18, limiter=-1.0)
+          <pre class="language-python"><code class="language-python">file = decibri.File("noisy.wav", denoise="fastenhancer-t", agc=-18, limiter=-1.0)
 report = file.save("clean.flac", compression=8)
 
 report.clipped_samples     # int
@@ -900,7 +899,7 @@ report.non_finite_samples  # int</code></pre>
           <button class="code-tab-btn" id="code-tab-10-python" aria-controls="code-panel-10-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-10-python" aria-labelledby="code-tab-10-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.AsyncMicrophone(sample_rate=16000, vad="silero")</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.AsyncMicrophone(sample_rate=16000, vad="silero")</code></pre>
         </div>
       </div>
 
@@ -915,7 +914,7 @@ report.non_finite_samples  # int</code></pre>
           <button class="code-tab-btn" id="code-tab-11-python" aria-controls="code-panel-11-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-11-python" aria-labelledby="code-tab-11-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = await decibri.AsyncMicrophone.open(vad="silero")
+          <pre class="language-python"><code class="language-python">mic = await decibri.AsyncMicrophone.open(vad="silero")
 async with mic:
     async for chunk in mic:
         await process(chunk)</code></pre>
@@ -933,7 +932,7 @@ async with mic:
           <button class="code-tab-btn" id="code-tab-12-python" aria-controls="code-panel-12-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-12-python" aria-labelledby="code-tab-12-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(sample_rate=16000) as mic:
+          <pre class="language-python"><code class="language-python">async with await decibri.AsyncMicrophone.open(sample_rate=16000) as mic:
     async for chunk in mic:
         await websocket.send(chunk)</code></pre>
         </div>
@@ -963,7 +962,7 @@ async with mic:
           <button class="code-tab-btn" id="code-tab-13-python" aria-controls="code-panel-13-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-13-python" aria-labelledby="code-tab-13-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">async with await decibri.AsyncMicrophone.open(vad="silero") as mic:
+          <pre class="language-python"><code class="language-python">async with await decibri.AsyncMicrophone.open(vad="silero") as mic:
     async for chunk in mic.aiter_with_metadata():
         if chunk.is_speaking:
             await stt.send(chunk.data)</code></pre>
@@ -1007,7 +1006,7 @@ async with mic:
           <button class="code-tab-btn" id="code-tab-14-python" aria-controls="code-panel-14-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-14-python" aria-labelledby="code-tab-14-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">spk = decibri.AsyncSpeaker(sample_rate=24000, channels=1)</code></pre>
+          <pre class="language-python"><code class="language-python">spk = decibri.AsyncSpeaker(sample_rate=24000, channels=1)</code></pre>
         </div>
       </div>
 
@@ -1024,7 +1023,7 @@ async with mic:
           <button class="code-tab-btn" id="code-tab-15-python" aria-controls="code-panel-15-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-15-python" aria-labelledby="code-tab-15-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">async with decibri.AsyncSpeaker(sample_rate=24000) as spk:
+          <pre class="language-python"><code class="language-python">async with decibri.AsyncSpeaker(sample_rate=24000) as spk:
     await spk.write(audio_bytes)
     await spk.drain()</code></pre>
         </div>
@@ -1071,7 +1070,7 @@ async with mic:
           <button class="code-tab-btn" id="code-tab-34-python" aria-controls="code-panel-34-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-34-python" aria-labelledby="code-tab-34-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import asyncio
+          <pre class="language-python"><code class="language-python">import asyncio
 import decibri
 
 async def main():
@@ -1102,7 +1101,7 @@ asyncio.run(main())</code></pre>
           <button class="code-tab-btn" id="code-tab-35-python" aria-controls="code-panel-35-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-35-python" aria-labelledby="code-tab-35-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">file = await decibri.AsyncFile.open("clip.wav", vad="silero")
+          <pre class="language-python"><code class="language-python">file = await decibri.AsyncFile.open("clip.wav", vad="silero")
 report = await file.analyze()
 
 for segment in report.segments:
@@ -1117,7 +1116,7 @@ for segment in report.segments:
           <button class="code-tab-btn" id="code-tab-43-python" aria-controls="code-panel-43-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-43-python" aria-labelledby="code-tab-43-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">file = await decibri.AsyncFile.open("noisy.wav", denoise="fastenhancer-t")
+          <pre class="language-python"><code class="language-python">file = await decibri.AsyncFile.open("noisy.wav", denoise="fastenhancer-t")
 report = await file.save("clean.wav")
 
 print(report.clipped_samples, report.non_finite_samples)</code></pre>
@@ -1140,7 +1139,7 @@ print(report.clipped_samples, report.non_finite_samples)</code></pre>
           <button class="code-tab-btn" id="code-tab-16-python" aria-controls="code-panel-16-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-16-python" aria-labelledby="code-tab-16-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">for d in decibri.input_devices():
+          <pre class="language-python"><code class="language-python">for d in decibri.input_devices():
     print(d.index, d.name)</code></pre>
         </div>
       </div>
@@ -1155,7 +1154,7 @@ print(report.clipped_samples, report.non_finite_samples)</code></pre>
           <button class="code-tab-btn" id="code-tab-17-python" aria-controls="code-panel-17-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-17-python" aria-labelledby="code-tab-17-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">v = decibri.version()
+          <pre class="language-python"><code class="language-python">v = decibri.version()
 print(v.decibri, v.audio_backend, v.binding)</code></pre>
         </div>
       </div>
@@ -1167,7 +1166,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           <button class="code-tab-btn" id="code-tab-18-python" aria-controls="code-panel-18-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-18-python" aria-labelledby="code-tab-18-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">decibri.record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
+          <pre class="language-python"><code class="language-python">decibri.record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
         </div>
       </div>
 
@@ -1178,7 +1177,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           <button class="code-tab-btn" id="code-tab-19-python" aria-controls="code-panel-19-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-19-python" aria-labelledby="code-tab-19-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">await decibri.async_record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
+          <pre class="language-python"><code class="language-python">await decibri.async_record_to_file("clip.wav", duration_seconds=5.0)</code></pre>
         </div>
       </div>
 
@@ -1542,7 +1541,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           <button class="code-tab-btn" id="code-tab-20-python" aria-controls="code-panel-20-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-20-python" aria-labelledby="code-tab-20-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200))</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200))</code></pre>
         </div>
       </div>
 
@@ -1559,7 +1558,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           <button class="code-tab-btn" id="code-tab-21-python" aria-controls="code-panel-21-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-21-python" aria-labelledby="code-tab-21-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(vad="silero", model_path="/opt/models/silero_vad_v4.onnx")</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(vad="silero", model_path="/opt/models/silero_vad_v4.onnx")</code></pre>
         </div>
       </div>
 
@@ -1594,7 +1593,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           <button class="code-tab-btn" id="code-tab-36-python" aria-controls="code-panel-36-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-36-python" aria-labelledby="code-tab-36-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">from decibri import Aec, Microphone
+          <pre class="language-python"><code class="language-python">from decibri import Aec, Microphone
 
 # Short form: the model with its defaults.
 a = Microphone(sample_rate=16000, aec="tau")
@@ -1620,7 +1619,7 @@ b = Microphone(
           <button class="code-tab-btn" id="code-tab-37-python" aria-controls="code-panel-37-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-37-python" aria-labelledby="code-tab-37-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">@dataclass(frozen=True, slots=True)
+          <pre class="language-python"><code class="language-python">@dataclass(frozen=True, slots=True)
 class Aec:
     model: str = "tau"
     tail_ms: int | None = None                 # 16 to 500, None takes 200
@@ -1683,7 +1682,7 @@ class Aec:
           <button class="code-tab-btn" id="code-tab-38-python" aria-controls="code-panel-38-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-38-python" aria-labelledby="code-tab-38-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">@dataclass(frozen=True, slots=True)
+          <pre class="language-python"><code class="language-python">@dataclass(frozen=True, slots=True)
 class AecMetrics:
     delay_samples: int | None
     erle_db: float
@@ -1759,7 +1758,7 @@ class AecMetrics:
           <button class="code-tab-btn" id="code-tab-39-python" aria-controls="code-panel-39-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-39-python" aria-labelledby="code-tab-39-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic.push_aec_reference(block)      # no await
+          <pre class="language-python"><code class="language-python">mic.push_aec_reference(block)      # no await
 metrics = await mic.aec_metrics()  # await</code></pre>
         </div>
       </div>
@@ -1796,7 +1795,7 @@ metrics = await mic.aec_metrics()  # await</code></pre>
           <button class="code-tab-btn" id="code-tab-40-python" aria-controls="code-panel-40-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-40-python" aria-labelledby="code-tab-40-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import asyncio
+          <pre class="language-python"><code class="language-python">import asyncio
 
 from decibri import AsyncFile, AsyncMicrophone, AsyncSpeaker
 
@@ -1893,7 +1892,7 @@ asyncio.run(main())</code></pre>
           <button class="code-tab-btn" id="code-tab-41-python" aria-controls="code-panel-41-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-41-python" aria-labelledby="code-tab-41-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">from decibri import Aec, Microphone
+          <pre class="language-python"><code class="language-python">from decibri import Aec, Microphone
 from decibri.exceptions import AecConfigInvalid, AecSampleRateUnsupported
 
 try:
@@ -1913,7 +1912,7 @@ except AecSampleRateUnsupported:
           <button class="code-tab-btn" id="code-tab-22-python" aria-controls="code-panel-22-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-22-python" aria-labelledby="code-tab-22-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with decibri.Microphone(dtype="int16") as mic:
+          <pre class="language-python"><code class="language-python">with decibri.Microphone(dtype="int16") as mic:
     chunk = mic.read()  # bytes; len(chunk) == frames * channels * 2</code></pre>
         </div>
       </div>
@@ -1925,7 +1924,7 @@ except AecSampleRateUnsupported:
           <button class="code-tab-btn" id="code-tab-23-python" aria-controls="code-panel-23-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-23-python" aria-labelledby="code-tab-23-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with decibri.Microphone(dtype="float32") as mic:
+          <pre class="language-python"><code class="language-python">with decibri.Microphone(dtype="float32") as mic:
     chunk = mic.read()  # bytes; len(chunk) == frames * channels * 4</code></pre>
         </div>
       </div>
@@ -1941,7 +1940,7 @@ except AecSampleRateUnsupported:
           <button class="code-tab-btn" id="code-tab-24-python" aria-controls="code-panel-24-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-24-python" aria-labelledby="code-tab-24-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 import numpy as np
 
 with decibri.Microphone(sample_rate=16000, dtype="float32", as_ndarray=True) as mic:
@@ -1969,7 +1968,7 @@ with decibri.Microphone(sample_rate=16000, dtype="float32", as_ndarray=True) as 
           <button class="code-tab-btn" id="code-tab-25-python" aria-controls="code-panel-25-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-25-python" aria-labelledby="code-tab-25-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 import numpy as np
 
 mic = decibri.Microphone(as_ndarray=True)
@@ -2264,7 +2263,7 @@ chunk = mic.read()
           <button class="code-tab-btn" id="code-tab-26-python" aria-controls="code-panel-26-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-26-python" aria-labelledby="code-tab-26-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">try:
+          <pre class="language-python"><code class="language-python">try:
     with decibri.Microphone(sample_rate=16000) as mic:
         chunk = mic.read()
 except decibri.DecibriError as e:
@@ -2277,7 +2276,7 @@ except decibri.DecibriError as e:
           <button class="code-tab-btn" id="code-tab-27-python" aria-controls="code-panel-27-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-27-python" aria-labelledby="code-tab-27-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">try:
+          <pre class="language-python"><code class="language-python">try:
     mic = decibri.Microphone(device="USB Audio")
 except decibri.DeviceError as e:
     print(f"Device problem: {e}")
@@ -2295,7 +2294,7 @@ except decibri.DeviceError as e:
           <button class="code-tab-btn" id="code-tab-28-python" aria-controls="code-panel-28-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-28-python" aria-labelledby="code-tab-28-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import multiprocessing
+          <pre class="language-python"><code class="language-python">import multiprocessing
 
 if __name__ == "__main__":
     multiprocessing.set_start_method("spawn")
@@ -2352,9 +2351,7 @@ if __name__ == "__main__":
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

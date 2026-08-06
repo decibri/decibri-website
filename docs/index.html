@@ -1343,12 +1343,18 @@
     }
 
     /* ── Light theme: code syntax ── */
-    [data-theme="light"] .hero-code-tabs .kw { color: #8839ef; }
-    [data-theme="light"] .hero-code-tabs .fn { color: #1e66f5; }
-    [data-theme="light"] .hero-code-tabs .str { color: #40a02b; }
-    [data-theme="light"] .hero-code-tabs .cm { color: #9ca0b0; font-style: italic; }
-    [data-theme="light"] .hero-code-tabs .const { color: #d20f39; }
-    [data-theme="light"] .hero-code-tabs .obj { color: #df8e1d; }
+    /* Light-mode values are the docs palette from docs/docs/styles.css, so the
+       same construct reads identically moving between here and a docs page.
+       Mapping: .kw/.fn/.str/.cm/.const/.obj/.param onto the .token.keyword,
+       .token.function, .token.string, .token.comment, .token.constant,
+       .token.property and .token.parameter light values. Dark mode was already
+       byte-identical to the docs palette and is unchanged. */
+    [data-theme="light"] .hero-code-tabs .kw { color: #7633c4; }
+    [data-theme="light"] .hero-code-tabs .fn { color: #1558d6; }
+    [data-theme="light"] .hero-code-tabs .str { color: #2e8b1e; }
+    [data-theme="light"] .hero-code-tabs .cm { color: #6c6f85; font-style: italic; }
+    [data-theme="light"] .hero-code-tabs .const { color: #c40d33; }
+    [data-theme="light"] .hero-code-tabs .obj { color: #b87a14; }
     [data-theme="light"] .hero-code-tabs .param { color: #1a1a2e; }
     [data-theme="light"] .hero::before { opacity: 0.3; }
     [data-theme="light"] .btn-primary { color: #fff; }

@@ -29,7 +29,6 @@
   <link rel="canonical" href="https://decibri.com/docs/audio/afp">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -127,14 +126,14 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
     for chunk in file:
         handle(chunk)  # conditioned int16 PCM bytes</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 const file = await File.open('clip.wav', { denoise: 'fastenhancer-t', agc: -18 });
 
@@ -195,7 +194,7 @@ file.close();</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 # samples: mono floats in -1.0 to 1.0, at their own native rate
 file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)
@@ -204,7 +203,7 @@ for chunk in file:
     handle(chunk)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 // samples: a Float32Array of mono samples in -1.0 to 1.0, at their own rate
 const file = File.buffer(samples, { inputRate: 48000, sampleRate: 16000 });
@@ -227,7 +226,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">file = decibri.File(
+          <pre class="language-python"><code class="language-python">file = decibri.File(
     "clip.wav",
     sample_rate=16000,
     dc_removal=True,
@@ -238,7 +237,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
 )</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const file = await File.open('clip.wav', {
+          <pre class="language-javascript"><code class="language-javascript">const file = await File.open('clip.wav', {
   sampleRate: 16000,
   dcRemoval: true,
   denoise: 'fastenhancer-t',
@@ -276,7 +275,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 with decibri.File("clip.wav", vad="silero") as file:
     for chunk in file:
@@ -284,7 +283,7 @@ with decibri.File("clip.wav", vad="silero") as file:
             send_to_stt(chunk)  # file.vad_score holds the raw score</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 const file = await File.open('clip.wav', { vad: 'silero' });
 
@@ -350,7 +349,7 @@ file.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 report = decibri.File("clip.wav", vad="silero").analyze()
 
@@ -361,7 +360,7 @@ for window in report.scores:
     print(window.start, window.end, window.vad_score, window.is_speech)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 const file = await File.open('clip.wav', { vad: 'silero' });
 const report = await file.analyze();
@@ -391,7 +390,7 @@ for (const window of report.scores) {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 file = decibri.File("noisy.wav", denoise="fastenhancer-t", agc=-18, limiter=-1.0)
 report = file.save("clean.flac")
@@ -399,7 +398,7 @@ report = file.save("clean.flac")
 print(report.clipped_samples, report.non_finite_samples)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 const file = await File.open('noisy.wav', {
   denoise: 'fastenhancer-t',
@@ -430,7 +429,7 @@ console.log(report.clippedSamples, report.nonFiniteSamples);</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 # Pass one: where is the speech? This File is consumed by the analysis.
 report = decibri.File("clip.wav", vad="silero").analyze()
@@ -449,7 +448,7 @@ with decibri.File(
             send_to_stt(chunk.data)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 // Pass one: where is the speech? This File is consumed by the analysis.
 const scan = await File.open('clip.wav', { vad: 'silero' });
@@ -505,9 +504,7 @@ file.close();</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     function copyTabCode(el) {

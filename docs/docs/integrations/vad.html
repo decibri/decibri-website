@@ -22,7 +22,6 @@
   <link rel="canonical" href="https://decibri.com/docs/integrations/vad">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -80,7 +79,7 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 # RMS energy detector. Fast, clean-audio use cases.
 mic_rms = decibri.Microphone(vad="energy")
@@ -95,7 +94,7 @@ with mic_silero:
             print("[speech]")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 // RMS energy detector. Fast, clean-audio use cases.
 const micRms = new Microphone({ vad: 'energy' });
@@ -137,9 +136,7 @@ micSilero.on('silence', () => console.log('[speech end]'));</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     // Copy the active code panel's source to the clipboard. On success the

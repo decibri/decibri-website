@@ -29,7 +29,6 @@
   <link rel="canonical" href="https://decibri.com/docs/audio/ace">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -85,7 +84,7 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 mic = decibri.Microphone(
     sample_rate=16000,
@@ -101,7 +100,7 @@ with mic:
         process(chunk)  # chunk is already conditioned</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 const mic = new Microphone({
   sampleRate: 16000,
@@ -147,10 +146,10 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(dc_removal=True)</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(dc_removal=True)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ dcRemoval: true });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ dcRemoval: true });</code></pre>
         </div>
       </div>
 
@@ -169,10 +168,10 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(denoise="fastenhancer-t")</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(denoise="fastenhancer-t")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ denoise: 'fastenhancer-t' });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ denoise: 'fastenhancer-t' });</code></pre>
         </div>
       </div>
       <p>Denoise is designed for 16 kHz audio, which is the default sample rate. It is the only stage that adds latency: the conditioned output is delivered in steps of 256 samples, about 16 ms at 16 kHz. The other stages are sample-for-sample and add none.</p>
@@ -191,10 +190,10 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(highpass=100)  # or 80</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(highpass=100)  # or 80</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ highpass: 100 }); // or 80</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ highpass: 100 }); // or 80</code></pre>
         </div>
       </div>
       <p>Any value other than 80 or 100 is rejected at construction.</p>
@@ -213,10 +212,10 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(agc=-18)</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(agc=-18)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ agc: -18 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ agc: -18 });</code></pre>
         </div>
       </div>
       <p>A value outside <code>-40</code> to <code>-3</code> is rejected at construction.</p>
@@ -235,10 +234,10 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(limiter=-1.0)</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(limiter=-1.0)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ limiter: -1.0 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ limiter: -1.0 });</code></pre>
         </div>
       </div>
       <p>A value outside <code>-3.0</code> to <code>0.0</code> is rejected at construction.</p>
@@ -328,7 +327,7 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 # ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
 # signal, so enabling the conditioning never changes what counts as speech.
@@ -347,7 +346,7 @@ with mic:
             process(chunk)  # chunk is conditioned (post-ACE)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 // ACE conditions the audio; VAD gates it. VAD reads the pre-enhancement
 // signal, so enabling the conditioning never changes what counts as speech.
@@ -392,9 +391,7 @@ mic.on('data', (chunk) => {
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     function copyTabCode(el) {
