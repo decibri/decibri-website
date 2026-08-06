@@ -39,7 +39,6 @@
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -100,7 +99,7 @@
           <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">export AWS_ACCESS_KEY_ID=AKIA...
+          <pre class="language-bash"><code class="language-bash">export AWS_ACCESS_KEY_ID=AKIA...
 export AWS_SECRET_ACCESS_KEY=your_secret
 export AWS_REGION=us-east-1</code></pre>
         </div>
@@ -112,7 +111,7 @@ export AWS_REGION=us-east-1</code></pre>
           <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash"># ~/.aws/credentials
+          <pre class="language-bash"><code class="language-bash"># ~/.aws/credentials
 [default]
 aws_access_key_id = AKIA...
 aws_secret_access_key = your_secret
@@ -126,7 +125,7 @@ region = us-east-1</code></pre>
           <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">AWS_ACCESS_KEY_ID=AKIA...
+          <pre class="language-bash"><code class="language-bash">AWS_ACCESS_KEY_ID=AKIA...
 AWS_SECRET_ACCESS_KEY=your_secret
 AWS_REGION=us-east-1</code></pre>
         </div>
@@ -142,7 +141,7 @@ AWS_REGION=us-east-1</code></pre>
           <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">{
+          <pre class="language-javascript"><code class="language-javascript">{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -173,7 +172,7 @@ AWS_REGION=us-east-1</code></pre>
           <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">'use strict';
+          <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -195,7 +194,7 @@ const client = new TranscribeStreamingClient({
           <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">function createAudioStream(mic) {
+          <pre class="language-javascript"><code class="language-javascript">function createAudioStream(mic) {
   const chunks = [];
   let done = false;
   let resolve;
@@ -242,7 +241,7 @@ const client = new TranscribeStreamingClient({
           <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -253,7 +252,7 @@ const client = new TranscribeStreamingClient({
           <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const command = new StartStreamTranscriptionCommand({
+          <pre class="language-javascript"><code class="language-javascript">const command = new StartStreamTranscriptionCommand({
   LanguageCode: 'en-US',
   MediaEncoding: 'pcm',
   MediaSampleRateHertz: '16000',
@@ -278,7 +277,7 @@ const response = await client.send(command);</code></pre>
           <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">for await (const event of response.TranscriptResultStream) {
+          <pre class="language-javascript"><code class="language-javascript">for await (const event of response.TranscriptResultStream) {
   if (event.TranscriptEvent) {
     const results = event.TranscriptEvent.Transcript.Results;
     for (const result of results) {
@@ -301,7 +300,7 @@ const response = await client.send(command);</code></pre>
           <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">process.on('SIGINT', () => {
+          <pre class="language-javascript"><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   process.exit(0);
 });</code></pre>
@@ -316,7 +315,7 @@ const response = await client.send(command);</code></pre>
             <button class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">'use strict';
+            <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -467,9 +466,7 @@ main().catch(console.error);</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

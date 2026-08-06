@@ -38,7 +38,6 @@
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -85,7 +84,7 @@
           <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">mic.pipe(recognizeStream);</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">mic.pipe(recognizeStream);</code></pre>
         </div>
       </div>
       <p>No async generator (like AWS Transcribe), no WebSocket management (like Deepgram or OpenAI). Just standard Node.js streams piped together over gRPC.</p>
@@ -116,7 +115,7 @@
           <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-key-file.json"</code></pre>
+          <pre class="language-bash"><code class="language-bash">export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your-key-file.json"</code></pre>
         </div>
       </div>
 
@@ -126,7 +125,7 @@
           <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">GOOGLE_APPLICATION_CREDENTIALS=./your-key-file.json</code></pre>
+          <pre class="language-bash"><code class="language-bash">GOOGLE_APPLICATION_CREDENTIALS=./your-key-file.json</code></pre>
         </div>
       </div>
 
@@ -136,7 +135,7 @@
           <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const client = new speech.SpeechClient({
+          <pre class="language-javascript"><code class="language-javascript">const client = new speech.SpeechClient({
   keyFilename: './your-key-file.json'
 });</code></pre>
         </div>
@@ -166,7 +165,7 @@
           <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">'use strict';
+          <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -183,7 +182,7 @@ const client = new speech.SpeechClient();</code></pre>
           <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const request = {
+          <pre class="language-javascript"><code class="language-javascript">const request = {
   config: {
     encoding: 'LINEAR16',
     sampleRateHertz: 16000,
@@ -204,7 +203,7 @@ const client = new speech.SpeechClient();</code></pre>
           <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const recognizeStream = client
+          <pre class="language-javascript"><code class="language-javascript">const recognizeStream = client
   .streamingRecognize(request)
   .on('error', console.error)
   .on('data', (data) => {
@@ -228,7 +227,7 @@ const client = new speech.SpeechClient();</code></pre>
           <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });
 mic.pipe(recognizeStream);</code></pre>
         </div>
       </div>
@@ -248,7 +247,7 @@ mic.pipe(recognizeStream);</code></pre>
           <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">process.on('SIGINT', () => {
+          <pre class="language-javascript"><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   process.exit(0);
 });</code></pre>
@@ -263,7 +262,7 @@ mic.pipe(recognizeStream);</code></pre>
             <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">'use strict';
+            <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -386,9 +385,7 @@ main().catch(console.error);</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

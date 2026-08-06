@@ -36,7 +36,6 @@
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
   <style>
     /* Scoped presentation for the Configuration options tabs (config-tabs only).
        The code-example tabs elsewhere on the page keep their grey bar. */
@@ -116,12 +115,12 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });</code></pre>
         </div>
@@ -139,7 +138,7 @@ const mic = new Microphone({ sampleRate: 16000, channels: 1, vad: 'silero' });</
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import decibri
+          <pre class="language-python"><code class="language-python">import decibri
 
 # Override the threshold and holdoff with a Vad config object.
 mic = decibri.Microphone(
@@ -149,7 +148,7 @@ mic = decibri.Microphone(
 )</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 // Override the threshold and holdoff with a Vad config object.
 const mic = new Microphone({
@@ -174,7 +173,7 @@ const mic = new Microphone({
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">prev_speaking = False
+          <pre class="language-python"><code class="language-python">prev_speaking = False
 
 with mic:
     for chunk in mic:
@@ -186,7 +185,7 @@ with mic:
         # chunk is int16 PCM bytes; mic.vad_score is the latest Silero probability</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">mic.on('speech', () => {
+          <pre class="language-javascript"><code class="language-javascript">mic.on('speech', () => {
   console.log('[speech started]');
 });
 
@@ -214,7 +213,7 @@ mic.on('data', (chunk) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">try:
+          <pre class="language-python"><code class="language-python">try:
     with mic:
         for chunk in mic:
             ...  # detect speech as shown above
@@ -222,7 +221,7 @@ except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">process.on('SIGINT', () => {
+          <pre class="language-javascript"><code class="language-javascript">process.on('SIGINT', () => {
   console.log('\nStopping...');
   mic.stop();
   process.exit(0);
@@ -245,7 +244,7 @@ except KeyboardInterrupt:
             </button>
           </div>
           <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-            <pre><code class="language-python">import decibri
+            <pre class="language-python"><code class="language-python">import decibri
 
 mic = decibri.Microphone(sample_rate=16000, channels=1, vad="silero")
 
@@ -264,7 +263,7 @@ except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
           </div>
           <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
-            <pre><code class="language-javascript">'use strict';
+            <pre class="language-javascript"><code class="language-javascript">'use strict';
 
 const { Microphone } = require('decibri');
 
@@ -295,9 +294,9 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
           <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
-          <pre><code class="language-python">mic = decibri.Microphone(vad="silero")   # or "energy"</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(vad="silero")   # or "energy"</code></pre>
           <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
-          <pre><code class="language-python">mic = decibri.Microphone(
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(
     vad=decibri.Vad(model="silero", threshold=0.6, holdoff_ms=200)
 )</code></pre>
           <p>The config object's fields:</p>
@@ -333,9 +332,9 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
-          <pre><code class="language-javascript">const mic = new Microphone({ vad: 'silero' });   // or 'energy'</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ vad: 'silero' });   // or 'energy'</code></pre>
           <p><strong>Object, your own values.</strong> Pass a config object to set the threshold and holdoff yourself.</p>
-          <pre><code class="language-javascript">const mic = new Microphone({
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({
   vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 }
 });</code></pre>
           <p>The config object's fields:</p>
@@ -394,10 +393,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     // Copy the active code panel's source to the clipboard. On success the

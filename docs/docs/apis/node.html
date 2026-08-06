@@ -22,7 +22,6 @@
   <link rel="canonical" href="https://decibri.com/docs/apis/node">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -171,7 +170,7 @@
           <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = await Microphone.open({ vad: 'silero' });
+          <pre class="language-javascript"><code class="language-javascript">const mic = await Microphone.open({ vad: 'silero' });
 mic.on('data', (chunk) => { /* ... */ });</code></pre>
         </div>
       </div>
@@ -186,7 +185,7 @@ mic.on('data', (chunk) => { /* ... */ });</code></pre>
           <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const devices = Microphone.devices();
+          <pre class="language-javascript"><code class="language-javascript">const devices = Microphone.devices();
 console.log(devices);
 // [
 //   { index: 0, name: 'Built-in Microphone', id: '...', maxInputChannels: 1,
@@ -248,7 +247,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">Microphone.version();
+          <pre class="language-javascript"><code class="language-javascript">Microphone.version();
 // { decibri: '<version>', audioBackend: 'cpal <version>', binding: '<version>' }</code></pre>
         </div>
       </div>
@@ -283,7 +282,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">mic.on('backpressure', () => {
+          <pre class="language-javascript"><code class="language-javascript">mic.on('backpressure', () => {
   console.warn('Consumer is too slow, audio may be lost');
 });</code></pre>
         </div>
@@ -364,7 +363,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 } });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ vad: { model: 'silero', threshold: 0.6, holdoffMs: 200 } });</code></pre>
         </div>
       </div>
 
@@ -375,7 +374,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, vad: 'energy' });
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, vad: 'energy' });
 
 mic.on('speech', () => console.log('Speech detected'));
 mic.on('silence', () => console.log('Silence detected'));
@@ -418,7 +417,7 @@ mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
           <button class="code-tab-btn" id="code-tab-16-node" aria-controls="code-panel-16-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-16-node" aria-labelledby="code-tab-16-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 // Short form: the model with its defaults.
 const a = new Microphone({ sampleRate: 16000, aec: 'tau' });
@@ -562,7 +561,7 @@ const b = new Microphone({
           <button class="code-tab-btn" id="code-tab-17-node" aria-controls="code-panel-17-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-17-node" aria-labelledby="code-tab-17-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">function diagnose(mic) {
+          <pre class="language-javascript"><code class="language-javascript">function diagnose(mic) {
   const m = mic.aecMetrics();
 
   if (m === null) {
@@ -662,7 +661,7 @@ const b = new Microphone({
           <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">mic.on('data', (chunk) => {
+          <pre class="language-javascript"><code class="language-javascript">mic.on('data', (chunk) => {
   const samples = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
 });</code></pre>
         </div>
@@ -675,7 +674,7 @@ const b = new Microphone({
           <button class="code-tab-btn" id="code-tab-8-node" aria-controls="code-panel-8-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, dtype: 'float32' });
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1, dtype: 'float32' });
 
 mic.on('data', (chunk) => {
   const samples = new Float32Array(chunk.buffer, chunk.byteOffset, chunk.length / 4);
@@ -692,7 +691,7 @@ mic.on('data', (chunk) => {
           <button class="code-tab-btn" id="code-tab-9-node" aria-controls="code-panel-9-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { Speaker } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Speaker } = require('decibri');
 
 const speaker = new Speaker(options?);</code></pre>
         </div>
@@ -774,7 +773,7 @@ const speaker = new Speaker(options?);</code></pre>
           <button class="code-tab-btn" id="code-tab-10-node" aria-controls="code-panel-10-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { Speaker } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Speaker } = require('decibri');
 
 const devices = Speaker.devices();
 console.log(devices);
@@ -963,7 +962,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-12-node" aria-controls="code-panel-12-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-12-node" aria-labelledby="code-tab-12-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 const file = await File.open('clip.wav', { denoise: 'fastenhancer-t', agc: -18 });
 
@@ -981,7 +980,7 @@ file.close();</code></pre>
           <button class="code-tab-btn" id="code-tab-13-node" aria-controls="code-panel-13-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-13-node" aria-labelledby="code-tab-13-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { File } = require('decibri');
 
 // samples: a Float32Array of mono samples in -1.0 to 1.0, at their own rate
 const file = File.buffer(samples, { inputRate: 48000, sampleRate: 16000 });
@@ -1011,7 +1010,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
           <button class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
+          <pre class="language-javascript"><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
 const report = await file.analyze();
 
 report.scores;   // [{ start, end, vadScore, isSpeech }, ...]
@@ -1056,7 +1055,7 @@ report.segments; // [{ start, end }, ...]</code></pre>
           <button class="code-tab-btn" id="code-tab-18-node" aria-controls="code-panel-18-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-18-node" aria-labelledby="code-tab-18-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const file = await File.open('noisy.wav', {
+          <pre class="language-javascript"><code class="language-javascript">const file = await File.open('noisy.wav', {
   denoise: 'fastenhancer-t',
   agc: -18,
   limiter: -1.0,
@@ -1089,7 +1088,7 @@ report.nonFiniteSamples;  // number</code></pre>
           <button class="code-tab-btn" id="code-tab-15-node" aria-controls="code-panel-15-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
+          <pre class="language-javascript"><code class="language-javascript">const file = await File.open('clip.wav', { vad: 'silero' });
 
 file.on('speech', () => console.log('speech starts'));
 file.on('silence', () => console.log('speech ends'));
@@ -1361,7 +1360,7 @@ file.on('data', (chunk) => {
           <button class="code-tab-btn" id="code-tab-19-node" aria-controls="code-panel-19-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-19-node" aria-labelledby="code-tab-19-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { pipeline } = require('node:stream/promises');
+          <pre class="language-javascript"><code class="language-javascript">const { pipeline } = require('node:stream/promises');
 const { File, AudioWriter } = require('decibri');
 
 const file = await File.open('noisy.wav', { denoise: 'fastenhancer-t' });
@@ -1392,7 +1391,7 @@ writer.report; // { clippedSamples, nonFiniteSamples }, populated after 'finish'
           <button class="code-tab-btn" id="code-tab-11-node" aria-controls="code-panel-11-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { inputDevices, outputDevices, version } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { inputDevices, outputDevices, version } = require('decibri');
 
 const inputs = inputDevices();
 const outputs = outputDevices();
@@ -1521,9 +1520,7 @@ console.log(version());</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

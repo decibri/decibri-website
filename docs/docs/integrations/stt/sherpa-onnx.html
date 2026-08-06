@@ -38,7 +38,6 @@
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -97,7 +96,7 @@
           <button class="code-tab-btn" id="code-tab-1-node" aria-controls="code-panel-1-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17.tar.bz2
+          <pre class="language-bash"><code class="language-bash">wget https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17.tar.bz2
 tar xvf sherpa-onnx-streaming-zipformer-en-20M-2023-02-17.tar.bz2</code></pre>
         </div>
       </div>
@@ -112,7 +111,7 @@ tar xvf sherpa-onnx-streaming-zipformer-en-20M-2023-02-17.tar.bz2</code></pre>
           <button class="code-tab-btn" id="code-tab-2-node" aria-controls="code-panel-2-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-streaming-zipformer-en-20M-2023-02-17';
@@ -141,7 +140,7 @@ const config = {
           <button class="code-tab-btn" id="code-tab-3-node" aria-controls="code-panel-3-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const recognizer = new sherpa.OnlineRecognizer(config);
+          <pre class="language-javascript"><code class="language-javascript">const recognizer = new sherpa.OnlineRecognizer(config);
 const stream = recognizer.createStream();</code></pre>
         </div>
       </div>
@@ -153,7 +152,7 @@ const stream = recognizer.createStream();</code></pre>
           <button class="code-tab-btn" id="code-tab-4-node" aria-controls="code-panel-4-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -164,7 +163,7 @@ const stream = recognizer.createStream();</code></pre>
           <button class="code-tab-btn" id="code-tab-5-node" aria-controls="code-panel-5-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">let lastText = '';
+          <pre class="language-javascript"><code class="language-javascript">let lastText = '';
 
 mic.on('data', (chunk) => {
   // Convert Int16 PCM to Float32
@@ -197,7 +196,7 @@ mic.on('data', (chunk) => {
           <button class="code-tab-btn" id="code-tab-6-node" aria-controls="code-panel-6-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel">
-          <pre><code class="language-javascript">process.on('SIGINT', () => {
+          <pre class="language-javascript"><code class="language-javascript">process.on('SIGINT', () => {
   mic.stop();
   const finalText = recognizer.getResult(stream).text.trim();
   if (finalText) console.log('\n' + finalText);
@@ -218,7 +217,7 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
             <button class="code-tab-btn" id="code-tab-7-node" aria-controls="code-panel-7-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
           </div>
           <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel">
-            <pre><code class="language-javascript">const { Microphone } = require('decibri');
+            <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 const sherpa = require('sherpa-onnx');
 
 const modelDir = './sherpa-onnx-streaming-zipformer-en-20M-2023-02-17';
@@ -297,9 +296,7 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

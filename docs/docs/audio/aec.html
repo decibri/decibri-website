@@ -29,7 +29,6 @@
   <link rel="canonical" href="https://decibri.com/docs/audio/aec">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -120,7 +119,7 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">from decibri import File, Microphone, Speaker
+          <pre class="language-python"><code class="language-python">from decibri import File, Microphone, Speaker
 
 RATE = 16000
 
@@ -138,7 +137,7 @@ with Microphone(sample_rate=RATE, aec="tau") as mic, Speaker(sample_rate=RATE) a
         near = mic.read(timeout_ms=100)  # microphone audio, echo removed</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
 
 const RATE = 16000;
 
@@ -214,13 +213,13 @@ main();</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">Microphone(
+          <pre class="language-python"><code class="language-python">Microphone(
     sample_rate=16000,
     aec=Aec(model="tau", reference_sample_rate=24000),
 )</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">new Microphone({
+          <pre class="language-javascript"><code class="language-javascript">new Microphone({
   sampleRate: 16000,
   aec: { model: 'tau', referenceSampleRate: 24000 },
 });</code></pre>
@@ -243,7 +242,7 @@ main();</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">from decibri import Aec, File, Microphone, Speaker
+          <pre class="language-python"><code class="language-python">from decibri import Aec, File, Microphone, Speaker
 
 CAPTURE_RATE = 16000
 PLAYBACK_RATE = 24000  # whatever the player runs at
@@ -268,7 +267,7 @@ with mic, player:
         near = mic.read(timeout_ms=100)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone, Speaker, File } = require('decibri');
 
 const CAPTURE_RATE = 16000;
 const PLAYBACK_RATE = 24000; // whatever the player runs at
@@ -328,7 +327,7 @@ main();</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">from decibri import Aec, Microphone
+          <pre class="language-python"><code class="language-python">from decibri import Aec, Microphone
 
 # Short form: the model with its defaults.
 a = Microphone(sample_rate=16000, aec="tau")
@@ -345,7 +344,7 @@ b = Microphone(
 )</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const { Microphone } = require('decibri');
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
 
 // Short form: the model with its defaults.
 const a = new Microphone({ sampleRate: 16000, aec: 'tau' });
@@ -477,7 +476,7 @@ const b = new Microphone({
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">def diagnose(mic: Microphone) -&gt; str:
+          <pre class="language-python"><code class="language-python">def diagnose(mic: Microphone) -&gt; str:
     m = mic.aec_metrics()
 
     if m is None:
@@ -491,7 +490,7 @@ const b = new Microphone({
     return "reference is arriving but nothing has aligned: check the rate"</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">function diagnose(mic) {
+          <pre class="language-javascript"><code class="language-javascript">function diagnose(mic) {
   const m = mic.aecMetrics();
 
   if (m === null) {
@@ -589,9 +588,7 @@ const b = new Microphone({
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     function copyTabCode(el) {

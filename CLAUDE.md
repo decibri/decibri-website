@@ -142,6 +142,87 @@ Notes that are load-bearing, not incidental:
 
 A page that adds a character outside the 104-codepoint subset falls through to the full font, which on a cold mobile load has not arrived, and then to Arial. The result is mixed typefaces inside one heading. This is silent and stays broken until someone looks. The guard is a codepoint check over the rendered text of all pages against the two subsets' `cmap`s, and it is the second assertion in `tools/check-shared-css.mjs` (see below). It reads the covered set out of the shipped base64 payloads rather than from a list written in the script, so regenerating the subsets updates what it checks with no edit to the tool.
 
+## The self-hosted Prism bundle
+
+`docs/vendor/prism.min.js` is a hand-concatenated Prism 1.29.0 build. It is a hand-maintained artefact with no build step, exactly like the inline font subsets above, so it does not regenerate itself and drift in it is silent.
+
+The 21 pages that highlight code load it with a single plain synchronous tag at the end of `<body>`, immediately before `/docs/nav.js`:
+
+```html
+<script src="/vendor/prism.min.js"></script>
+```
+
+**No `defer` and no `async`.** That is deliberate and matches what the four separate cdnjs tags it replaced did. Adding `defer` changes `document.readyState` at the moment Prism's core runs, which changes whether it highlights on `DOMContentLoaded` or on an animation frame, which can put a visible unhighlighted state back on the page. Do not add it without time-sampling the result.
+
+### Regenerating the bundle
+
+Sources are the four minified files from Prism **1.29.0**, taken from cdnjs. The order matters: the core must come first, because each component assigns into the `Prism.languages` object the core creates.
+
+```sh
+B=https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0
+curl -sS -O "$B/prism.min.js"
+curl -sS -O "$B/components/prism-bash.min.js"
+curl -sS -O "$B/components/prism-python.min.js"
+curl -sS -O "$B/components/prism-typescript.min.js"
+
+# Newline-joined so the last statement of one file cannot fuse with the first of the next.
+for f in prism.min.js prism-bash.min.js prism-python.min.js prism-typescript.min.js; do
+  cat "$f"; echo
+done > docs/vendor/prism.min.js
+```
+
+| source | raw bytes | sha256 (first 16) |
+| --- | --- | --- |
+| `prism.min.js` (core) | 18,997 | `e7b88bddc6c757b2` |
+| `components/prism-bash.min.js` | 6,143 | `6260814110e5182f` |
+| `components/prism-python.min.js` | 2,113 | `ed4385685bcf2d49` |
+| `components/prism-typescript.min.js` | 1,294 | `852f5513bb9ca9db` |
+| **`docs/vendor/prism.min.js`** | **28,551** | `36f5c8740abd3033` |
+
+Expected output: **28,551 bytes raw, 9,677 bytes brotli**. A materially different size means a source file or the language list changed. Full sha256 of the shipped bundle:
+
+```text
+36f5c8740abd3033e42155a0add401bbc83dbceb734ffda23678c7222daf0b20
+```
+
+### The language list, and what must never be added
+
+The list is **core plus bash, python and typescript**, derived by scanning every `language-*` class on every page, not from expectation. The site's code blocks are 152 javascript, 104 python, 40 bash and 2 typescript.
+
+- **Never add `prism-javascript.min.js`.** JavaScript is already in the core build. Loading the component again is a wasted request that produces a byte-identical grammar. Twenty pages used to do this.
+- **Never add `prism-markup.min.js`.** Markup is also already in the core, but reloading it is worse than wasteful: it **replaces** the core's enriched markup grammar with a bare one, discarding the `addInlined` extensions that let `<script>` and `<style>` inside an HTML block highlight as JS and CSS. Measured, the serialised markup grammar drops from 3,593 to 725 characters and `Prism.languages.markup.script` and `.style` disappear. Two pages used to do this.
+- CSS and clike are in the core as well and do not need components.
+- Rust and JSON appear only on `docs/index.html` and `docs/cli/index.html`, which hand-colour their code and never load Prism, so they are correctly absent. If Prism is ever extended to those pages, add `prism-rust.min.js` and `prism-json.min.js` and update the sizes above.
+
+To check a rebuilt bundle, load it and confirm `Prism.languages` has `bash`, `python`, `typescript`, `javascript`, `markup`, `css` and `clike`, and that `Prism.languages.markup.script` and `Prism.languages.markup.style` are both present. If they are not, `prism-markup` has been concatenated in by mistake.
+
+### The theme
+
+There is no Prism theme file and no cross-origin stylesheet. The site used to load `themes/prism-tomorrow.min.css` from cdnjs. A census of all 298 code blocks, tokenised with the shipped bundle, emits 14,568 token spans, and the `.token` rules already in `docs/docs/styles.css` override 14,317 of them with `!important`. Only three declarations were doing real work, so only those were kept. They live in `docs/docs/styles.css` under the comment "Prism theme: the only part not overridden below":
+
+| kept | value | why |
+| --- | --- | --- |
+| `pre[class*="language-"], code[class*="language-"]` | `color: #ccc` | the dark-mode base code colour. `styles.css` only ever set the light one. |
+| `.token.builtin` | `#cc99cd` | 143 spans: 133 python, 10 typescript. |
+| `.token.variable` | `#7ec699` | 16 spans, all bash `assign-left variable`. |
+
+None of the three carries `!important`, because the vendored theme did not either. That reproduces the old cascade exactly: the light-mode base rule further down the file is `!important` and still wins over the first row above.
+
+Deliberately not carried over:
+
+- **`font-family: Consolas, Monaco, ...`**. This one was a defect, not a loss. It applied to the `<pre>`, and `.doc-content pre[class*="language-"] code` already sets `var(--font-mono) !important` on the element that actually holds the text. Its only visible effect was during load, covered below.
+- `background`, `font-size`, `line-height`, `padding`, `margin`, `overflow`, `tab-size`, `white-space`, `hyphens`, `word-break`, `text-align`: every one is either overridden by an existing rule or inert. No code block on the site contains a tab character, so `tab-size` never applied.
+- `:not(pre) > code[class*="language-"]`: no such element exists. All 298 `language-*` code elements are direct children of a `<pre>`.
+- `.token` colours for `tag`, `attr-name`, `attr-value`, `symbol`, `atrule`, `selector`, `regex`, `char`, `url`, `entity`, `namespace`, `deleted`, `inserted`, `function-name`, `block-comment`, `important`, `bold`, `italic`: zero spans on the site today.
+
+A code block in a language the site does not currently use may emit token classes none of these colour. It renders in the base code colour rather than wrongly, but it is not highlighted. Add the missing `.token.*` colours to that same block.
+
+### Why writing `class="language-*"` into the HTML matters
+
+Every `<pre>` that holds a code block carries its own `language-*` class in the HTML, duplicating the one on its child `<code>`. **Keep it that way when adding a code block.** It is not decorative.
+
+Every rule that draws a code block is written against `.doc-content pre[class*="language-"]`, so without the class in the markup none of them match until Prism's JavaScript has run. Prism copies the class up from the `<code>` at runtime, which is far too late: time-sampled at 100 ms on Slow 3G, the block was painted in Consolas at 16 px with no box, then snapped to JetBrains Mono at 13.5 px in a bordered box, growing from 384 px to 426 px. Writing the class into the HTML removes that state entirely, and makes the box independent of whether the script runs at all.
+
 ## The shared CSS drift verifier
 
 `tools/check-shared-css.mjs` is a standalone Node script, no dependencies and no build step. It reads files and exits non-zero; it writes nothing and has no effect on what ships. Delete it and the site is unchanged.

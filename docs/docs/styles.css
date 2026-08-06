@@ -662,6 +662,18 @@ body {
   padding: 0 !important;
 }
 
+/* ── Prism theme: the only part not overridden below ──
+   All the site used from the old cross-origin prism-tomorrow.min.css. Of the
+   14,568 token spans the site's code produces, the rules below already colour
+   14,317 with !important; these three cover the other 159 and the dark base.
+   No !important here, because that theme had none: same cascade as before.
+   CLAUDE.md, "The self-hosted Prism bundle", records what was left out and why. */
+pre[class*="language-"],
+code[class*="language-"] { color: #ccc; line-height: 1.5; }
+
+.token.builtin { color: #cc99cd; }
+.token.variable { color: #7ec699; }
+
 /* ── Prism.js theme overrides ── */
 .token.comment,
 .token.prolog,

@@ -22,7 +22,6 @@
   <link rel="canonical" href="https://decibri.com/docs/apis/browser">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -99,7 +98,7 @@
           <button class="code-tab-btn" id="code-tab-1-browser" aria-controls="code-panel-1-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-browser" aria-labelledby="code-tab-1-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">import { Microphone } from 'decibri';
+          <pre class="language-javascript"><code class="language-javascript">import { Microphone } from 'decibri';
 
 const mic = new Microphone({ sampleRate: 16000 });
 
@@ -127,7 +126,7 @@ await mic.start();</code></pre>
           <button class="code-tab-btn" id="code-tab-2-browser" aria-controls="code-panel-2-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-browser" aria-labelledby="code-tab-2-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">mic.stop();</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">mic.stop();</code></pre>
         </div>
       </div>
       <p><code>stop()</code> releases all resources: MediaStream tracks are stopped, AudioContext is closed, all nodes are disconnected, references are nulled. Safe for React/Vue component unmount cycles. Safe to call multiple times or before <code>start()</code>.</p>
@@ -137,7 +136,7 @@ await mic.start();</code></pre>
           <button class="code-tab-btn" id="code-tab-3-browser" aria-controls="code-panel-3-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-browser" aria-labelledby="code-tab-3-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">await mic.start(); // creates a fresh audio pipeline</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">await mic.start(); // creates a fresh audio pipeline</code></pre>
         </div>
       </div>
 
@@ -147,7 +146,7 @@ await mic.start();</code></pre>
           <button class="code-tab-btn" id="code-tab-4-browser" aria-controls="code-panel-4-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-browser" aria-labelledby="code-tab-4-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
+          <pre class="language-javascript"><code class="language-javascript">// Start first to trigger permission, then enumerate with labels
 await mic.start();
 const devices = await Microphone.devices();
 console.log(devices);
@@ -165,7 +164,7 @@ await usbMic.start();</code></pre>
           <button class="code-tab-btn" id="code-tab-5-browser" aria-controls="code-panel-5-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-browser" aria-labelledby="code-tab-5-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
+          <pre class="language-javascript"><code class="language-javascript">// Int16 PCM (default) - ready for most STT engines
 const mic = new Microphone({ dtype: 'int16' });
 mic.on('data', (chunk) => {
   // chunk is an Int16Array
@@ -186,7 +185,7 @@ mic2.on('data', (chunk) => {
           <button class="code-tab-btn" id="code-tab-6-browser" aria-controls="code-panel-6-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-browser" aria-labelledby="code-tab-6-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({
   sampleRate: 16000,
   vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 },
 });
@@ -206,7 +205,7 @@ await mic.start();</code></pre>
           <button class="code-tab-btn" id="code-tab-7-browser" aria-controls="code-panel-7-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-browser" aria-labelledby="code-tab-7-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
+          <pre class="language-javascript"><code class="language-javascript">const ws = new WebSocket('wss://your-server.com/audio');
 const mic = new Microphone({ sampleRate: 16000, dtype: 'int16' });
 
 mic.on('data', (chunk) => {
@@ -266,7 +265,7 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
           <button class="code-tab-btn" id="code-tab-8-browser" aria-controls="code-panel-8-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-browser" aria-labelledby="code-tab-8-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">const mic = new Microphone({
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({
   workletUrl: '/static/decibri-worklet.js',
 });</code></pre>
         </div>
@@ -283,7 +282,7 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
           <button class="code-tab-btn" id="code-tab-9-browser" aria-controls="code-panel-9-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-browser" aria-labelledby="code-tab-9-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">import { Microphone } from 'decibri';
+          <pre class="language-javascript"><code class="language-javascript">import { Microphone } from 'decibri';
 const mic = new Microphone(options?);</code></pre>
         </div>
       </div>
@@ -384,7 +383,7 @@ const mic = new Microphone(options?);</code></pre>
           <button class="code-tab-btn" id="code-tab-10-browser" aria-controls="code-panel-10-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-10-browser" aria-labelledby="code-tab-10-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">const devices = await Microphone.devices();
+          <pre class="language-javascript"><code class="language-javascript">const devices = await Microphone.devices();
 console.log(devices);
 // [
 //   { deviceId: 'abc123', label: 'Built-in Microphone', groupId: 'g1' },
@@ -400,7 +399,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-11-browser" aria-controls="code-panel-11-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-11-browser" aria-labelledby="code-tab-11-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">Microphone.version();
+          <pre class="language-javascript"><code class="language-javascript">Microphone.version();
 // { decibri: '<version>' }</code></pre>
         </div>
       </div>
@@ -459,7 +458,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-12-browser" aria-controls="code-panel-12-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-12-browser" aria-labelledby="code-tab-12-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">// MicrophoneInfo
+          <pre class="language-javascript"><code class="language-javascript">// MicrophoneInfo
 {
   deviceId: string,
   label: string,
@@ -590,7 +589,7 @@ console.log(devices);
           <button class="code-tab-btn" id="code-tab-13-browser" aria-controls="code-panel-13-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-13-browser" aria-labelledby="code-tab-13-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">import { Speaker } from 'decibri';
+          <pre class="language-javascript"><code class="language-javascript">import { Speaker } from 'decibri';
 
 const speaker = new Speaker({ sampleRate: 16000 });
 
@@ -610,7 +609,7 @@ document.getElementById('play').onclick = async () => {
           <button class="code-tab-btn" id="code-tab-14-browser" aria-controls="code-panel-14-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
         </div>
         <div class="code-tab-panel" id="code-panel-14-browser" aria-labelledby="code-tab-14-browser" data-lang="browser" role="tabpanel">
-          <pre><code class="language-javascript">import { Speaker } from 'decibri';
+          <pre class="language-javascript"><code class="language-javascript">import { Speaker } from 'decibri';
 const speaker = new Speaker(options?);</code></pre>
         </div>
       </div>
@@ -759,10 +758,7 @@ const speaker = new Speaker(options?);</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script src="/docs/code-tabs.js" defer></script>
 </body>

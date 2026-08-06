@@ -40,7 +40,6 @@
   }
   </script>
   <link rel="stylesheet" href="/docs/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 </head>
 <body>
 
@@ -102,7 +101,7 @@
         <li>Create an API key from the dashboard</li>
         <li>Store it in a <code>.env</code> file in your project root:</li>
       </ol>
-      <pre><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
+      <pre class="language-bash"><code class="language-bash">DEEPGRAM_API_KEY=your_key_here</code></pre>
 
       <h3>Install packages</h3>
       <div class="install-cmd" onclick="copyInstall(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();copyInstall(this)}" role="button" tabindex="0" aria-label="Copy install command">
@@ -129,7 +128,7 @@
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-1-python" aria-labelledby="code-tab-1-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import os
+          <pre class="language-python"><code class="language-python">import os
 from dotenv import load_dotenv
 import decibri
 from deepgram import DeepgramClient
@@ -139,7 +138,7 @@ load_dotenv()
 client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-1-node" aria-labelledby="code-tab-1-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">require('dotenv').config();
+          <pre class="language-javascript"><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
@@ -167,7 +166,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-2-python" aria-labelledby="code-tab-2-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with client.listen.v1.connect(
+          <pre class="language-python"><code class="language-python">with client.listen.v1.connect(
     model="nova-3",
     encoding="linear16",
     sample_rate=16000,
@@ -177,7 +176,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
     ...</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-2-node" aria-labelledby="code-tab-2-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
+          <pre class="language-javascript"><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
 
 const socket = await client.listen.v1.connect({
   model: 'nova-3',
@@ -211,7 +210,7 @@ await Promise.race([
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-3-python" aria-labelledby="code-tab-3-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">def on_open(_):
+          <pre class="language-python"><code class="language-python">def on_open(_):
     print("Deepgram connected.")
 
 def on_message(result):
@@ -228,7 +227,7 @@ connection.on(EventType.OPEN, on_open)
 connection.on(EventType.MESSAGE, on_message)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">socket.on('open', () => {
+          <pre class="language-javascript"><code class="language-javascript">socket.on('open', () => {
   console.log('Deepgram connected.');
 });
 
@@ -266,10 +265,10 @@ socket.on('close', () => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-4-python" aria-labelledby="code-tab-4-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-4-node" aria-labelledby="code-tab-4-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -287,7 +286,7 @@ socket.on('close', () => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-5-python" aria-labelledby="code-tab-5-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+          <pre class="language-python"><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
 MIN_BYTES = 1600     # 50 ms tail-drop
 
 def audio_iter():
@@ -301,7 +300,7 @@ def audio_iter():
         yield bytes(buffer)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-5-node" aria-labelledby="code-tab-5-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+          <pre class="language-javascript"><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
 const MIN_BYTES = 1600;    // 50 ms tail-drop
 
 let buffer = Buffer.alloc(0);
@@ -334,14 +333,14 @@ mic.on('error', (err) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-6-python" aria-labelledby="code-tab-6-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">for chunk in audio_iter():
+          <pre class="language-python"><code class="language-python">for chunk in audio_iter():
     connection.send_media(chunk)
 
 connection.send_finalize()
 time.sleep(2.0)  # grace for the from_finalize Results message</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">if (buffer.length >= MIN_BYTES) {
+          <pre class="language-javascript"><code class="language-javascript">if (buffer.length >= MIN_BYTES) {
   socket.sendMedia(buffer);
 }
 socket.sendFinalize({ type: 'Finalize' });
@@ -365,7 +364,7 @@ await new Promise((r) => setTimeout(r, 2000));  // grace for the from_finalize R
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-7-python" aria-labelledby="code-tab-7-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import threading
+          <pre class="language-python"><code class="language-python">import threading
 import time
 
 print("Listening... (Ctrl+C to stop)")
@@ -392,7 +391,7 @@ except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-7-node" aria-labelledby="code-tab-7-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+          <pre class="language-javascript"><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
 
 process.on('SIGINT', async () => {
   console.log('\nStopping...');
@@ -428,7 +427,7 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-8-python" aria-labelledby="code-tab-8-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import os
+          <pre class="language-python"><code class="language-python">import os
 from dotenv import load_dotenv
 import decibri
 from deepgram import DeepgramClient
@@ -438,7 +437,7 @@ load_dotenv()
 client = DeepgramClient(api_key=os.environ["DEEPGRAM_API_KEY"])</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-8-node" aria-labelledby="code-tab-8-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">require('dotenv').config();
+          <pre class="language-javascript"><code class="language-javascript">require('dotenv').config();
 
 const { Microphone } = require('decibri');
 const { DeepgramClient } = require('@deepgram/sdk');
@@ -462,7 +461,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-9-python" aria-labelledby="code-tab-9-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">with client.listen.v2.connect(
+          <pre class="language-python"><code class="language-python">with client.listen.v2.connect(
     model="flux-general-en",
     eot_threshold=0.7,
     eot_timeout_ms=5000,
@@ -474,7 +473,7 @@ const client = new DeepgramClient({ apiKey: process.env.DEEPGRAM_API_KEY });</co
     ...</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-9-node" aria-labelledby="code-tab-9-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
+          <pre class="language-javascript"><code class="language-javascript">const KEY = process.env.DEEPGRAM_API_KEY;
 
 const socket = await client.listen.v2.connect({
   model: 'flux-general-en',
@@ -510,7 +509,7 @@ await Promise.race([
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-10-python" aria-labelledby="code-tab-10-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">def on_open(_):
+          <pre class="language-python"><code class="language-python">def on_open(_):
     print("Deepgram (Flux) connected.")
 
 def on_message(result):
@@ -523,7 +522,7 @@ connection.on(EventType.OPEN, on_open)
 connection.on(EventType.MESSAGE, on_message)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-10-node" aria-labelledby="code-tab-10-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">socket.on('open', () => {
+          <pre class="language-javascript"><code class="language-javascript">socket.on('open', () => {
   console.log('Deepgram (Flux) connected.');
 });
 
@@ -557,10 +556,10 @@ socket.on('close', () => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-11-python" aria-labelledby="code-tab-11-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
+          <pre class="language-python"><code class="language-python">mic = decibri.Microphone(sample_rate=16000, channels=1)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-11-node" aria-labelledby="code-tab-11-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
+          <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ sampleRate: 16000, channels: 1 });</code></pre>
         </div>
       </div>
 
@@ -578,7 +577,7 @@ socket.on('close', () => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-12-python" aria-labelledby="code-tab-12-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
+          <pre class="language-python"><code class="language-python">BATCH_BYTES = 3200   # 100 ms of int16 mono at 16 kHz
 MIN_BYTES = 1600     # 50 ms tail-drop
 
 def audio_iter():
@@ -592,7 +591,7 @@ def audio_iter():
         yield bytes(buffer)</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-12-node" aria-labelledby="code-tab-12-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
+          <pre class="language-javascript"><code class="language-javascript">const BATCH_BYTES = 3200;  // 100 ms of int16 mono at 16 kHz
 const MIN_BYTES = 1600;    // 50 ms tail-drop
 
 let buffer = Buffer.alloc(0);
@@ -624,7 +623,7 @@ mic.on('error', (err) => {
           </button>
         </div>
         <div class="code-tab-panel" id="code-panel-13-python" aria-labelledby="code-tab-13-python" data-lang="python" role="tabpanel">
-          <pre><code class="language-python">import threading
+          <pre class="language-python"><code class="language-python">import threading
 import time
 
 print("Listening... (Ctrl+C to stop)")
@@ -652,7 +651,7 @@ except KeyboardInterrupt:
     print("\nStopping...")</code></pre>
         </div>
         <div class="code-tab-panel" id="code-panel-13-node" aria-labelledby="code-tab-13-node" data-lang="node" role="tabpanel" hidden>
-          <pre><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
+          <pre class="language-javascript"><code class="language-javascript">const closed = new Promise((resolve) => socket.on('close', () => resolve()));
 
 process.on('SIGINT', async () => {
   console.log('\nStopping...');
@@ -690,7 +689,7 @@ console.log('Listening... (Ctrl+C to stop)');</code></pre>
             </button>
           </div>
           <div class="code-tab-panel" id="code-panel-14-python" aria-labelledby="code-tab-14-python" data-lang="python" role="tabpanel">
-            <pre><code class="language-python">import os
+            <pre class="language-python"><code class="language-python">import os
 import threading
 import time
 from dotenv import load_dotenv
@@ -762,7 +761,7 @@ with client.listen.v1.connect(
         print("\nStopping...")</code></pre>
           </div>
           <div class="code-tab-panel" id="code-panel-14-node" aria-labelledby="code-tab-14-node" data-lang="node" role="tabpanel" hidden>
-            <pre><code class="language-javascript">'use strict';
+            <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -863,7 +862,7 @@ run().catch(console.error);</code></pre>
             </button>
           </div>
           <div class="code-tab-panel" id="code-panel-15-python" aria-labelledby="code-tab-15-python" data-lang="python" role="tabpanel">
-            <pre><code class="language-python">import os
+            <pre class="language-python"><code class="language-python">import os
 import threading
 import time
 from dotenv import load_dotenv
@@ -931,7 +930,7 @@ with client.listen.v2.connect(
         print("\nStopping...")</code></pre>
           </div>
           <div class="code-tab-panel" id="code-panel-15-node" aria-labelledby="code-tab-15-node" data-lang="node" role="tabpanel" hidden>
-            <pre><code class="language-javascript">'use strict';
+            <pre class="language-javascript"><code class="language-javascript">'use strict';
 require('dotenv').config();
 
 const { Microphone } = require('decibri');
@@ -1154,10 +1153,7 @@ run().catch(console.error);</code></pre>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="/vendor/prism.min.js"></script>
   <script src="/docs/nav.js"></script>
   <script>
     // Copy the active code panel's source to the clipboard. On success the
