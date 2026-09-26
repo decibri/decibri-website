@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Silero VAD | decibri docs</title>
-  <meta name="description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
+  <meta name="description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v6.2 neural model. No extra dependencies, no separate model download.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Silero VAD | decibri docs">
-  <meta property="og:description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v5 neural model. No extra dependencies, no separate model download.">
+  <meta property="og:description" content="Detect speech and silence in Python and Node.js using decibri's bundled Silero VAD v6.2 neural model. No extra dependencies, no separate model download.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations/vad/silero">
   <link rel="canonical" href="https://decibri.com/docs/integrations/vad/silero">
@@ -26,9 +26,9 @@
     "@context": "https://schema.org",
     "@type": "HowTo",
     "name": "How to detect speech with Silero VAD in Python or Node.js",
-    "description": "Detect speech and silence with decibri's bundled Silero VAD v5 neural model in Python or Node.js. Runs entirely offline, no API key, no extra dependencies.",
+    "description": "Detect speech and silence with decibri's bundled Silero VAD v6.2 neural model in Python or Node.js. Runs entirely offline, no API key, no extra dependencies.",
     "step": [
-      {"@type": "HowToStep", "name": "Install decibri", "text": "Install decibri with pip install decibri (Python) or npm install decibri (Node.js). The Silero v5 ONNX model ships bundled in both packages."},
+      {"@type": "HowToStep", "name": "Install decibri", "text": "Install decibri with pip install decibri (Python) or npm install decibri (Node.js). The Silero v6.2 ONNX model ships bundled in both packages."},
       {"@type": "HowToStep", "name": "Enable Silero VAD", "text": "Create a Microphone with the 'silero' shorthand: decibri.Microphone(vad='silero') in Python, or new Microphone({ vad: 'silero' }) in Node.js. To tune detection, pass a config object: decibri.Vad(model='silero', threshold=0.6, holdoff_ms=200) in Python, or { model: 'silero', threshold: 0.6, holdoffMs: 200 } in Node.js."},
       {"@type": "HowToStep", "name": "Detect speech", "text": "In Python, read mic.is_speaking and mic.vad_score in the chunk loop. In Node.js, listen for the 'speech' and 'silence' events and read mic.vadScore."},
       {"@type": "HowToStep", "name": "Stop and clean up", "text": "In Python the with-block stops capture on exit; in Node.js call mic.stop() on SIGINT."}
@@ -79,11 +79,11 @@
       </div>
 
       <h1>Silero VAD</h1>
-      <p class="lead">Decibri ships Silero VAD v5 bundled. Set the VAD mode to <code>'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required. This page covers both Python and Node.js. Tabs above each code block switch between languages.</p>
+      <p class="lead">Decibri ships Silero VAD v6.2 bundled. Set the VAD mode to <code>'silero'</code> to enable neural voice activity detection with no extra dependencies, no separate model download, and no sherpa-onnx required. This page covers both Python and Node.js. Tabs above each code block switch between languages.</p>
 
       <h2>What this does</h2>
-      <p>Silero v5 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships inside the decibri package on both PyPI and npm.</p>
-      <p>Decibri offers two VAD modes out of the box: an <strong>RMS energy detector</strong> (<code>'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v5 neural model</strong> (<code>'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with higher accuracy. The model set is exactly these two.</p>
+      <p>Silero v6.2 is a neural voice activity detection model. It runs locally in Rust via ONNX Runtime. No cloud API, no server, no fine-tuning required. The ~2.3 MB ONNX model ships inside the decibri package on both PyPI and npm.</p>
+      <p>Decibri offers two VAD modes out of the box: an <strong>RMS energy detector</strong> (<code>'energy'</code>) that uses simple amplitude thresholding, and the <strong>Silero v6.2 neural model</strong> (<code>'silero'</code>) that handles noisy environments, background music, and multi-speaker scenarios with higher accuracy. The model set is exactly these two.</p>
 
       <div class="callout">
         <strong>When to use which:</strong> Use the RMS energy detector for clean-audio scenarios and minimal CPU overhead. Use <code>'silero'</code> for noisy environments, background music, or any case where accuracy matters more than CPU budget.
@@ -97,7 +97,7 @@
         <span class="cmd" id="install-cmd">pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>The Silero v5 ONNX model is bundled in both the PyPI and npm packages. No separate download, no sherpa-onnx needed. The install command above switches with the language tabs in the code blocks below.</p>
+      <p>The Silero v6.2 ONNX model is bundled in both the PyPI and npm packages. No separate download, no sherpa-onnx needed. The install command above switches with the language tabs in the code blocks below.</p>
 
       <h2>Code walkthrough</h2>
 
@@ -313,7 +313,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
               <tr>
                 <td><code>model</code></td>
                 <td><code>'silero'</code></td>
-                <td><code>'silero'</code> (bundled Silero v5 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
+                <td><code>'silero'</code> (bundled Silero v6.2 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
               </tr>
               <tr>
                 <td><code>threshold</code></td>
@@ -328,7 +328,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
             </tbody>
           </table>
           </div>
-          <p>To use a custom Silero ONNX build instead of the bundled v5, pass <code>model_path</code> alongside the <code>'silero'</code> mode.</p>
+          <p>To use a custom Silero ONNX build instead of the bundled v6.2, pass <code>model_path</code> alongside the <code>'silero'</code> mode.</p>
         </div>
         <div class="code-tab-panel" id="code-panel-6-node" aria-labelledby="code-tab-6-node" data-lang="node" role="tabpanel" hidden>
           <p><strong>Shorthand, default settings.</strong> Pass a mode name to enable VAD with that mode's default threshold and holdoff.</p>
@@ -351,7 +351,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
               <tr>
                 <td><code>model</code></td>
                 <td>required</td>
-                <td><code>'silero'</code> (bundled Silero v5 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
+                <td><code>'silero'</code> (bundled Silero v6.2 neural model) or <code>'energy'</code> (built-in RMS detector).</td>
               </tr>
               <tr>
                 <td><code>threshold</code></td>
@@ -366,7 +366,7 @@ console.log('Listening for speech... (Ctrl+C to stop)\n');</code></pre>
             </tbody>
           </table>
           </div>
-          <p>To use a custom Silero ONNX build instead of the bundled v5, pass <code>modelPath</code> alongside the <code>'silero'</code> mode.</p>
+          <p>To use a custom Silero ONNX build instead of the bundled v6.2, pass <code>modelPath</code> alongside the <code>'silero'</code> mode.</p>
         </div>
       </div>
       <div class="callout">

@@ -1552,7 +1552,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
       <p><code>is_speaking</code> is the debounced state machine output: above the threshold plus the holdoff grace. <code>vad_score</code> is the raw per-chunk view, identical to the Silero probability in Silero mode and the normalised RMS in energy mode. Use <code>is_speaking</code> for gating downstream work; use <code>vad_score</code> when you need the underlying signal (for example, to threshold differently per chunk or to log probability distributions).</p>
 
       <h3>Custom Silero model with <code>model_path</code></h3>
-      <p>The bundled Silero model is the published Silero v5 checkpoint. To use a different Silero ONNX variant, pass an absolute path on the <code>model_path</code> constructor parameter. The path is only consulted when <code>vad="silero"</code>; energy mode and <code>vad=False</code> ignore it.</p>
+      <p>The bundled Silero model is the published Silero v6.2 checkpoint. To use a different Silero ONNX variant, pass an absolute path on the <code>model_path</code> constructor parameter. The path is only consulted when <code>vad="silero"</code>; energy mode and <code>vad=False</code> ignore it.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-21-python" aria-controls="code-panel-21-python" role="tab" data-lang="python" aria-selected="true">Python</button>
