@@ -213,7 +213,7 @@ mic.on('silence', () => console.log('Silence detected'));</code></pre>
       <p>For more accurate detection in noisy environments, use the built-in Silero VAD (see below).</p>
 
       <h2>Silero voice activity detection</h2>
-      <p>Decibri bundles the Silero VAD v5 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vad: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
+      <p>Decibri bundles the Silero VAD v6.2 ONNX model for ML-based speech detection. Silero is more accurate than energy-based VAD in noisy environments. Set <code>vad="silero"</code> in Python or <code>vad: 'silero'</code> in Node.js. The model runs locally via ONNX Runtime with no cloud API needed.</p>
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
         <div class="code-tab-bar">
           <div role="tablist" aria-label="Language" style="display: contents">

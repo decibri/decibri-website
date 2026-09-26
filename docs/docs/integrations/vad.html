@@ -13,10 +13,10 @@
     })();
   </script>
   <title>Voice activity detection (VAD) | decibri docs</title>
-  <meta name="description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v5 neural model. Both run locally, no cloud API, no extra install.">
+  <meta name="description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v6.2 neural model. Both run locally, no cloud API, no extra install.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Voice activity detection (VAD) | decibri docs">
-  <meta property="og:description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v5 neural model. Both run locally, no cloud API, no extra install.">
+  <meta property="og:description" content="Decibri ships two VAD implementations: a built-in RMS energy detector and the bundled Silero v6.2 neural model. Both run locally, no cloud API, no extra install.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://decibri.com/docs/integrations/vad">
   <link rel="canonical" href="https://decibri.com/docs/integrations/vad">
@@ -62,7 +62,7 @@
       <h2>What&rsquo;s built in</h2>
       <ol>
         <li><strong>RMS energy detector.</strong> Fast, minimal CPU, works well for clean audio. Select with the <code>'energy'</code> mode.</li>
-        <li><strong>Silero v5 neural model (bundled).</strong> More accurate in noisy environments, background music, or multi-speaker scenarios. Select with the <code>'silero'</code> mode.</li>
+        <li><strong>Silero v6.2 neural model (bundled).</strong> More accurate in noisy environments, background music, or multi-speaker scenarios. Select with the <code>'silero'</code> mode.</li>
       </ol>
       <p>The energy detector is a lightweight RMS computation; the Silero neural model runs locally via ONNX Runtime. The Silero ONNX model (~2.3 MB) ships inside the decibri package on both PyPI and npm. No separate download, no <code>sherpa-onnx</code> dependency.</p>
 
