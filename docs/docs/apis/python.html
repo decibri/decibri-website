@@ -145,11 +145,18 @@ asyncio.run(main())</code></pre>
               <td>3.10, 3.11, 3.12, 3.13, 3.14</td>
               <td>Linux x64, Linux ARM64, macOS Apple Silicon, Windows x64</td>
             </tr>
+            <tr>
+              <td>3.11, 3.12, 3.13, 3.14</td>
+              <td>Windows ARM64</td>
+            </tr>
           </tbody>
         </table>
       </div>
       <p>Pre-built wheels are published for every supported platform. <code>pip install decibri</code> fetches a binary wheel; no Rust toolchain, no C compiler, and no system audio headers are required at install time.</p>
-      <p>Wheels are built against the CPython stable ABI (abi3) with a 3.10 floor, so a single wheel per platform serves every supported interpreter version. New CPython releases work without a new decibri release as long as the stable ABI is preserved.</p>
+      <p>Wheels are built against the CPython stable ABI (abi3) with a 3.10 floor, so a single wheel per platform serves every supported interpreter version. New CPython releases work without a new Decibri release as long as the stable ABI is preserved. The Windows ARM64 wheel carries the same abi3 tag, but the oldest Python it supports is 3.11, the first CPython release published for that platform.</p>
+      <div class="callout">
+        <strong>Note:</strong> On Windows ARM64, uv can select an x64 CPython that runs under emulation, and an x64 interpreter installs the x64 wheel rather than the native ARM64 one. To install the ARM64 wheel, give uv a Python request that names the architecture, such as <code>cpython-3.12-windows-aarch64-none</code>.
+      </div>
 
       <h2 id="microphone">Microphone (sync)</h2>
       <p>Primary capture surface for synchronous code. Construct an instance, enter a <code>with</code> block (or call <code>start()</code> manually), then iterate or call <code>read()</code> for chunks.</p>
@@ -176,6 +183,7 @@ asyncio.run(main())</code></pre>
     limiter=None,
     dc_removal=False,
     aec=None,
+    channel_map=None,
 )</code></pre>
         </div>
       </div>
@@ -201,7 +209,13 @@ asyncio.run(main())</code></pre>
               <td><code>channels</code></td>
               <td><code>int</code></td>
               <td><code>1</code></td>
-              <td>Capture is mono only; the only accepted value is <code>1</code>. A value greater than <code>1</code> raises <code>MultichannelNotSupported</code>; a zero or otherwise out-of-range value raises <code>ChannelsOutOfRange</code>.</td>
+              <td>The number of channels each chunk delivers, interleaved frame by frame. At least 1, with no fixed maximum; without a <code>channel_map</code>, the device's own channel count is the ceiling. <code>1</code> is Decibri's own average of every device channel, where earlier releases let the platform collapse the channels first, so a capture from a stereo or multichannel device is not the same signal it was. <code>0</code> raises <code>ChannelsOutOfRange</code>. See <a href="#channels">Channels</a> for the counts that work without a <code>channel_map</code> and the ones that are refused.</td>
+            </tr>
+            <tr>
+              <td><code>channel_map</code></td>
+              <td><code>list[int] | None</code></td>
+              <td><code>None</code></td>
+              <td>0-based <strong>device</strong> channel indices, one per delivered channel: delivered channel <code>j</code> carries device channel <code>channel_map[j]</code>. The length must equal <code>channels</code>. Entries may repeat and their order is significant. <code>None</code> takes the derivation <code>channels</code> describes. See <a href="#channels">Channels</a>.</td>
             </tr>
             <tr>
               <td><code>frames_per_buffer</code></td>
@@ -225,7 +239,7 @@ asyncio.run(main())</code></pre>
               <td><code>vad</code></td>
               <td><code>False | "silero" | "energy" | Vad</code></td>
               <td><code>False</code></td>
-              <td>Voice activity detection. <code>False</code> disables it; <code>"silero"</code> or <code>"energy"</code> selects a mode with default tuning; pass a <code>decibri.Vad(...)</code> object to tune the threshold and holdoff. See <a href="#vad">Voice activity detection</a>.</td>
+              <td>Voice activity detection. <code>False</code> disables it; <code>"silero"</code> or <code>"energy"</code> selects a mode with default tuning; pass a <code>decibri.Vad(...)</code> object to tune the threshold, the holdoff, and the delivered channel the detector reads. See <a href="#vad">Voice activity detection</a>.</td>
             </tr>
             <tr>
               <td><code>model_path</code></td>
@@ -237,13 +251,13 @@ asyncio.run(main())</code></pre>
               <td><code>as_ndarray</code></td>
               <td><code>bool</code></td>
               <td><code>False</code></td>
-              <td>When <code>True</code>, <code>read()</code> returns a <code>numpy.ndarray</code> instead of <code>bytes</code>. Requires <code>pip install decibri[numpy]</code>.</td>
+              <td>When <code>True</code>, <code>read()</code> returns a <code>numpy.ndarray</code> instead of <code>bytes</code>: 1-D at one channel, shaped <code>(frames, channels)</code> above one. Requires <code>pip install decibri[numpy]</code>.</td>
             </tr>
             <tr>
               <td><code>ort_library_path</code></td>
               <td><code>str | Path | None</code></td>
               <td>resolver</td>
-              <td>Override path to the ONNX Runtime dynamic library. Only used when <code>vad="silero"</code>. See <a href="#ort">ONNX Runtime resolution</a> for the four-arm priority order.</td>
+              <td>Override path to the ONNX Runtime dynamic library. Consulted when a stage that runs on ONNX Runtime is enabled: <code>vad="silero"</code> or <code>denoise</code>. See <a href="#ort">ONNX Runtime resolution</a> for the four-arm priority order.</td>
             </tr>
             <tr>
               <td><code>dc_removal</code></td>
@@ -285,8 +299,96 @@ asyncio.run(main())</code></pre>
         </table>
       </div>
 
-      <p>The five conditioning options (<code>dc_removal</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p>The five conditioning options (<code>dc_removal</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page. Above one delivered channel, DC removal, denoise and the high-pass run on each channel with its own state, while AGC and the limiter are linked: one detector measures across all the channels and one gain is applied to all of them, which keeps the balance between the channels.</p>
       <p>Echo cancellation is a separate opt-in capture parameter, <code>aec</code>, documented in <a href="#aec">Acoustic Echo Cancellation (AEC)</a> below. It is the one capture option that also needs a second audio stream from you at run time.</p>
+
+      <h3 id="channels">Channels</h3>
+      <p><code>channels</code> is a delivered count: the number of channels in every chunk you read, interleaved frame by frame, so a chunk holds <code>frames_per_buffer * channels</code> samples. It works the way <code>sample_rate</code> does. The device itself is always opened at its own native channel count, the figure <code>MicrophoneInfo.max_input_channels</code> reports, and Decibri derives the delivered channels from what the device gives it.</p>
+      <p>Without a <code>channel_map</code>, two counts can be derived:</p>
+      <ul>
+        <li><code>channels=1</code>, the default, delivers the average of every device channel.</li>
+        <li>A count equal to the device's own delivers every device channel, in device order.</li>
+      </ul>
+      <p>Any other count above 1 without a map is refused by <code>start()</code>, because the device's channel count is only read when the stream opens. A count above the device's own raises <code>MicrophoneChannelsUnsupported</code>, because Decibri cannot deliver a channel the device does not have. A count above 1 but below the device's own raises <code>ChannelSelectionAmbiguous</code>, because it does not say which of the device's channels it means. A <code>channel_map</code> lifts both refusals, because it names every delivered channel.</p>
+      <p><code>channel_map</code> names <strong>device</strong> channels. It is a list of 0-based device channel indices with one entry per delivered channel, so its length must equal <code>channels</code>: delivered channel <code>j</code> carries device channel <code>channel_map[j]</code>. Entries may repeat and their order is significant, so a map can select, reorder and duplicate device channels, and it can deliver more channels than the device has. <code>channel_map=[1]</code> with <code>channels=1</code> delivers the device's second channel alone, and <code>channel_map=[1, 0]</code> with <code>channels=2</code> swaps a stereo pair. Every entry must name a channel the device has.</p>
+      <p><code>Vad(source=...)</code> names a <strong>delivered</strong> channel. It is a position in the chunk you read, counted after <code>channel_map</code> has been applied, and never a device index. <code>None</code>, the default, feeds the voice activity detector the frame average of every delivered channel; an integer feeds it that one delivered channel. It must be below <code>channels</code>, and it changes only what the detector reads, not the audio you receive.</p>
+      <div class="callout">
+        <strong>Note:</strong> The two indices count different things. <code>channel_map</code> counts the device's channels; <code>source</code> counts the channels of the chunk you read. With <code>channel_map=[2, 0]</code>, delivered channel 0 is device channel 2, so <code>source=0</code> runs the detector on device channel 2, and <code>source=2</code> is refused, because only two channels are delivered.
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-44-python" aria-controls="code-panel-44-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-44-python" aria-labelledby="code-tab-44-python" data-lang="python" role="tabpanel">
+          <pre class="language-python"><code class="language-python">import decibri
+
+# Needs a device with at least three input channels.
+# Deliver device channels 2 and 0, in that order. source=0 names
+# delivered channel 0, which carries device channel 2.
+with decibri.Microphone(
+    channels=2,
+    channel_map=[2, 0],
+    vad=decibri.Vad(model="silero", source=0),
+) as mic:
+    for chunk in mic:
+        process(chunk)  # interleaved frames: device channel 2, then device channel 0</code></pre>
+        </div>
+      </div>
+      <p>The constructor checks everything that does not need the device. <code>start()</code> checks the rest against the resolved device, and a <code>with</code> block calls <code>start()</code> on entry, so the three device refusals surface there. <code>AsyncMicrophone</code> raises the same errors, from its constructor and from <code>await mic.start()</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>channels</code> below 1 (constructor)</td>
+              <td><code>ChannelsOutOfRange</code></td>
+              <td><code>channels must be at least 1</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry that is not an integer, <code>bool</code> included (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>channel_map entries must be integers; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry outside 0 to 65535 (constructor)</td>
+              <td><code>ValueError</code></td>
+              <td><code>channel_map entries must be in [0, 65535]; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>channel_map</code> length differs from <code>channels</code> (constructor)</td>
+              <td><code>ChannelMapLengthMismatch</code></td>
+              <td><code>the channel map has &lt;entries&gt; entries; it must have exactly one entry per delivered channel (&lt;channels&gt;)</code></td>
+            </tr>
+            <tr>
+              <td><code>Vad(source=...)</code> not below <code>channels</code> (constructor)</td>
+              <td><code>DetectorSourceOutOfRange</code></td>
+              <td><code>the detector source names delivered channel &lt;index&gt;; the delivered channel count is &lt;channels&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channel_map</code>, and <code>channels</code> above the device's own count (<code>start()</code>)</td>
+              <td><code>MicrophoneChannelsUnsupported</code></td>
+              <td><code>the input device does not support &lt;requested&gt; delivered channels; it reports &lt;available&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channel_map</code>, and <code>channels</code> above 1 but below the device's own count (<code>start()</code>)</td>
+              <td><code>ChannelSelectionAmbiguous</code></td>
+              <td><code>a channel map is required to deliver &lt;requested&gt; of the device's &lt;available&gt; input channels</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry the device does not have (<code>start()</code>)</td>
+              <td><code>ChannelMapOutOfRange</code></td>
+              <td><code>the channel map names device channel &lt;index&gt;; the device reports &lt;available&gt; input channels</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The six named classes are <code>DecibriError</code> subclasses; <code>TypeError</code> and <code>ValueError</code> are Python built-ins. The type and range of <code>source</code> itself are checked when the <code>Vad</code> is built; see <a href="#vad">Voice activity detection</a>. There is no <code>MultichannelNotSupported</code> class: nothing raises it, and importing it fails.</p>
 
       <h3>Context manager usage</h3>
       <p>The canonical Python pattern. Entering the <code>with</code> block opens the stream and starts capture; exiting stops the stream and resets VAD state, even if an exception propagates out.</p>
@@ -309,7 +411,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <h3>Methods</h3>
 
       <h4><code>mic.start()</code></h4>
-      <p>Open and start the capture stream. Calling <code>start()</code> after <code>stop()</code> or <code>close()</code> is supported and reconstructs the stream cleanly; VAD state resets on each new <code>start()</code>. Calling <code>start()</code> on an already-running instance raises <code>AlreadyRunning</code>.</p>
+      <p>Open and start the capture stream. Calling <code>start()</code> after <code>stop()</code> or <code>close()</code> is supported and reconstructs the stream cleanly; VAD state resets on each new <code>start()</code>. Calling <code>start()</code> on an already-running instance raises <code>AlreadyRunning</code>. This is where <code>channels</code> and <code>channel_map</code> are checked against the resolved device; see <a href="#channels">Channels</a>.</p>
 
       <h4><code>mic.stop()</code></h4>
       <p>Stop the capture stream and reset VAD state and the sequence counter. Idempotent; safe to call multiple times.</p>
@@ -318,7 +420,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <p>Alias for <code>stop()</code>. Provided for ergonomic parity with the asyncio / aiohttp / httpx convention. The two methods are currently equivalent and are intended to remain interchangeable.</p>
 
       <h4><code>mic.read(timeout_ms=None)</code></h4>
-      <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Return type is <code>bytes</code> by default, or <code>numpy.ndarray</code> when the Microphone was constructed with <code>as_ndarray=True</code>. Advances VAD state as a side effect when VAD is enabled.</p>
+      <p>Read one chunk. Returns the chunk, or <code>None</code> if the stream closed. Return type is <code>bytes</code> by default, or <code>numpy.ndarray</code> when the Microphone was constructed with <code>as_ndarray=True</code>. Above one channel the chunk holds interleaved frames: <code>bytes</code> carry the channels frame by frame, and an ndarray is shaped <code>(frames, channels)</code>. Advances VAD state as a side effect when VAD is enabled.</p>
 
       <h4><code>mic.read_with_metadata(timeout_ms=None)</code></h4>
       <p>Read one chunk and return it as a frozen <code>Chunk</code> with <code>.data</code>, <code>.timestamp</code>, <code>.sequence</code>, <code>.is_speaking</code>, and <code>.vad_score</code> attributes. Returns <code>None</code> on clean stream close. See <a href="#value-types">Value types</a>.</p>
@@ -349,7 +451,10 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
       <p><code>bool</code> (read-only). Returns <code>True</code> while VAD considers the user to be speaking, including the holdoff grace period. Always <code>False</code> when <code>vad=False</code>. Holdoff expiry is checked on every property access, so consumers who pause iteration still observe correct state when they next read.</p>
 
       <h4><code>mic.vad_score</code></h4>
-      <p><code>float</code> in <code>[0, 1]</code>, mode-agnostic. In <code>vad="silero"</code> mode this is the raw Silero probability for the most recent chunk; in <code>vad="energy"</code> mode it is the normalised RMS energy. Always <code>0.0</code> when <code>vad=False</code>.</p>
+      <p><code>float</code> in <code>[0, 1]</code>, mode-agnostic. In <code>vad="silero"</code> mode this is the raw Silero probability for the most recent chunk; in <code>vad="energy"</code> mode it is the normalised RMS energy. Above one delivered channel both modes score the frame average of the delivered channels, or the one channel <code>Vad(source=...)</code> names. Always <code>0.0</code> when <code>vad=False</code>.</p>
+
+      <h4><code>mic.overrun_count</code></h4>
+      <p><code>int</code> (read-only). Number of capture buffers dropped because the consumer could not keep pace. <code>0</code> while the consumer keeps up, before capture starts, and after <code>stop()</code>, which releases the stream the counter lives on, so read it before stopping to see a session's total. A rising value means audio is being dropped to bound memory. The sync <code>Microphone</code> carries it; <code>AsyncMicrophone</code> does not.</p>
 
       <h3>Static methods</h3>
 
@@ -409,7 +514,7 @@ with decibri.Microphone(sample_rate=16000, channels=1, frames_per_buffer=1600) a
               <td><code>channels</code></td>
               <td><code>int</code></td>
               <td><code>1</code></td>
-              <td>Number of output channels (1 to 32). Multi-channel samples are interleaved on the wire.</td>
+              <td>Number of output channels. At least 1, with no fixed maximum: the output device decides. Multi-channel samples are interleaved on the wire. A count above the figure the device reports that the device cannot serve raises <code>SpeakerChannelsUnsupported</code> from <code>start()</code>, naming that figure; any other failed open stays <code>StreamOpenFailed</code>. <code>0</code> raises <code>ChannelsOutOfRange</code> at construction.</td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -463,6 +568,9 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       <h4><code>spk.is_playing</code></h4>
       <p><code>bool</code> (read-only). Returns <code>True</code> while the output stream is currently running.</p>
 
+      <h4><code>spk.underrun_count</code></h4>
+      <p><code>int</code> (read-only). Number of samples played as silence because the playback queue ran dry. <code>0</code> while the producer keeps the queue fed, or before playback starts. A rising value means the output is filling gaps with silence. The sync <code>Speaker</code> carries it; <code>AsyncSpeaker</code> does not.</p>
+
       <h3>Static methods</h3>
 
       <h4><code>Speaker.devices()</code></h4>
@@ -480,6 +588,8 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
           <pre class="language-python"><code class="language-python">decibri.File(
     path,
     sample_rate=16000,
+    channels=1,
+    channel_map=None,
     dtype="int16",
     vad=False,
     model_path=None,
@@ -510,13 +620,25 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
               <td><code>path</code></td>
               <td><code>str | Path</code></td>
               <td>required</td>
-              <td>Path to an audio file. WAV, AIFF, AIFF-C and FLAC are read, identified from the file's own bytes rather than its extension. See <a href="/docs/audio/afp#formats">the format table</a> for the encodings each container carries. Multi-channel files are downmixed to mono.</td>
+              <td>Path to an audio file. WAV, AIFF, AIFF-C and FLAC are read, identified from the file's own bytes rather than its extension. See <a href="/docs/audio/afp#formats">the format table</a> for the encodings each container carries. The file's channel count comes from its header.</td>
             </tr>
             <tr>
               <td><code>sample_rate</code></td>
               <td><code>int</code></td>
               <td><code>16000</code></td>
               <td>Target output rate in Hz (1,000 to 384,000). The source is resampled from its own rate to this one.</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>int</code></td>
+              <td><code>1</code></td>
+              <td>The number of channels each chunk delivers, interleaved frame by frame. At least 1. Without a <code>channel_map</code>, <code>1</code> delivers the average of every source channel and a count equal to the source's own delivers every channel in source order. Any other unmapped count above 1 is refused at construction: above the source's own raises <code>FileChannelsUnsupported</code>, and above 1 but below it raises <code>FileChannelSelectionAmbiguous</code>.</td>
+            </tr>
+            <tr>
+              <td><code>channel_map</code></td>
+              <td><code>list[int] | None</code></td>
+              <td><code>None</code></td>
+              <td>0-based <strong>source</strong> channel indices, one per delivered channel, with the same rules as the <code>Microphone</code> parameter: the length must equal <code>channels</code>, and entries may repeat and their order is significant. An entry the source does not have raises <code>FileChannelMapOutOfRange</code> at construction.</td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -528,7 +650,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
               <td><code>vad</code></td>
               <td><code>False | "silero" | "energy" | Vad</code></td>
               <td><code>False</code></td>
-              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>. <code>analyze()</code> requires <code>"silero"</code>. See <a href="#vad">Voice activity detection</a>.</td>
+              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>, including <code>Vad(source=...)</code>, which names a delivered channel here too. <code>analyze()</code> requires <code>"silero"</code>. See <a href="#vad">Voice activity detection</a>.</td>
             </tr>
             <tr>
               <td><code>model_path</code></td>
@@ -583,6 +705,7 @@ with decibri.Speaker(sample_rate=16000, channels=1) as spk:
       </div>
 
       <p>The five conditioning options behave exactly as they do on <code>Microphone</code>, in the same fixed chain, and are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p><code>channels</code>, <code>channel_map</code> and <code>Vad(source=...)</code> follow the <code>Microphone</code> rules in <a href="#channels">Channels</a>, with the source's own channel count standing where the device's stands: the file's header for a path, or <code>input_channels</code> for <code>File.buffer</code>. That count is known as soon as the source is opened, so every channel refusal is raised by the constructor, with its own class.</p>
 
       <h3>Context manager usage</h3>
       <p><code>File</code> is a context manager. Entering the block hands back the same instance; exiting closes the source.</p>
@@ -598,24 +721,27 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
         handle(chunk)  # 3,200 bytes per full chunk at dtype="int16"</code></pre>
         </div>
       </div>
-      <p>A full chunk is 1,600 samples at the target rate: 3,200 bytes as <code>int16</code>, 6,400 bytes as <code>float32</code>. The final chunk is shorter whenever the total does not divide evenly.</p>
+      <p>A full chunk is 1,600 frames at the target rate, each frame carrying one sample per delivered channel: at the default one channel that is 3,200 bytes as <code>int16</code> and 6,400 bytes as <code>float32</code>, and it grows with <code>channels</code>. The final chunk is shorter whenever the total does not divide evenly.</p>
 
       <h3>Alternate constructors</h3>
 
       <h4><code>File.open(path, **kwargs)</code></h4>
       <p>Classmethod, identical to <code>File(path, **kwargs)</code> and accepting the same keywords. It is an alternate spelling of the constructor, not an async variant; for asyncio use <a href="#async-file"><code>AsyncFile</code></a>.</p>
 
-      <h4><code>File.buffer(samples, *, input_rate, **kwargs)</code></h4>
-      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> is a list of floats or a one-channel <code>numpy.ndarray</code> with a floating dtype, mono, in the range -1.0 to 1.0. Raw samples carry no header, so <code>input_rate</code> (their native rate, 1,000 to 384,000) is a mandatory keyword-only argument. Every other keyword matches the constructor.</p>
+      <h4><code>File.buffer(samples, *, input_rate, input_channels=1, **kwargs)</code></h4>
+      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> is a list of floats or a <code>numpy.ndarray</code> with a floating dtype, in the range -1.0 to 1.0, frame-interleaved at <code>input_channels</code>. Raw samples carry no header, so <code>input_rate</code> (their native rate, 1,000 to 384,000) is a mandatory keyword-only argument, and <code>input_channels</code> (default 1, mono) is its channel counterpart. At one input channel an ndarray must hold one channel: a redundant axis, <code>(N, 1)</code> or <code>(1, N)</code>, is accepted, and an array with two axes longer than 1 raises <code>ValueError</code>. Above one input channel an ndarray is either 1-D and interleaved or 2-D <code>(frames, input_channels)</code>, and the sample count must be a whole number of frames, or <code>BlockSizeNotFrameAligned</code> is raised. Every other keyword matches the constructor, so <code>channels</code> and <code>channel_map</code> choose what is delivered from those input channels.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-31-python" aria-controls="code-panel-31-python" role="tab" data-lang="python" aria-selected="true">Python</button>
         </div>
         <div class="code-tab-panel" id="code-panel-31-python" aria-labelledby="code-tab-31-python" data-lang="python" role="tabpanel">
-          <pre class="language-python"><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)</code></pre>
+          <pre class="language-python"><code class="language-python">file = decibri.File.buffer(samples, input_rate=48000, sample_rate=16000)
+
+# pairs: a float32 ndarray shaped (frames, 2). Deliver both channels.
+stereo = decibri.File.buffer(pairs, input_rate=48000, input_channels=2, channels=2)</code></pre>
         </div>
       </div>
-      <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to mono floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code>. The conditioning chain then behaves identically to the path constructor. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructor opens those directly.</p>
+      <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to floats in -1.0 to 1.0, and pass the source rate as <code>input_rate</code> and its channel count as <code>input_channels</code>. The conditioning chain then behaves identically to the path constructor. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructor opens those directly.</p>
 
       <h3>Single-pass lifecycle</h3>
       <p>Iteration, analysis and saving are three alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
@@ -654,7 +780,7 @@ with decibri.File("clip.wav", denoise="fastenhancer-t", agc=-18) as file:
       <p>The <code>File</code> is itself an iterator. <code>for chunk in file:</code> yields the raw data shape (<code>bytes</code> or <code>numpy.ndarray</code>) and raises <code>StopIteration</code> at the end of the source.</p>
 
       <h4><code>file.analyze()</code> and <code>file.analyse()</code></h4>
-      <p>Score the whole recording for voice activity in one pass and return a <code>VadReport</code>. Requires <code>vad="silero"</code>: a <code>File</code> built without a VAD configuration raises <code>VadNotConfigured</code>, and energy mode raises <code>ValueError</code> because it has no whole-recording analysis. On the sync class the two spellings are one object: <code>File.analyse is File.analyze</code> is <code>True</code>.</p>
+      <p>Score the whole recording for voice activity in one pass and return a <code>VadReport</code>. Requires <code>vad="silero"</code>: a <code>File</code> built without a VAD configuration raises <code>VadNotConfigured</code>, and energy mode raises <code>ValueError</code> because it has no whole-recording analysis. Above one delivered channel it scores the frame average of the delivered channels, or the one channel <code>Vad(source=...)</code> names. On the sync class the two spellings are one object: <code>File.analyse is File.analyze</code> is <code>True</code>.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-33-python" aria-controls="code-panel-33-python" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -701,7 +827,7 @@ report.segments  # list[Segment]:   start, end</code></pre>
           </tbody>
         </table>
       </div>
-      <p>Output is 16-bit PCM, mono, at <code>sample_rate</code>, in every one of the three containers. No parameter changes that. Decibri reads a file by its content and writes one by its name, which is why a save needs an extension or an explicit <code>format</code> and a read needs neither.</p>
+      <p>Output is 16-bit PCM at <code>sample_rate</code>, in every one of the three containers, at the delivered channel count and interleaved: the same layout iteration delivers, so one channel unless <code>channels</code> asks for more. Each container's own channel ceiling applies, and a save above it raises <code>AudioFormatUnsupported</code> carrying the container layer's own text: FLAC carries at most 8 channels, and a 16-bit WAV at most 32767. Decibri adds no ceiling of its own. Decibri reads a file by its content and writes one by its name, which is why a save needs an extension or an explicit <code>format</code> and a read needs neither.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-42-python" aria-controls="code-panel-42-python" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -779,6 +905,46 @@ report.non_finite_samples  # int</code></pre>
               <td><code>dtype must be 'int16' or 'float32'; got 'int32'</code></td>
             </tr>
             <tr>
+              <td><code>channels</code> below 1, or <code>File.buffer</code>'s <code>input_channels</code> below 1</td>
+              <td><code>ChannelsOutOfRange</code></td>
+              <td><code>channels must be at least 1</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry that is not an integer, <code>bool</code> included</td>
+              <td><code>TypeError</code></td>
+              <td><code>channel_map entries must be integers; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry outside 0 to 65535</td>
+              <td><code>ValueError</code></td>
+              <td><code>channel_map entries must be in [0, 65535]; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>channel_map</code> length differs from <code>channels</code></td>
+              <td><code>ChannelMapLengthMismatch</code></td>
+              <td><code>the channel map has &lt;entries&gt; entries; it must have exactly one entry per delivered channel (&lt;channels&gt;)</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channel_map</code>, and <code>channels</code> above the source's own count</td>
+              <td><code>FileChannelsUnsupported</code></td>
+              <td><code>the file does not have &lt;requested&gt; channels to deliver; it has &lt;available&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channel_map</code>, and <code>channels</code> above 1 but below the source's own count</td>
+              <td><code>FileChannelSelectionAmbiguous</code></td>
+              <td><code>delivering &lt;requested&gt; of the file's &lt;available&gt; channels requires a channel map</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channel_map</code> entry the source does not have</td>
+              <td><code>FileChannelMapOutOfRange</code></td>
+              <td><code>the file channel map names channel &lt;index&gt;; the file has &lt;available&gt; channels</code></td>
+            </tr>
+            <tr>
+              <td><code>Vad(source=...)</code> not below <code>channels</code></td>
+              <td><code>DetectorSourceOutOfRange</code></td>
+              <td><code>the detector source names delivered channel &lt;index&gt;; the delivered channel count is &lt;channels&gt;</code></td>
+            </tr>
+            <tr>
               <td><code>agc</code> out of range</td>
               <td><code>AgcTargetOutOfRange</code></td>
               <td><code>agc must be in [-40, -3]; got -41</code></td>
@@ -834,6 +1000,11 @@ report.non_finite_samples  # int</code></pre>
               <td><code>unsupported audio format: </code> followed by the extension found and the accepted set</td>
             </tr>
             <tr>
+              <td><code>save()</code> with more channels than the container carries</td>
+              <td><code>AudioFormatUnsupported</code></td>
+              <td><code>unsupported audio format: </code> followed by the container layer's own text</td>
+            </tr>
+            <tr>
               <td><code>save()</code> could not write the file (missing directory, permission failure, full disk)</td>
               <td><code>FileWriteFailed</code></td>
               <td><code>Failed to write audio file &lt;path&gt;: &lt;os error&gt;</code></td>
@@ -859,9 +1030,19 @@ report.non_finite_samples  # int</code></pre>
               <td><code>samples must have a floating dtype; got int16. Convert with samples.astype(numpy.float32), scaling integer PCM to [-1.0, 1.0].</code></td>
             </tr>
             <tr>
-              <td><code>File.buffer</code> given a 2-D array</td>
+              <td><code>File.buffer</code> at one input channel given an array with two axes longer than 1</td>
               <td><code>ValueError</code></td>
               <td><code>samples must be one channel; got an array of shape (100, 2). Select a single channel or mix down to mono before passing it.</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> above one input channel given an array that is neither 1-D nor <code>(frames, input_channels)</code></td>
+              <td><code>ValueError</code></td>
+              <td><code>samples must be 1-D interleaved or 2-D (frames, input_channels); got shape &lt;shape&gt; with input_channels=&lt;n&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> given a sample count that is not a whole number of frames at <code>input_channels</code></td>
+              <td><code>BlockSizeNotFrameAligned</code></td>
+              <td><code>the requested block size of &lt;samples&gt; samples is not a whole number of &lt;channels&gt;-channel frames</code></td>
             </tr>
             <tr>
               <td><code>File.buffer</code> given the wrong type</td>
@@ -881,7 +1062,7 @@ report.non_finite_samples  # int</code></pre>
           </tbody>
         </table>
       </div>
-      <p><code>Vad(threshold=...)</code> and <code>Vad(holdoff_ms=...)</code> validate inside the <code>Vad</code> constructor, so those errors are raised before <code>File</code> is reached. See <a href="#vad">Voice activity detection</a>.</p>
+      <p><code>Vad(threshold=...)</code>, <code>Vad(holdoff_ms=...)</code>, and the type and range of <code>Vad(source=...)</code> validate inside the <code>Vad</code> constructor, so those errors are raised before <code>File</code> is reached. Only the check of <code>source</code> against <code>channels</code> belongs to <code>File</code>, as <code>DetectorSourceOutOfRange</code>. See <a href="#vad">Voice activity detection</a>.</p>
 
       <div class="callout">
         <strong>Note:</strong> <code>as_ndarray=True</code> fails at construction rather than at the first read, so an ordinary <code>try</code> around the constructor is enough; nothing needs to be wrapped around the read loop. The failure is a builtin <code>ImportError</code>, which <code>except Exception</code> catches.
@@ -1110,7 +1291,7 @@ for segment in report.segments:
       </div>
 
       <h4><code>await file.save(path, *, format=None, compression=None)</code></h4>
-      <p>Async parallel of <code>File.save()</code>, with the single conditioning and encode pass running off the event loop. Same signature, same keyword-only arguments, same <code>SaveReport</code>, and the same contract: the container comes from the extension or from <code>format</code>, <code>compression</code> sets the FLAC level, output is 16-bit PCM mono at <code>sample_rate</code>, and the source is consumed. Requires an <code>AsyncFile</code> whose iteration has not begun; after that it raises <code>FileEngaged</code>.</p>
+      <p>Async parallel of <code>File.save()</code>, with the single conditioning and encode pass running off the event loop. Same signature, same keyword-only arguments, same <code>SaveReport</code>, and the same contract: the container comes from the extension or from <code>format</code>, <code>compression</code> sets the FLAC level, output is 16-bit PCM at <code>sample_rate</code> and at the delivered channel count, each container's own channel ceiling applies, and the source is consumed. Requires an <code>AsyncFile</code> whose iteration has not begun; after that it raises <code>FileEngaged</code>.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-43-python" aria-controls="code-panel-43-python" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -1161,6 +1342,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
 
       <h3><code>decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)</code></h3>
       <p>Synchronous one-shot recorder. Captures <code>duration_seconds</code> of microphone audio to a 16-bit PCM WAV file. Wraps <code>Microphone</code> plus the standard library <code>wave</code> module. Frame-count termination guarantees an accurate duration even on platforms where the buffer hint is ignored by the OS audio subsystem.</p>
+      <p><code>channels=1</code> writes the average of every device channel, and a count equal to the device's own writes every device channel, interleaved. The helper takes no <code>channel_map</code>, so a strict subset of the device's channels needs a <code>Microphone</code> with a <code>channel_map</code>; any other count above 1 is refused exactly as <code>Microphone.start()</code> refuses it. See <a href="#channels">Channels</a>.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-18-python" aria-controls="code-panel-18-python" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -1199,7 +1381,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>data</code></td>
               <td><code>bytes</code> or <code>numpy.ndarray</code></td>
-              <td>Audio chunk. Shape matches the <code>as_ndarray</code> constructor flag.</td>
+              <td>Audio chunk, interleaved at the delivered channel count. Shape matches the <code>as_ndarray</code> constructor flag: an ndarray is 1-D at one channel and <code>(frames, channels)</code> above one.</td>
             </tr>
             <tr>
               <td><code>timestamp</code></td>
@@ -1271,7 +1453,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>non_finite_samples</code></td>
               <td><code>int</code></td>
-              <td>Non-finite samples replaced before writing: a NaN with silence, an infinity with full scale. The same replacement on every format.</td>
+              <td>Non-finite samples the save itself replaced: a NaN with silence, an infinity with full scale, the same on every format. That replacement and this count cover only the direct path, a one-channel source already at the target rate with no channel map and no conditioning. In every other case the conditioning chain runs and has already replaced each non-finite sample with silence at its entry, so the file carries silence there and the count does not include it.</td>
             </tr>
           </tbody>
         </table>
@@ -1369,7 +1551,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>max_input_channels</code></td>
               <td><code>int</code></td>
-              <td>Maximum number of input channels the device supports.</td>
+              <td>Maximum number of input channels the device supports: the count the device opens at, which <code>channels</code> and <code>channel_map</code> are checked against at <code>start()</code>.</td>
             </tr>
             <tr>
               <td><code>default_sample_rate</code></td>
@@ -1415,7 +1597,7 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
             <tr>
               <td><code>max_output_channels</code></td>
               <td><code>int</code></td>
-              <td>Maximum number of output channels the device supports.</td>
+              <td>Number of output channels the device reports. A larger <code>Speaker</code> count is still offered to the device, which may serve it; one it cannot serve raises <code>SpeakerChannelsUnsupported</code>, naming this figure.</td>
             </tr>
             <tr>
               <td><code>default_sample_rate</code></td>
@@ -1497,13 +1679,14 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
           </tbody>
         </table>
       </div>
+      <p>Both detectors read one mono signal. Above one delivered channel that signal is the frame average of every delivered channel, unless <code>Vad(source=...)</code> names one delivered channel for the detector to read instead. <code>vad_score</code> and <code>is_speaking</code> describe that signal; the audio you receive is not changed by it.</p>
 
       <div class="callout">
         <strong>Note:</strong> The bundled Silero VAD ONNX model and ONNX Runtime dylib ship inside the wheel. No separate download, no API keys, and no <code>onnxruntime</code> system dependency are required for <code>vad="silero"</code>.
       </div>
 
       <h3>Tuning with the <code>decibri.Vad</code> object</h3>
-      <p>To tune the threshold or holdoff, pass a <code>decibri.Vad</code> object as the <code>vad</code> argument instead of a bare mode string. <code>Vad</code> is a frozen dataclass, so <code>vad="silero"</code> is shorthand for <code>vad=decibri.Vad(model="silero")</code> with default tuning.</p>
+      <p>To tune the threshold or holdoff, or to choose the delivered channel the detector reads, pass a <code>decibri.Vad</code> object as the <code>vad</code> argument instead of a bare mode string. <code>Vad</code> is a frozen dataclass, so <code>vad="silero"</code> is shorthand for <code>vad=decibri.Vad(model="silero")</code> with default tuning.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1532,6 +1715,12 @@ print(v.decibri, v.audio_backend, v.binding)</code></pre>
               <td><code>int</code></td>
               <td><code>300</code></td>
               <td>Milliseconds of sub-threshold audio before <code>is_speaking</code> flips back to <code>False</code>. A negative value raises <code>ValueError</code>.</td>
+            </tr>
+            <tr>
+              <td><code>source</code></td>
+              <td><code>int | None</code></td>
+              <td><code>None</code></td>
+              <td>The <strong>delivered</strong> channel the detector reads: a position in the chunk, counted after any <code>channel_map</code>, never a device index. <code>None</code> reads the frame average of every delivered channel. A value that is not an integer, <code>bool</code> included, raises <code>TypeError</code> (<code>source must be an integer; got &lt;value&gt;</code>), and one outside 0 to 65535 raises <code>ValueError</code> (<code>source must be in [0, 65535]; got &lt;value&gt;</code>), both from <code>Vad(...)</code>. A value not below <code>channels</code> raises <code>DetectorSourceOutOfRange</code> from the <code>Microphone</code> or <code>File</code> constructor. See <a href="#channels">Channels</a>.</td>
             </tr>
           </tbody>
         </table>
@@ -1606,11 +1795,12 @@ b = Microphone(
         tail_ms=200,
         suppression="conservative",
         reference_sample_rate=16000,
+        reference_channels=1,
     ),
 )</code></pre>
         </div>
       </div>
-      <p>Echo cancellation requires <code>sample_rate</code> between 8000 and 48000, narrower than the range <code>sample_rate</code> otherwise accepts. Capture is mono, as it is for every decibri capture. The option is available on native capture only; the browser build does not take it. See the <a href="/docs/apis/browser">Browser API</a>.</p>
+      <p>Echo cancellation requires <code>sample_rate</code> between 8000 and 48000, narrower than the range <code>sample_rate</code> otherwise accepts. It runs on every delivered channel: one canceller per delivered channel, each fed the same pushed reference and each finding its own channel's echo delay, so its processing cost grows with <code>channels</code>. It is available on native capture only and is not a <code>File</code> parameter. The browser build does not carry it. See the <a href="/docs/apis/browser">Browser API</a>.</p>
 
       <h3><code>decibri.Aec</code></h3>
       <p>Frozen dataclass carrying the tuning. Assigning to a field after construction raises <code>dataclasses.FrozenInstanceError</code>. Build a new instance instead.</p>
@@ -1624,7 +1814,8 @@ class Aec:
     model: str = "tau"
     tail_ms: int | None = None                 # 16 to 500, None takes 200
     suppression: str | None = None             # "conservative" or "off", None takes "conservative"
-    reference_sample_rate: int | None = None   # 1000 to 384000, None takes the capture rate</code></pre>
+    reference_sample_rate: int | None = None   # 1000 to 384000, None takes the capture rate
+    reference_channels: int = 1                # at least 1, the interleave of what you push</code></pre>
         </div>
       </div>
       <div class="table-wrap">
@@ -1662,15 +1853,22 @@ class Aec:
               <td><code>None</code> takes the capture rate</td>
               <td>The rate of the audio you push, in Hz. 1000 to 384000. Set it whenever your playback rate differs from your capture rate.</td>
             </tr>
+            <tr>
+              <td><code>reference_channels</code></td>
+              <td><code>int</code></td>
+              <td><code>1</code></td>
+              <td>The channel count of the audio you push, interleaved frame by frame. At least 1; below 1 raises <code>AecConfigInvalid</code>. Above 1, Decibri averages each frame to one mono sample before the canceller reads it. Set it whenever you push more than one channel.</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p>The declared <code>reference_channels</code> must match what you push. A mismatch is not detected and raises no error: the frames are misread, nothing is cancelled, and <code>aec_metrics().delay_samples</code> stays <code>None</code>. The canceller reads one mono reference, so with playback through more than one loudspeaker whose echo paths differ, some echo remains that adaptation does not remove.</p>
 
       <h3>Methods</h3>
 
       <h4><code>mic.push_aec_reference(samples)</code></h4>
-      <p>Signature <code>push_aec_reference(samples: SampleData) -&gt; None</code>, identical on <code>Microphone</code> and <code>AsyncMicrophone</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, mono.</p>
-      <p>The push method never blocks and never raises on a full queue. Samples that do not fit are discarded and counted in <code>reference_dropped</code>. A push while capture is not running, or with the option unset, does nothing. A bad input type raises regardless of capture state.</p>
+      <p>Signature <code>push_aec_reference(samples: SampleData) -&gt; None</code>, identical on <code>Microphone</code> and <code>AsyncMicrophone</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, interleaved at <code>reference_channels</code> (mono by default). <code>bytes</code> and 1-D or 2-D ndarrays are accepted, the input shapes <code>Speaker.write</code> accepts. One push serves every delivered channel.</p>
+      <p>The push method never blocks and never raises on a full queue. Samples that do not fit are discarded and counted in <code>reference_dropped</code>. A push while capture is not running, or with the option unset, does nothing and is not counted in <code>reference_dropped</code>. A bad input type raises regardless of capture state.</p>
 
       <h4><code>mic.aec_metrics()</code></h4>
       <p>Signature <code>aec_metrics() -&gt; AecMetrics | None</code>. Returns <code>None</code> when the <code>aec</code> option is unset or capture is not running, and an <code>AecMetrics</code> otherwise. Read it while capture is still running; after <code>stop()</code> it returns <code>None</code>.</p>
@@ -1691,7 +1889,8 @@ class AecMetrics:
     acquisition_parked: int
     reference_reanchors: int
     reference_dropped: int
-    reference_silence: int</code></pre>
+    reference_silence: int
+    channels: tuple[AecChannelMetrics, ...]</code></pre>
         </div>
       </div>
       <div class="table-wrap">
@@ -1744,10 +1943,78 @@ class AecMetrics:
               <td><code>int</code></td>
               <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
             </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>tuple[AecChannelMetrics, ...]</code></td>
+              <td>One entry per delivered channel, in delivered order. See <code>AecChannelMetrics</code> below.</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p>The first six fields report the canceller on the first delivered channel. <code>reference_dropped</code> and <code>reference_silence</code> describe the one reference queue that every channel's canceller shares. On a one-channel capture, <code>channels</code> holds a single entry that agrees with the top-level fields.</p>
       <p>The <a href="/docs/audio/aec#diagnostics">diagnostics section</a> of the feature page reads these fields as a procedure rather than a field list.</p>
+
+      <h3><code>AecChannelMetrics</code></h3>
+      <p>Frozen dataclass, one entry of <code>AecMetrics.channels</code>: the report of the canceller on one delivered channel. It carries the six canceller fields and not the two queue counters, which stay on <code>AecMetrics</code>. Importable from <code>decibri</code>.</p>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-45-python" aria-controls="code-panel-45-python" role="tab" data-lang="python" aria-selected="true">Python</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-45-python" aria-labelledby="code-tab-45-python" data-lang="python" role="tabpanel">
+          <pre class="language-python"><code class="language-python">@dataclass(frozen=True, slots=True)
+class AecChannelMetrics:
+    delay_samples: int | None
+    erle_db: float
+    double_talk: bool
+    reference_starved: int
+    acquisition_parked: int
+    reference_reanchors: int</code></pre>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delay_samples</code></td>
+              <td><code>int | None</code></td>
+              <td>This channel's active alignment between reference and capture. <code>None</code> while its estimator is still searching.</td>
+            </tr>
+            <tr>
+              <td><code>erle_db</code></td>
+              <td><code>float</code></td>
+              <td>Smoothed estimate of how much echo this channel's canceller is removing, in dB.</td>
+            </tr>
+            <tr>
+              <td><code>double_talk</code></td>
+              <td><code>bool</code></td>
+              <td>Whether this channel's canceller believes the near-end talker is active. Its adaptation is held while true.</td>
+            </tr>
+            <tr>
+              <td><code>reference_starved</code></td>
+              <td><code>int</code></td>
+              <td>Near-end samples on this channel with no far-end sample available while aligned.</td>
+            </tr>
+            <tr>
+              <td><code>acquisition_parked</code></td>
+              <td><code>int</code></td>
+              <td>Near-end samples on this channel processed while no alignment was active.</td>
+            </tr>
+            <tr>
+              <td><code>reference_reanchors</code></td>
+              <td><code>int</code></td>
+              <td>Times this channel's alignment was rebuilt after a capture discontinuity.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each channel's canceller finds its own echo delay, so the entries differ where the channels' acoustic paths differ. <code>erle_db</code> is not a ranking across channels: it rises with echo distance, because a weaker echo is easier to reduce in ratio terms, so a far microphone can report a higher figure than a near one while removing less echo in absolute terms. Compare a channel with its own history, not with its neighbours.</p>
 
       <h3>The async surface</h3>
       <p>On <code>AsyncMicrophone</code>, the two members do not match, and the difference is deliberate.</p>
@@ -1868,6 +2135,11 @@ asyncio.run(main())</code></pre>
               <td><code>reference_sample_rate must be in [1000, 384000]; got &lt;value&gt;</code></td>
             </tr>
             <tr>
+              <td><code>reference_channels</code> is below 1</td>
+              <td><code>AecConfigInvalid</code></td>
+              <td><code>reference_channels must be at least 1; got &lt;value&gt;</code></td>
+            </tr>
+            <tr>
               <td><code>sample_rate</code> outside 8000 to 48000 with <code>aec</code> set</td>
               <td><code>AecSampleRateUnsupported</code></td>
               <td><code>echo cancellation only supports sample rates 8000 to 48000</code></td>
@@ -1880,12 +2152,12 @@ asyncio.run(main())</code></pre>
             <tr>
               <td><code>push_aec_reference</code> given an array of the wrong dtype</td>
               <td><code>TypeError</code></td>
-              <td><code>format='&lt;configured&gt;' configured but 1-D ndarray dtype is &lt;actual&gt;; convert with arr.astype(np.&lt;configured&gt;) or construct Microphone with format='&lt;actual&gt;'</code></td>
+              <td><code>format='&lt;configured&gt;' configured but &lt;1-D or 2-D&gt; ndarray dtype is &lt;actual&gt;; convert with arr.astype(np.&lt;configured&gt;) or construct Microphone with format='&lt;actual&gt;'</code></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p>Where the check happens differs. <code>Aec(...)</code> validates <code>tail_ms</code>, <code>suppression</code> and <code>reference_sample_rate</code> at construction, before any microphone exists, so those raise from the config object. The model name is not checked there; an unknown name raises from the <code>Microphone</code> constructor, as does the capture rate constraint.</p>
+      <p>Where the check happens differs. <code>Aec(...)</code> validates <code>tail_ms</code>, <code>suppression</code>, <code>reference_sample_rate</code> and <code>reference_channels</code> at construction, before any microphone exists, so those raise from the config object. The model name is not checked there; an unknown name raises from the <code>Microphone</code> constructor, as does the capture rate constraint.</p>
       <p><code>AecConfigInvalid</code>, <code>AecSampleRateUnsupported</code> and <code>SampleRateOutOfRange</code> all subclass <code>DecibriError</code>, so <code>except DecibriError</code> catches all three. They are importable from <code>decibri</code> and from <code>decibri.exceptions</code>.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
@@ -1934,7 +2206,7 @@ except AecSampleRateUnsupported:
       </div>
 
       <h3>NumPy integration</h3>
-      <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>); the shape is 1-D <code>(N,)</code>, since capture is mono only.</p>
+      <p>Set <code>as_ndarray=True</code> on the Microphone constructor to receive <code>numpy.ndarray</code> instead of <code>bytes</code> from <code>read()</code>. The array's dtype matches the configured <code>dtype</code> (<code>np.int16</code> or <code>np.float32</code>). Its shape follows <code>channels</code>: 1-D <code>(frames,)</code> at one channel, and 2-D <code>(frames, channels)</code> above one, one row per frame.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-24-python" aria-controls="code-panel-24-python" role="tab" data-lang="python" aria-selected="true">Python</button>
@@ -2001,12 +2273,52 @@ chunk = mic.read()
             <tr>
               <td><code>ChannelsOutOfRange</code></td>
               <td><code>DecibriError</code></td>
-              <td>Constructor <code>channels</code> outside the supported range.</td>
+              <td>Constructor <code>channels</code> below 1, or <code>File.buffer</code>'s <code>input_channels</code> below 1.</td>
             </tr>
             <tr>
-              <td><code>MultichannelNotSupported</code></td>
+              <td><code>ChannelMapLengthMismatch</code></td>
               <td><code>DecibriError</code></td>
-              <td>Microphone capture is mono only; a <code>channels</code> value greater than 1 was requested.</td>
+              <td>A <code>channel_map</code> whose length differs from <code>channels</code>. Raised at construction. See <a href="#channels">Channels</a>.</td>
+            </tr>
+            <tr>
+              <td><code>ChannelMapOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>Microphone</code> <code>channel_map</code> entry names a device channel the device does not have. Raised from <code>start()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>MicrophoneChannelsUnsupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>Microphone</code> <code>channels</code> count, with no <code>channel_map</code>, above the device's own. Raised from <code>start()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>ChannelSelectionAmbiguous</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>Microphone</code> <code>channels</code> count, with no <code>channel_map</code>, above 1 but below the device's own. Raised from <code>start()</code>.</td>
+            </tr>
+            <tr>
+              <td><code>DetectorSourceOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>Vad(source=...)</code> that is not below the delivered channel count. Raised by the <code>Microphone</code> or <code>File</code> constructor.</td>
+            </tr>
+            <tr>
+              <td><code>FileChannelsUnsupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File</code> <code>channels</code> count, with no <code>channel_map</code>, above the source's own. Raised at construction.</td>
+            </tr>
+            <tr>
+              <td><code>FileChannelSelectionAmbiguous</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File</code> <code>channels</code> count, with no <code>channel_map</code>, above 1 but below the source's own. Raised at construction.</td>
+            </tr>
+            <tr>
+              <td><code>FileChannelMapOutOfRange</code></td>
+              <td><code>DecibriError</code></td>
+              <td>A <code>File</code> <code>channel_map</code> entry names a channel the source does not have. Raised at construction.</td>
+            </tr>
+            <tr>
+              <td><code>BlockSizeNotFrameAligned</code></td>
+              <td><code>DecibriError</code></td>
+              <td><code>File.buffer</code> samples that are not a whole number of frames at <code>input_channels</code>.</td>
             </tr>
             <tr>
               <td><code>FramesPerBufferOutOfRange</code></td>
@@ -2041,7 +2353,7 @@ chunk = mic.read()
             <tr>
               <td><code>AudioFormatUnsupported</code></td>
               <td><code>DecibriError</code></td>
-              <td>An offline audio file is in a format decibri cannot decode: an unrecognised container, a codec or sample width the reader does not carry, or a channel layout it cannot decode. Also raised by <code>File.save()</code> for an extension decibri does not write.</td>
+              <td>An offline audio file is in a format Decibri cannot decode: an unrecognised container, a codec or sample width the reader does not carry, or a channel layout it cannot decode. Also raised by <code>File.save()</code> for an extension Decibri does not write, and for a save with more channels than the container carries.</td>
             </tr>
             <tr>
               <td><code>AudioFileMalformed</code></td>
@@ -2087,6 +2399,11 @@ chunk = mic.read()
               <td><code>StreamStartFailed</code></td>
               <td><code>DecibriError</code></td>
               <td>The audio stream opened but failed to start.</td>
+            </tr>
+            <tr>
+              <td><code>SpeakerChannelsUnsupported</code></td>
+              <td><code>DecibriError</code></td>
+              <td>An output device cannot serve the requested <code>channels</code>, a count above the figure it reports. Raised from <code>Speaker.start()</code>.</td>
             </tr>
             <tr>
               <td><code>PermissionDenied</code></td>
@@ -2312,7 +2629,7 @@ if __name__ == "__main__":
       <p>For more multiprocessing recipes, see the <a href="https://github.com/decibri/decibri/blob/main/bindings/python/docs/ecosystem/multiprocessing.md" target="_blank" rel="noopener noreferrer">Python multiprocessing guide</a> in the repository.</p>
 
       <h2 id="ort">ONNX Runtime resolution</h2>
-      <p>When <code>vad="silero"</code> is requested, decibri needs to load the ONNX Runtime dynamic library. The path is resolved in this order, first match wins:</p>
+      <p>Two stages run on ONNX Runtime: the Silero detector, <code>vad="silero"</code>, and the <code>denoise</code> conditioning stage. When either is enabled, Decibri needs to load the ONNX Runtime dynamic library. The path is resolved in this order, first match wins:</p>
       <ol>
         <li>The <code>ort_library_path</code> constructor argument, if supplied.</li>
         <li>The <code>DECIBRI_ORT_DYLIB_PATH</code> environment variable, for per-deployment overrides without code changes.</li>
@@ -2322,20 +2639,24 @@ if __name__ == "__main__":
       <p>If none of the above resolve to a real file, ORT's default loader runs. That loader itself respects <code>ORT_DYLIB_PATH</code> if set after decibri import, so a late environment change still works as a last-resort fallback.</p>
 
       <h3>When ORT is loaded</h3>
-      <p>Only when <code>vad="silero"</code>. The other VAD modes (<code>"energy"</code>, <code>False</code>) never touch ORT, so the resolver and bundled-dylib lookup are skipped entirely.</p>
+      <p>When <code>vad="silero"</code> or <code>denoise</code> is set, on <code>Microphone</code>, <code>AsyncMicrophone</code>, <code>File</code> and <code>AsyncFile</code> alike. Energy mode and <code>vad=False</code>, with <code>denoise</code> unset, never touch ORT, so the resolver and bundled-dylib lookup are skipped entirely. On a <code>Microphone</code>, the Silero model loads in the constructor and the <code>denoise</code> model when capture starts. On a <code>File</code>, the <code>denoise</code> model loads in the constructor and the Silero model at the first read, or when <code>analyze()</code> runs.</p>
 
       <h3>First-load cost</h3>
-      <p>The first <code>Microphone</code> constructed with <code>vad="silero"</code> incurs roughly 100 to 500 milliseconds of cold load on most platforms. The cost is amortised across the rest of the process: subsequent Microphones (sync or async) reuse the same loaded ORT.</p>
+      <p>The first <code>Microphone</code> constructed with <code>vad="silero"</code> incurs roughly 100 to 500 milliseconds of cold load on most platforms. The cost is amortised across the rest of the process: later loads, by either stage and from any class, reuse the same loaded ORT.</p>
 
       <h3>Process-global initialisation</h3>
-      <p>The first <code>Microphone</code> that loads Silero determines the dylib for the whole process. Subsequent Microphone constructions inherit that initialisation regardless of their own <code>ort_library_path</code> argument. To switch dylibs, restart the process.</p>
+      <p>The first load of ORT in a process, by either stage and from any class, determines the dylib for the whole process. Later loads inherit that initialisation regardless of their own <code>ort_library_path</code> argument. To switch dylibs, restart the process.</p>
+
+      <h3>Telemetry</h3>
+      <p>ONNX Runtime carries its own telemetry, separate from anything Decibri does. Decibri disables it when it initialises the runtime. Set <code>DECIBRI_ORT_TELEMETRY=1</code> in the environment before the first load to leave it enabled; any other value, an empty value, and an absent variable leave it disabled.</p>
+      <p>Two limits apply on Windows, and Decibri can close neither, so it does not claim that no telemetry is emitted. ONNX Runtime logs one process-information event while its environment is being created, before the setting is applied, once per process, so that event is emitted whichever way the setting is left. The runtime also takes its telemetry state from the Windows tracing session through an ETW callback, so the platform can re-enable telemetry after Decibri has disabled it. On other platforms ONNX Runtime's telemetry provider does nothing.</p>
 
       <div class="related-links">
         <h2>Related</h2>
         <ul>
           <li><a href="/docs/apis">APIs overview</a>: decibri's four interface surfaces (Python, Node.js, Browser, CLI)</li>
           <li><a href="/docs/apis/node">Node.js API</a>: same library, JavaScript / TypeScript surface</li>
-          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser via AudioWorklet</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: the separate browser build, for capture, energy VAD, and playback via AudioWorklet</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
           <li><a href="/docs/getting-started">Getting started</a>: install and first capture</li>
           <li><a href="/docs/integrations">Integrations</a>: STT, VAD, and KWS providers</li>
