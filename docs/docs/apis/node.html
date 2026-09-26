@@ -84,7 +84,13 @@
               <td><code>channels</code></td>
               <td><code>number</code></td>
               <td><code>1</code></td>
-              <td>Mono only. The only accepted value is <code>1</code>; any other value throws <code>RangeError</code> (multichannel capture is not supported). The option is kept for forward compatibility</td>
+              <td>Number of channels each <code>'data'</code> chunk delivers, interleaved frame by frame. At least 1, with no fixed maximum; without a <code>channelMap</code>, the device's own channel count is the ceiling. <code>1</code> is Decibri's own average of every device channel, where earlier releases let the platform collapse the channels first, so a capture from a stereo or multichannel device is not the same signal it was. Below <code>1</code> throws <code>RangeError</code>. See <a href="#channels">Channels</a> for the counts that work without a <code>channelMap</code> and the ones that are refused</td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code></td>
+              <td><code>number[]</code></td>
+              <td>(none)</td>
+              <td>0-based <strong>device</strong> channel indices, one per delivered channel: delivered channel <code>j</code> carries device channel <code>channelMap[j]</code>. The length must equal <code>channels</code>. Entries may repeat and their order is significant. Omit it to take the derivation <code>channels</code> describes. See <a href="#channels">Channels</a></td>
             </tr>
             <tr>
               <td><code>framesPerBuffer</code></td>
@@ -108,7 +114,7 @@
               <td><code>vad</code></td>
               <td><code>false | 'energy' | 'silero' | VadOptions</code></td>
               <td><code>false</code></td>
-              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v6.2 ONNX model for ML-based detection. Pass a <code>VadOptions</code> object to tune the threshold and holdoff</td>
+              <td>Voice activity detection. <code>false</code> disables it. <code>'energy'</code> uses RMS thresholding. <code>'silero'</code> uses the bundled Silero v6.2 ONNX model for ML-based detection. Pass a <code>VadOptions</code> object to tune the threshold, the holdoff, and the delivered channel the detector reads</td>
             </tr>
             <tr>
               <td><code>modelPath</code></td>
@@ -156,10 +162,116 @@
         </table>
       </div>
 
-      <p>The five conditioning options (<code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page.</p>
+      <p>The five conditioning options (<code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, <code>limiter</code>) are off by default and run as a fixed chain before each chunk is delivered. They are documented in full on the <a href="/docs/audio/ace">Audio Capture Engine</a> page. Above one delivered channel, DC removal, denoise and the high-pass run on each channel with its own state, while AGC and the limiter are linked: one detector measures across all the channels and one gain is applied to all of them, which keeps the balance between the channels.</p>
       <p>Echo cancellation is a separate opt-in capture option, <code>aec</code>, documented in <a href="#aec">Acoustic Echo Cancellation (AEC)</a> below. It is the one capture option that also needs a second audio stream from you at run time.</p>
       <p>Standard Node.js <code>ReadableOptions</code> (e.g., <code>highWaterMark</code>) are also accepted. Voice activity detection (the <code>vad</code> and <code>modelPath</code> options) is documented in the <a href="#vad">Voice activity detection</a> section below.</p>
       <p>To construct without blocking the event loop on the open work (notably the Silero model load when <code>vad: 'silero'</code> is set), use the <a href="#mic-open"><code>Microphone.open()</code></a> async factory.</p>
+
+      <h3 id="channels">Channels</h3>
+      <p><code>channels</code> is a delivered count: the number of channels in every <code>'data'</code> chunk, interleaved frame by frame, so a chunk holds <code>framesPerBuffer * channels</code> samples. It works the way <code>sampleRate</code> does. The device itself is always opened at its own native channel count, the <code>maxInputChannels</code> figure that <code>Microphone.devices()</code> reports, and Decibri derives the delivered channels from what the device gives it.</p>
+      <p>Without a <code>channelMap</code>, two counts can be derived:</p>
+      <ul>
+        <li><code>channels: 1</code>, the default, delivers the average of every device channel.</li>
+        <li>A count equal to the device's own delivers every device channel, in device order.</li>
+      </ul>
+      <p>Any other count above 1 without a map is refused when capture starts, because the device's channel count is only read when the stream opens. A count above the device's own fails with the code <code>MICROPHONE_CHANNELS_UNSUPPORTED</code>, because Decibri cannot deliver a channel the device does not have. A count above 1 but below the device's own fails with <code>CHANNEL_SELECTION_AMBIGUOUS</code>, because it does not say which of the device's channels it means. Both arrive as a <code>DecibriError</code> on the <code>'error'</code> event, not from the constructor. A <code>channelMap</code> lifts both refusals, because it names every delivered channel.</p>
+      <p><code>channelMap</code> names <strong>device</strong> channels. It is an array of 0-based device channel indices with one entry per delivered channel, so its length must equal <code>channels</code>: delivered channel <code>j</code> carries device channel <code>channelMap[j]</code>. Entries may repeat and their order is significant, so a map can select, reorder and duplicate device channels, and it can deliver more channels than the device has. <code>channelMap: [1]</code> with <code>channels: 1</code> delivers the device's second channel alone, and <code>channelMap: [1, 0]</code> with <code>channels: 2</code> swaps a stereo pair. An entry the device does not have fails with <code>CHANNEL_MAP_OUT_OF_RANGE</code> on the <code>'error'</code> event.</p>
+      <p><code>vad.source</code> names a <strong>delivered</strong> channel. It is a position in the <code>'data'</code> chunk, counted after <code>channelMap</code> has been applied, and never a device index. Omitted, the detector reads the frame average of every delivered channel; set, it reads that one delivered channel. It must be below <code>channels</code>, and it changes only what the detector reads, not the audio the stream emits.</p>
+      <div class="callout">
+        <strong>Note:</strong> The two indices count different things. <code>channelMap</code> counts the device's channels; <code>vad.source</code> counts the channels of the chunk you receive. With <code>channelMap: [2, 0]</code>, delivered channel 0 is device channel 2, so <code>source: 0</code> runs the detector on device channel 2, and <code>source: 2</code> throws a <code>RangeError</code>, because only two channels are delivered.
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-20-node" aria-controls="code-panel-20-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-20-node" aria-labelledby="code-tab-20-node" data-lang="node" role="tabpanel">
+          <pre class="language-javascript"><code class="language-javascript">const { Microphone } = require('decibri');
+
+// Needs a device with at least three input channels.
+// Deliver device channels 2 and 0, in that order. source: 0 names
+// delivered channel 0, which carries device channel 2.
+const mic = new Microphone({
+  channels: 2,
+  channelMap: [2, 0],
+  vad: { model: 'silero', source: 0 },
+});
+
+mic.on('error', (err) => console.error(err.code, err.message));
+mic.on('data', (chunk) => {
+  // Int16 LE frames, interleaved: device channel 2, then device channel 0
+});</code></pre>
+        </div>
+      </div>
+      <p>The constructor checks everything that does not need the device, and <code>Microphone.open()</code> rejects with the same errors. The device checks run when the stream starts, which is when you begin consuming it, so attach an <code>'error'</code> listener first.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>channels</code> below 1 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channels must be at least 1</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> is not an array (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid channelMap value: &lt;value&gt;. Expected an array of 0-based device channel indices, such as [0].</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry that is not an integer (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>channelMap entries must be integers</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry outside 0 to 65535 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap entries must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> length differs from <code>channels</code> (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap must have exactly one entry per channel</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> is not an integer (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>vad source must be an integer</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> outside 0 to 65535 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad source must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> not below <code>channels</code> (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>the detector source names delivered channel &lt;i&gt;; the delivered channel count is &lt;n&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above the device's own count (<code>'error'</code>)</td>
+              <td><code>DecibriError</code>, <code>code: 'MICROPHONE_CHANNELS_UNSUPPORTED'</code></td>
+              <td><code>the input device does not support &lt;requested&gt; delivered channels; it reports &lt;available&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above 1 but below the device's own count (<code>'error'</code>)</td>
+              <td><code>DecibriError</code>, <code>code: 'CHANNEL_SELECTION_AMBIGUOUS'</code></td>
+              <td><code>a channel map is required to deliver &lt;requested&gt; of the device's &lt;available&gt; input channels</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry the device does not have (<code>'error'</code>)</td>
+              <td><code>DecibriError</code>, <code>code: 'CHANNEL_MAP_OUT_OF_RANGE'</code></td>
+              <td><code>the channel map names device channel &lt;index&gt;; the device reports &lt;available&gt; input channels</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The three device refusals are a <code>DecibriError</code> carrying a <code>code</code>, not a <code>DeviceError</code>. A <code>'data'</code> handler that reads each chunk as a run of mono samples needs <code>channels: 1</code>; any higher count that the device accepts delivers interleaved frames.</p>
 
       <h2>Methods</h2>
 
@@ -224,7 +336,7 @@ console.log(devices);
             <tr>
               <td><code>maxInputChannels</code></td>
               <td><code>number</code></td>
-              <td>Maximum number of input channels supported</td>
+              <td>Maximum number of input channels supported: the count the device opens at, which <code>channels</code> and <code>channelMap</code> are checked against when capture starts</td>
             </tr>
             <tr>
               <td><code>defaultSampleRate</code></td>
@@ -248,7 +360,7 @@ console.log(devices);
         </div>
         <div class="code-tab-panel" id="code-panel-3-node" aria-labelledby="code-tab-3-node" data-lang="node" role="tabpanel">
           <pre class="language-javascript"><code class="language-javascript">Microphone.version();
-// { decibri: '<version>', audioBackend: 'cpal <version>', binding: '<version>' }</code></pre>
+// { decibri: '&lt;version&gt;', audioBackend: 'cpal &lt;version&gt;', binding: '&lt;version&gt;' }</code></pre>
         </div>
       </div>
 
@@ -258,10 +370,10 @@ console.log(devices);
       <p><code>boolean</code> (read-only). Returns <code>true</code> while the microphone is actively capturing audio.</p>
 
       <h3><code>mic.vadScore</code></h3>
-      <p><code>number</code> (read-only). Most recent VAD score for the active mode: the Silero speech probability in <code>'silero'</code> mode, the normalised RMS of the last chunk in <code>'energy'</code> mode. <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events. See <a href="#vad">Voice activity detection</a>.</p>
+      <p><code>number</code> (read-only). Most recent VAD score for the active mode: the Silero speech probability in <code>'silero'</code> mode, the normalised RMS of the last chunk in <code>'energy'</code> mode. Above one delivered channel both modes score the frame average of the delivered channels, or the one channel <code>vad.source</code> names. <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events. See <a href="#vad">Voice activity detection</a>.</p>
 
       <h3><code>mic.overrunCount</code></h3>
-      <p><code>number</code> (read-only). Number of capture buffers dropped because the consumer could not keep pace. <code>0</code> while the consumer keeps up, or before capture starts. A rising value means audio is being dropped to bound memory.</p>
+      <p><code>number</code> (read-only). Number of capture buffers dropped because the consumer could not keep pace. <code>0</code> while the consumer keeps up, before capture starts, and after <code>stop()</code>, which releases the stream the counter lives on, so read it before stopping to see a session's total. A rising value means audio is being dropped to bound memory.</p>
 
       <h2>Events</h2>
 
@@ -323,9 +435,10 @@ console.log(devices);
           </tbody>
         </table>
       </div>
+      <p>Both detectors read one mono signal. Above one delivered channel that signal is the frame average of every delivered channel, unless <code>vad.source</code> names one delivered channel for the detector to read instead. <code>vadScore</code> and the <code>'speech'</code> and <code>'silence'</code> events describe that signal; the audio the stream emits is not changed by it.</p>
 
       <h3>Tuning with a <code>VadOptions</code> object</h3>
-      <p>To tune the threshold or holdoff, pass a <code>VadOptions</code> object as the <code>vad</code> option instead of a bare mode string. The <code>vad: 'silero'</code> and <code>vad: 'energy'</code> shorthands are equivalent to the object with its default tuning.</p>
+      <p>To tune the threshold or holdoff, or to choose the delivered channel the detector reads, pass a <code>VadOptions</code> object as the <code>vad</code> option instead of a bare mode string. The <code>vad: 'silero'</code> and <code>vad: 'energy'</code> shorthands are equivalent to the object with its default tuning.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -354,6 +467,12 @@ console.log(devices);
               <td><code>number</code></td>
               <td><code>300</code></td>
               <td>Milliseconds of sub-threshold audio after a speech period before <code>'silence'</code> is emitted. A negative value throws <code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>source</code></td>
+              <td><code>number</code></td>
+              <td>(frame average)</td>
+              <td>The <strong>delivered</strong> channel the detector reads: a position in the <code>'data'</code> chunk, counted after any <code>channelMap</code>, never a device index. Omitted, the detector reads the frame average of every delivered channel. A non-integer throws <code>TypeError</code>; a value outside 0 to 65535, or not below <code>channels</code>, throws <code>RangeError</code>. See <a href="#channels">Channels</a></td>
             </tr>
           </tbody>
         </table>
@@ -385,6 +504,10 @@ mic.on('data', () => {}); // keep the stream flowing so VAD runs</code></pre>
 
       <h3>Bundled Silero model</h3>
       <p>The Silero VAD ONNX model and ONNX Runtime ship inside the npm package. No separate download, no API key, and no system <code>onnxruntime</code> dependency are required for <code>vad: 'silero'</code>. To use a different Silero ONNX variant, pass an absolute path on the <code>modelPath</code> option; it is consulted only when <code>vad</code> is <code>'silero'</code>.</p>
+
+      <h3>ONNX Runtime telemetry</h3>
+      <p>The Silero detector and the <code>denoise</code> conditioning stage run on ONNX Runtime, which carries its own telemetry, separate from anything Decibri does. Decibri disables it when it initialises the runtime. Set <code>DECIBRI_ORT_TELEMETRY=1</code> in the environment before the first load to leave it enabled; any other value, an empty value, and an absent variable leave it disabled.</p>
+      <p>Two limits apply on Windows, and Decibri can close neither, so it does not claim that no telemetry is emitted. ONNX Runtime logs one process-information event while its environment is being created, before the setting is applied, once per process, so that event is emitted whichever way the setting is left. The runtime also takes its telemetry state from the Windows tracing session through an ETW callback, so the platform can re-enable telemetry after Decibri has disabled it. On other platforms ONNX Runtime's telemetry provider does nothing.</p>
 
       <h2 id="aec">Acoustic Echo Cancellation (AEC)</h2>
       <p>Echo cancellation removes the sound of your own loudspeaker from the microphone capture. It is opt-in through the <code>aec</code> option on the <code>Microphone</code> constructor. Unlike every other capture option, it also needs a second audio stream at run time: the audio you are playing, pushed block by block for as long as you are playing it.</p>
@@ -430,11 +553,12 @@ const b = new Microphone({
     tailMs: 200,
     suppression: 'conservative',
     referenceSampleRate: 16000,
+    referenceChannels: 1,
   },
 });</code></pre>
         </div>
       </div>
-      <p>Echo cancellation requires <code>sampleRate</code> between 8000 and 48000, narrower than the range <code>sampleRate</code> otherwise accepts. Capture is mono, as it is for every decibri capture. The option is available on native capture only; the browser build does not take it, because browser capture carries the platform's own <code>echoCancellation</code> constraint, which is on by default. See the <a href="/docs/apis/browser">Browser API</a>.</p>
+      <p>Echo cancellation requires <code>sampleRate</code> between 8000 and 48000, narrower than the range <code>sampleRate</code> otherwise accepts. It runs on every delivered channel: one canceller per delivered channel, each fed the same pushed reference and each finding its own channel's echo delay, so its processing cost grows with <code>channels</code>. It is available on native capture only and is not a <code>File</code> option. The browser build does not carry it; browser capture has the browser's own <code>echoCancellation</code> constraint instead, which is on by default. See the <a href="/docs/apis/browser">Browser API</a>.</p>
 
       <h3><code>AecOptions</code></h3>
       <pre class="language-typescript"><code class="language-typescript">interface AecOptions {
@@ -442,6 +566,7 @@ const b = new Microphone({
   tailMs?: number;                             // 16 to 500, default 200
   suppression?: 'conservative' | 'off';        // default 'conservative'
   referenceSampleRate?: number;                // 1000 to 384000, default: the capture rate
+  referenceChannels?: number;                  // at least 1, default 1
 }</code></pre>
       <div class="table-wrap">
         <table>
@@ -478,15 +603,22 @@ const b = new Microphone({
               <td>the capture rate</td>
               <td>The rate of the audio you push, in Hz. 1000 to 384000. Set it whenever your playback rate differs from your capture rate</td>
             </tr>
+            <tr>
+              <td><code>referenceChannels</code></td>
+              <td><code>number</code></td>
+              <td><code>1</code></td>
+              <td>The channel count of the audio you push, interleaved frame by frame. At least 1; below 1 throws <code>RangeError</code>. Above 1, Decibri averages each frame to one mono sample before the canceller reads it. Set it whenever you push more than one channel</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p>The declared <code>referenceChannels</code> must match what you push. A mismatch is not detected and throws nothing: the frames are misread, nothing is cancelled, and <code>aecMetrics().delaySamples</code> stays <code>null</code>. The canceller reads one mono reference, so with playback through more than one loudspeaker whose echo paths differ, some echo remains that adaptation does not remove.</p>
 
       <h3>Methods</h3>
 
       <h4><code>mic.pushAecReference(data)</code></h4>
-      <p>Signature <code>pushAecReference(data: Buffer | NodeJS.ArrayBufferView): void</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, mono.</p>
-      <p>The push method never blocks and never raises on a full queue. Samples that do not fit are discarded and counted in <code>referenceDropped</code>. A push while capture is not running, or with the option unset, does nothing. A bad input type raises regardless of capture state. Because a <code>Microphone</code> stream starts when you begin consuming it, push from inside your <code>'data'</code> handler or your playback loop, not immediately after the constructor returns.</p>
+      <p>Signature <code>pushAecReference(data: Buffer | NodeJS.ArrayBufferView): void</code>. Push the audio you played, as you played it, in the order it was played, in the same <code>dtype</code> the microphone was constructed with, interleaved at <code>referenceChannels</code> (mono by default). Pass a <code>Buffer</code>, <code>Uint8Array</code> or <code>DataView</code> of PCM bytes, or the typed array that carries the configured <code>dtype</code>: <code>Int16Array</code> for <code>'int16'</code>, <code>Float32Array</code> for <code>'float32'</code>. One push serves every delivered channel.</p>
+      <p>The push method never blocks and never throws on a full queue. Samples that do not fit are discarded and counted in <code>referenceDropped</code>. A push made while capture is not running, before it starts or after <code>stop()</code>, is discarded too and added to <code>referenceDropped</code>, which you can read once capture runs. With the option unset, a push does nothing and is not counted. A bad input type, including a typed array of the other <code>dtype</code>, throws <code>TypeError</code> regardless of capture state. Because a <code>Microphone</code> stream starts when you begin consuming it, push from inside your <code>'data'</code> handler or your playback loop, not immediately after the constructor returns.</p>
 
       <h4><code>mic.aecMetrics()</code></h4>
       <p>Signature <code>aecMetrics(): AecMetrics | null</code>. Returns <code>null</code> when the <code>aec</code> option is unset or capture is not running, and an <code>AecMetrics</code> otherwise. Read it while capture is still running; after <code>stop()</code> it returns <code>null</code>.</p>
@@ -501,6 +633,7 @@ const b = new Microphone({
   referenceReanchors: number;
   referenceDropped: number;
   referenceSilence: number;
+  channels: AecChannelMetrics[];
 }</code></pre>
       <div class="table-wrap">
         <table>
@@ -545,16 +678,22 @@ const b = new Microphone({
             <tr>
               <td><code>referenceDropped</code></td>
               <td><code>number</code></td>
-              <td>Far-end samples discarded because a push exceeded the queue, at the reference rate.</td>
+              <td>Far-end samples discarded, at the reference rate: a push that exceeded the queue, or one made while capture was not running.</td>
             </tr>
             <tr>
               <td><code>referenceSilence</code></td>
               <td><code>number</code></td>
               <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
             </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>AecChannelMetrics[]</code></td>
+              <td>One entry per delivered channel, in delivered order. See <code>AecChannelMetrics</code> below.</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p>The first six fields report the canceller on the first delivered channel. <code>referenceDropped</code> and <code>referenceSilence</code> describe the one reference queue that every channel's canceller shares. On a one-channel capture, <code>channels</code> holds a single entry that agrees with the top-level fields.</p>
       <p>The <a href="/docs/audio/aec#diagnostics">diagnostics section</a> of the feature page reads these fields as a procedure rather than a field list. This is that procedure as code:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
@@ -574,15 +713,70 @@ const b = new Microphone({
     return 'no reference is reaching the canceller';
   }
   if (m.referenceDropped &gt; 0) {
-    return 'pushes are being discarded: push smaller blocks, in step with playback';
+    return 'pushes are being discarded: push smaller blocks, in step with playback, while capture runs';
   }
   return 'reference is arriving but nothing has aligned: check the rate';
 }</code></pre>
         </div>
       </div>
 
+      <h3><code>AecChannelMetrics</code></h3>
+      <p>One entry of <code>AecMetrics.channels</code>: the report of the canceller on one delivered channel. It carries the six canceller fields and not the two queue counters, which stay on <code>AecMetrics</code>. Declared as a TypeScript type.</p>
+      <pre class="language-typescript"><code class="language-typescript">interface AecChannelMetrics {
+  delaySamples: number | null;
+  erleDb: number;
+  doubleTalk: boolean;
+  referenceStarved: number;
+  acquisitionParked: number;
+  referenceReanchors: number;
+}</code></pre>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Type</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>delaySamples</code></td>
+              <td><code>number | null</code></td>
+              <td>This channel's active alignment between reference and capture. <code>null</code> while its estimator is still searching.</td>
+            </tr>
+            <tr>
+              <td><code>erleDb</code></td>
+              <td><code>number</code></td>
+              <td>Smoothed estimate of how much echo this channel's canceller is removing, in dB.</td>
+            </tr>
+            <tr>
+              <td><code>doubleTalk</code></td>
+              <td><code>boolean</code></td>
+              <td>Whether this channel's canceller believes the near-end talker is active. Its adaptation is held while true.</td>
+            </tr>
+            <tr>
+              <td><code>referenceStarved</code></td>
+              <td><code>number</code></td>
+              <td>Near-end samples on this channel with no far-end sample available while aligned.</td>
+            </tr>
+            <tr>
+              <td><code>acquisitionParked</code></td>
+              <td><code>number</code></td>
+              <td>Near-end samples on this channel processed while no alignment was active.</td>
+            </tr>
+            <tr>
+              <td><code>referenceReanchors</code></td>
+              <td><code>number</code></td>
+              <td>Times this channel's alignment was rebuilt after a capture discontinuity.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each channel's canceller finds its own echo delay, so the entries differ where the channels' acoustic paths differ. <code>erleDb</code> is not a ranking across channels: it rises with echo distance, because a weaker echo is easier to reduce in ratio terms, so a far microphone can report a higher figure than a near one while removing less echo in absolute terms. Compare a channel with its own history, not with its neighbours.</p>
+
       <div class="callout">
-        <strong>Note:</strong> Node has no separate async microphone class, so both members are synchronous on <code>Microphone</code>. The Python binding splits them: <code>push_aec_reference</code> is a plain method on both classes, while <code>aec_metrics</code> is a coroutine on <code>AsyncMicrophone</code>. See the <a href="/docs/apis/python#aec">Python API</a>.
+        <strong>Note:</strong> Node has no separate async microphone class, so both members are synchronous on <code>Microphone</code>. The Python binding splits them: <code>push_aec_reference</code> is a plain method on both classes, while <code>aec_metrics</code> is a coroutine on <code>AsyncMicrophone</code>. The two bindings also differ on pushes made while capture is not running: Node adds them to <code>referenceDropped</code>, and Python does not count them. See the <a href="/docs/apis/python#aec">Python API</a>.
       </div>
 
       <h3 id="aec-errors">AEC errors</h3>
@@ -600,7 +794,7 @@ const b = new Microphone({
             <tr>
               <td><code>aec</code> is neither a string nor an object</td>
               <td><code>TypeError</code></td>
-              <td><code>Invalid aec value: &lt;value&gt;. Expected a model name such as 'tau', or a config object { model, tailMs, suppression, referenceSampleRate }.</code></td>
+              <td><code>Invalid aec value: &lt;value&gt;. Expected a model name such as 'tau', or a config object { model, tailMs, suppression, referenceSampleRate, referenceChannels }.</code></td>
             </tr>
             <tr>
               <td><code>model</code> is not a string</td>
@@ -638,19 +832,34 @@ const b = new Microphone({
               <td><code>aec referenceSampleRate must be between 1000 and 384000</code></td>
             </tr>
             <tr>
+              <td><code>referenceChannels</code> is not a number</td>
+              <td><code>TypeError</code></td>
+              <td><code>aec referenceChannels must be a number</code></td>
+            </tr>
+            <tr>
+              <td><code>referenceChannels</code> is below 1</td>
+              <td><code>RangeError</code></td>
+              <td><code>aec referenceChannels must be at least 1</code></td>
+            </tr>
+            <tr>
               <td><code>sampleRate</code> outside 8000 to 48000 with <code>aec</code> set</td>
               <td><code>RangeError</code></td>
               <td><code>echo cancellation only supports sample rates 8000 to 48000</code></td>
             </tr>
             <tr>
-              <td><code>pushAecReference</code> given something that is not a buffer view</td>
+              <td><code>pushAecReference</code> given something that is not a buffer view, or a typed array of another sample type, such as a <code>Float64Array</code></td>
               <td><code>TypeError</code></td>
               <td><code>pushAecReference requires a Buffer, TypedArray, or DataView of PCM samples in the configured dtype</code></td>
+            </tr>
+            <tr>
+              <td><code>pushAecReference</code> given the typed array of the other <code>dtype</code>, such as a <code>Float32Array</code> on an <code>'int16'</code> capture</td>
+              <td><code>TypeError</code></td>
+              <td><code>dtype 'int16' configured but Float32Array samples were pushed; convert to Int16Array or construct Microphone with dtype: 'float32'</code>, and the mirror of it on a <code>'float32'</code> capture</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p>Every one of these is raised by the <code>Microphone</code> constructor, except the last. <code>DecibriError</code> is exported from the package and satisfies <code>instanceof</code>; the <code>RangeError</code> and <code>TypeError</code> cases are built-ins and do not.</p>
+      <p>Every one of these is raised by the <code>Microphone</code> constructor, except the two <code>pushAecReference</code> rows, which the push itself throws. <code>DecibriError</code> is exported from the package and satisfies <code>instanceof</code>; the <code>RangeError</code> and <code>TypeError</code> cases are built-ins and do not.</p>
 
       <h2>Audio format</h2>
 
@@ -718,7 +927,7 @@ const speaker = new Speaker(options?);</code></pre>
               <td><code>channels</code></td>
               <td><code>number</code></td>
               <td><code>1</code></td>
-              <td>Number of output channels (1 to 32)</td>
+              <td>Number of output channels. At least 1, with no fixed maximum: the output device decides. The stream opens at the first write, and a count above the figure the device reports that the device cannot serve fails there with a <code>DecibriError</code> whose <code>code</code> is <code>SPEAKER_CHANNELS_UNSUPPORTED</code>, on the <code>'error'</code> event or as a <code>writeAsync()</code> rejection; any other failed open stays <code>STREAM_OPEN_FAILED</code>. Below <code>1</code> throws <code>RangeError</code></td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -814,7 +1023,7 @@ console.log(devices);
             <tr>
               <td><code>maxOutputChannels</code></td>
               <td><code>number</code></td>
-              <td>Maximum number of output channels supported</td>
+              <td>Number of output channels the device reports. A larger <code>Speaker</code> count is still offered to the device, which may serve it; one it cannot serve fails with <code>SPEAKER_CHANNELS_UNSUPPORTED</code>, naming this figure</td>
             </tr>
             <tr>
               <td><code>defaultSampleRate</code></td>
@@ -837,6 +1046,9 @@ console.log(devices);
 
       <h3><code>speaker.isPlaying</code></h3>
       <p><code>boolean</code> (read-only). Returns <code>true</code> while audio is being output to the speaker.</p>
+
+      <h3><code>speaker.underrunCount</code></h3>
+      <p><code>number</code> (read-only). Number of samples played as silence because the playback queue ran dry. <code>0</code> while the producer keeps the queue fed, or before playback starts. A rising value means the output is filling gaps with silence.</p>
 
       <h3>Events</h3>
 
@@ -902,6 +1114,18 @@ console.log(devices);
               <td>Target output rate in Hz (1,000 to 384,000). The source is resampled from its own rate to this one, so a 44.1 kHz recording comes out at 16 kHz unless you set it</td>
             </tr>
             <tr>
+              <td><code>channels</code></td>
+              <td><code>number</code></td>
+              <td><code>1</code></td>
+              <td>Number of channels each chunk delivers, interleaved frame by frame. At least 1. Without a <code>channelMap</code>, <code>1</code> delivers the average of every source channel and a count equal to the source's own delivers every channel in source order. Any other unmapped count above 1 throws from the constructor: above the source's own with <code>FILE_CHANNELS_UNSUPPORTED</code>, and above 1 but below it with <code>FILE_CHANNEL_SELECTION_AMBIGUOUS</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code></td>
+              <td><code>number[]</code></td>
+              <td>(none)</td>
+              <td>0-based <strong>source</strong> channel indices, one per delivered channel, with the same rules as the <code>Microphone</code> option: the length must equal <code>channels</code>, and entries may repeat and their order is significant. An entry the source does not have throws from the constructor with <code>FILE_CHANNEL_MAP_OUT_OF_RANGE</code></td>
+            </tr>
+            <tr>
               <td><code>dtype</code></td>
               <td><code>'int16' | 'float32'</code></td>
               <td><code>'int16'</code></td>
@@ -911,7 +1135,7 @@ console.log(devices);
               <td><code>vad</code></td>
               <td><code>false | 'energy' | 'silero' | VadOptions</code></td>
               <td><code>false</code></td>
-              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>. <code>analyze()</code> requires <code>'silero'</code>. See <a href="#vad">Voice activity detection</a></td>
+              <td>Voice activity detection, opt-in exactly as on <code>Microphone</code>, including <code>vad.source</code>, which names a delivered channel here too. <code>analyze()</code> requires <code>'silero'</code>. See <a href="#vad">Voice activity detection</a></td>
             </tr>
             <tr>
               <td><code>modelPath</code></td>
@@ -953,7 +1177,7 @@ console.log(devices);
         </table>
       </div>
 
-      <p>Omit an option, or pass <code>undefined</code>, to leave that stage off. The live-capture-only options (<code>device</code>, <code>channels</code>, <code>framesPerBuffer</code>) do not apply to an offline source. Standard Node.js <code>ReadableOptions</code> such as <code>highWaterMark</code> are accepted, because <code>FileOptions</code> extends them. The package's own TypeScript declarations ship with it, so <code>FileOptions</code> and <code>FileBufferOptions</code> type-check in an editor without a separate <code>@types</code> package.</p>
+      <p>Omit an option, or pass <code>undefined</code>, to leave that stage off. The live-capture-only options (<code>device</code>, <code>framesPerBuffer</code>, <code>aec</code>) do not apply to an offline source. <code>channels</code>, <code>channelMap</code> and <code>vad.source</code> do, following the <code>Microphone</code> rules in <a href="#channels">Channels</a> with the source's own channel count standing where the device's stands: the file's header for a path, or <code>inputChannels</code> for <code>File.buffer</code>. That count is known as soon as the source is opened, so every channel refusal throws from the constructor, or rejects <code>File.open()</code>. Standard Node.js <code>ReadableOptions</code> such as <code>highWaterMark</code> are accepted, because <code>FileOptions</code> extends them. The package's own TypeScript declarations ship with it, so <code>FileOptions</code> and <code>FileBufferOptions</code> type-check in an editor without a separate <code>@types</code> package.</p>
 
       <h3 id="file-open"><code>File.open(path, options?)</code></h3>
       <p>Static async factory. Returns <code>Promise&lt;File&gt;</code>. Runs the disk read, the decode, and the chain construction on the native thread pool instead of the event loop, then resolves to a ready instance. Options are identical to the constructor. This is the recommended form, mirroring <a href="#mic-open"><code>Microphone.open()</code></a>.</p>
@@ -974,7 +1198,7 @@ file.close();</code></pre>
       </div>
 
       <h3><code>File.buffer(samples, options)</code></h3>
-      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> must be a <code>Float32Array</code> of mono samples in <code>-1.0</code> to <code>1.0</code>; a raw <code>Buffer</code> of PCM bytes is rejected as ambiguous, with its own message. Raw samples carry no header, so <code>options.inputRate</code> (their native rate, 1,000 to 384,000) is required. No I/O is involved, so unlike <code>File.open()</code> this one is synchronous and returns a <code>File</code> directly, not a promise.</p>
+      <p>Wraps in-memory samples instead of reading a file. <code>samples</code> must be a <code>Float32Array</code> of samples in <code>-1.0</code> to <code>1.0</code>, frame-interleaved at <code>options.inputChannels</code>; a raw <code>Buffer</code> of PCM bytes is rejected as ambiguous, with its own message. Raw samples carry no header, so <code>options.inputRate</code> (their native rate, 1,000 to 384,000) is required, and <code>options.inputChannels</code> (1 to 65,535, default 1) is its channel counterpart. The sample count must be a whole number of frames at <code>inputChannels</code>. <code>channels</code> and <code>channelMap</code> then choose what is delivered from those input channels. <code>inputChannels</code> belongs to <code>File.buffer</code> alone; the path constructors refuse it, because a file carries its own count. No I/O is involved, so unlike <code>File.open()</code> this one is synchronous and returns a <code>File</code> directly, not a promise.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-13-node" aria-controls="code-panel-13-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
@@ -985,10 +1209,13 @@ file.close();</code></pre>
 // samples: a Float32Array of mono samples in -1.0 to 1.0, at their own rate
 const file = File.buffer(samples, { inputRate: 48000, sampleRate: 16000 });
 
-file.on('data', (chunk) => handle(chunk));</code></pre>
+file.on('data', (chunk) => handle(chunk));
+
+// pairs: stereo samples interleaved L, R, L, R, ... Deliver both channels.
+const stereo = File.buffer(pairs, { inputRate: 48000, inputChannels: 2, channels: 2 });</code></pre>
         </div>
       </div>
-      <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to mono floats in <code>-1.0</code> to <code>1.0</code>, and pass the source rate as <code>inputRate</code>. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructors open those directly.</p>
+      <p>This is also the route for any audio the reader rejects, an MP3 or an Opus file for example: decode it yourself, convert to floats in <code>-1.0</code> to <code>1.0</code>, interleaved frame by frame, and pass the source rate as <code>inputRate</code> and its channel count as <code>inputChannels</code>. WAV, AIFF, AIFF-C and FLAC do not need it; the path constructors open those directly.</p>
 
       <h3>Single-pass lifecycle</h3>
       <p>Streaming, analysis and saving are three alternatives, and each reads the source from beginning to end. Use one <code>File</code> per operation.</p>
@@ -1004,7 +1231,7 @@ file.on('data', (chunk) => handle(chunk));</code></pre>
       <h3>Methods</h3>
 
       <h4><code>file.analyze()</code> and <code>file.analyse()</code></h4>
-      <p>Score the whole recording for voice activity in one pass, off the event loop. Returns <code>Promise&lt;VadReport&gt;</code>, a plain object with exactly the keys <code>scores</code> and <code>segments</code>, all times in seconds of file time. Requires <code>vad: 'silero'</code>. <code>analyse()</code> is the same analysis under the other spelling.</p>
+      <p>Score the whole recording for voice activity in one pass, off the event loop. Returns <code>Promise&lt;VadReport&gt;</code>, a plain object with exactly the keys <code>scores</code> and <code>segments</code>, all times in seconds of file time. Requires <code>vad: 'silero'</code>. Above one delivered channel it scores the frame average of the delivered channels, or the one channel <code>vad.source</code> names. <code>analyse()</code> is the same analysis under the other spelling.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-14-node" aria-controls="code-panel-14-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
@@ -1020,7 +1247,7 @@ report.segments; // [{ start, end }, ...]</code></pre>
       <p><code>scores</code> holds one entry per analysis window. Windows tile the recording from zero, contiguous and non-overlapping, 0.032 seconds each; a trailing remainder shorter than one window is left unscored. <code>segments</code> holds the merged speech regions: consecutive speech windows whose silence gaps fall within the holdoff collapse into one, and a segment ends at its last speech window rather than at the holdoff expiry.</p>
 
       <h4><code>file.save(path, options?)</code></h4>
-      <p>Run the recording once through the conditioning chain, whole, and write it to <code>path</code>, off the event loop. Returns <code>Promise&lt;SaveReport&gt;</code>. The pass consumes the source exactly as <code>analyze()</code> does. Output is 16-bit PCM, mono, at <code>sampleRate</code>, in every one of the three containers; no option changes that.</p>
+      <p>Run the recording once through the conditioning chain, whole, and write it to <code>path</code>, off the event loop. Returns <code>Promise&lt;SaveReport&gt;</code>. The pass consumes the source exactly as <code>analyze()</code> does. Output is 16-bit PCM at <code>sampleRate</code>, in every one of the three containers, at the delivered channel count and interleaved: the same layout the stream emits, so one channel unless <code>channels</code> asks for more. Each container's own channel ceiling applies, and a save above it rejects with <code>AUDIO_FORMAT_UNSUPPORTED</code>, carrying the container layer's own text: FLAC carries at most 8 channels, and a 16-bit WAV at most 32767. Decibri adds no ceiling of its own.</p>
       <p>The container comes from the extension: <code>.wav</code>, <code>.aiff</code>, <code>.aif</code>, <code>.aifc</code> or <code>.flac</code>, matched ASCII case-insensitively. <code>.aifc</code> writes a plain AIFF. An unrecognised extension, or a path with no extension, rejects with <code>AUDIO_FORMAT_UNSUPPORTED</code> rather than defaulting. Decibri reads a file by its content and writes one by its name.</p>
       <p><code>SaveOptions</code>:</p>
       <div class="table-wrap">
@@ -1049,7 +1276,7 @@ report.segments; // [{ start, end }, ...]</code></pre>
           </tbody>
         </table>
       </div>
-      <p><code>SaveReport</code> is a plain object with exactly two keys. <code>clippedSamples</code> counts finite samples that fell outside full scale and were clamped to <code>-1.0</code> to <code>1.0</code>: AGC without a limiter can push conditioned audio past full scale, and 16-bit PCM cannot hold it, so decibri clamps and counts rather than clipping silently. <code>nonFiniteSamples</code> counts non-finite samples repaired on the way out, a NaN written as silence and an infinity as full scale.</p>
+      <p><code>SaveReport</code> is a plain object with exactly two keys. <code>clippedSamples</code> counts finite samples that fell outside full scale and were clamped to <code>-1.0</code> to <code>1.0</code>: AGC without a limiter can push conditioned audio past full scale, and 16-bit PCM cannot hold it, so Decibri clamps and counts rather than clipping silently. <code>nonFiniteSamples</code> counts non-finite samples the save itself repaired on the way out, a NaN written as silence and an infinity as full scale. That repair and its count cover only the direct path, a one-channel source already at the target rate with no channel map and no conditioning. In every other case the conditioning chain runs and has already replaced each non-finite sample with silence at its entry, so the file carries silence there and the count does not include it.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-18-node" aria-controls="code-panel-18-node" role="tab" data-lang="node" aria-selected="true">Node.js</button>
@@ -1102,11 +1329,11 @@ file.on('data', (chunk) => {
       <p>A freshly constructed <code>File</code> has no listeners of its own, so nothing is subscribed for you.</p>
 
       <div class="callout">
-        <strong>Note:</strong> Chunk framing depends on how you consume the stream. A <code>for await</code> loop and a <code>'data'</code> listener over the same recording deliver the same total number of bytes in a different number of chunks, because <code>Readable</code> coalesces its internal buffer. Treat the total as exact and the chunk count as a property of the consumption style. A full chunk is 1,600 samples at the target rate: 3,200 bytes as <code>'int16'</code>, 6,400 as <code>'float32'</code>.
+        <strong>Note:</strong> Chunk framing depends on how you consume the stream. A <code>for await</code> loop and a <code>'data'</code> listener over the same recording deliver the same total number of bytes in a different number of chunks, because <code>Readable</code> coalesces its internal buffer. Treat the total as exact and the chunk count as a property of the consumption style. A full chunk is 1,600 frames at the target rate, each frame carrying one sample per delivered channel: at the default one channel that is 3,200 bytes as <code>'int16'</code> and 6,400 as <code>'float32'</code>, and it grows with <code>channels</code>.
       </div>
 
       <h3>File errors</h3>
-      <p>The same split the rest of the Node API uses. Failures that crossed the native boundary are a <code>DecibriError</code> with a stable <code>code</code>; failures the JavaScript wrapper caught first are built-in <code>RangeError</code> or <code>TypeError</code> with <code>code</code> undefined.</p>
+      <p>The same split the rest of the Node API uses. Failures that crossed the native boundary are a <code>DecibriError</code> with a stable <code>code</code>, apart from the argument checks the native layer shares with the wrapper, which arrive as the same built-in the wrapper throws; failures the JavaScript wrapper caught first are built-in <code>RangeError</code> or <code>TypeError</code> with <code>code</code> undefined.</p>
       <p>With a <code>code</code>:</p>
       <div class="table-wrap">
         <table>
@@ -1136,6 +1363,30 @@ file.on('data', (chunk) => {
               <td><code>DecibriError</code></td>
               <td><code>AUDIO_FORMAT_UNSUPPORTED</code></td>
               <td><code>unsupported audio format: </code> followed by the extension found and the accepted set</td>
+            </tr>
+            <tr>
+              <td><code>save()</code> with more channels than the container carries</td>
+              <td><code>DecibriError</code></td>
+              <td><code>AUDIO_FORMAT_UNSUPPORTED</code></td>
+              <td><code>unsupported audio format: </code> followed by the container layer's own text</td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above the source's own count</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_CHANNELS_UNSUPPORTED</code></td>
+              <td><code>the file does not have &lt;requested&gt; channels to deliver; it has &lt;available&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above 1 but below the source's own count</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_CHANNEL_SELECTION_AMBIGUOUS</code></td>
+              <td><code>delivering &lt;requested&gt; of the file's &lt;available&gt; channels requires a channel map</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry the source does not have</td>
+              <td><code>DecibriError</code></td>
+              <td><code>FILE_CHANNEL_MAP_OUT_OF_RANGE</code></td>
+              <td><code>the file channel map names channel &lt;index&gt;; the file has &lt;available&gt; channels</code></td>
             </tr>
             <tr>
               <td>Structurally wrong file: a RIFF/WAVE with a <code>fmt</code> chunk and no <code>data</code> chunk, a corrupt FLAC frame</td>
@@ -1176,7 +1427,7 @@ file.on('data', (chunk) => {
           </tbody>
         </table>
       </div>
-      <p>Without a <code>code</code>, raised by the wrapper before the native layer is reached:</p>
+      <p>Without a <code>code</code>, raised by the wrapper before the native layer is reached, apart from the last row, which the native layer checks:</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1213,6 +1464,46 @@ file.on('data', (chunk) => {
               <td><code>dtype must be 'int16' or 'float32'</code></td>
             </tr>
             <tr>
+              <td><code>channels</code> below 1</td>
+              <td><code>RangeError</code></td>
+              <td><code>channels must be at least 1</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> is not an array</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid channelMap value: &lt;value&gt;. Expected an array of 0-based source channel indices, such as [0].</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry that is not an integer</td>
+              <td><code>TypeError</code></td>
+              <td><code>channelMap entries must be integers</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry outside 0 to 65535</td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap entries must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> length differs from <code>channels</code></td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap must have exactly one entry per channel</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> is not an integer</td>
+              <td><code>TypeError</code></td>
+              <td><code>vad source must be an integer</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> outside 0 to 65535</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad source must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> not below <code>channels</code></td>
+              <td><code>RangeError</code></td>
+              <td><code>the detector source names delivered channel &lt;i&gt;; the delivered channel count is &lt;n&gt;</code></td>
+            </tr>
+            <tr>
               <td><code>agc</code> out of range</td>
               <td><code>RangeError</code></td>
               <td><code>agc target level must be between -40 and -3</code></td>
@@ -1240,7 +1531,7 @@ file.on('data', (chunk) => {
             <tr>
               <td>Bad <code>vad</code> value</td>
               <td><code>TypeError</code></td>
-              <td><code>Invalid vad value: "bogus". Expected false, 'silero', 'energy', or a config object { model, threshold, holdoffMs }.</code></td>
+              <td><code>Invalid vad value: "bogus". Expected false, 'silero', 'energy', or a config object { model, threshold, holdoffMs, source }.</code></td>
             </tr>
             <tr>
               <td>Bad <code>vad.model</code></td>
@@ -1288,6 +1579,21 @@ file.on('data', (chunk) => {
               <td><code>inputRate is required for File.buffer (samples carry no header)</code></td>
             </tr>
             <tr>
+              <td><code>File.buffer</code> <code>inputChannels</code> that is not an integer</td>
+              <td><code>TypeError</code></td>
+              <td><code>inputChannels must be an integer</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> <code>inputChannels</code> outside 1 to 65535</td>
+              <td><code>RangeError</code></td>
+              <td><code>inputChannels must be between 1 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>inputChannels</code> passed to <code>new File()</code> or <code>File.open()</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>inputChannels applies only to File.buffer; a file carries its channel count in its own header</code></td>
+            </tr>
+            <tr>
               <td><code>save()</code> given a bad <code>format</code> value</td>
               <td><code>TypeError</code></td>
               <td><code>Invalid format value: "ogg". Expected 'wav', 'aiff', or 'flac'.</code></td>
@@ -1301,6 +1607,11 @@ file.on('data', (chunk) => {
               <td><code>save()</code> <code>compression</code> out of range</td>
               <td><code>RangeError</code></td>
               <td><code>flac compression level must be between 0 and 8</code></td>
+            </tr>
+            <tr>
+              <td><code>File.buffer</code> samples that are not a whole number of frames at <code>inputChannels</code></td>
+              <td><code>RangeError</code></td>
+              <td><code>the requested block size of &lt;samples&gt; samples is not a whole number of &lt;channels&gt;-channel frames</code></td>
             </tr>
           </tbody>
         </table>
@@ -1338,9 +1649,9 @@ file.on('data', (chunk) => {
             </tr>
             <tr>
               <td><code>channels</code></td>
+              <td><code>number</code></td>
               <td><code>1</code></td>
-              <td><code>1</code></td>
-              <td>Audio is written mono, so <code>1</code> is the only accepted value. Anything else throws <code>RangeError: multichannel write is not supported; channels must be 1 (mono)</code>. There is no reason to pass it</td>
+              <td>The interleave of the incoming bytes: how many channels each frame carries. It goes into the file's header, and the file is written at this channel count. At least 1; <code>0</code> throws <code>RangeError: channels must be at least 1</code>. The stream's total sample count must be a whole number of frames, and each container's own channel ceiling applies as it does for <code>file.save()</code>; both are checked when the stream finishes, and a failure destroys the stream with the error</td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -1353,7 +1664,7 @@ file.on('data', (chunk) => {
       </div>
 
       <h3><code>writer.report</code></h3>
-      <p><code>SaveReport | null</code> (read-only). The <code>clippedSamples</code> and <code>nonFiniteSamples</code> counts of the completed write, exactly as <code>file.save()</code> resolves them. <code>null</code> until <code>'finish'</code> has fired, because the file is written when the stream finishes. A failure destroys the stream with the error rather than populating the report.</p>
+      <p><code>SaveReport | null</code> (read-only). The <code>clippedSamples</code> and <code>nonFiniteSamples</code> counts of the completed write, exactly as <code>file.save()</code> resolves them. For a writer, the direct path that <code>nonFiniteSamples</code> covers is a one-channel stream; above one channel the non-finite samples are written as silence and not counted. <code>null</code> until <code>'finish'</code> has fired, because the file is written when the stream finishes. A failure destroys the stream with the error rather than populating the report.</p>
 
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
@@ -1418,7 +1729,15 @@ console.log(version());</code></pre>
               <td><code>RangeError</code></td>
             </tr>
             <tr>
-              <td><code>channels</code> other than <code>1</code> (multichannel capture is not supported)</td>
+              <td><code>channels</code> below <code>1</code></td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> not an array, or an entry that is not an integer</td>
+              <td><code>TypeError</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> entry outside 0 to 65,535, or a length that differs from <code>channels</code></td>
               <td><code>RangeError</code></td>
             </tr>
             <tr>
@@ -1435,6 +1754,14 @@ console.log(version());</code></pre>
             </tr>
             <tr>
               <td><code>vad</code> threshold outside <code>[0, 1]</code>, or <code>holdoffMs</code> negative</td>
+              <td><code>RangeError</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> not an integer</td>
+              <td><code>TypeError</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> outside 0 to 65,535, or not below <code>channels</code></td>
               <td><code>RangeError</code></td>
             </tr>
             <tr>
@@ -1492,10 +1819,11 @@ console.log(version());</code></pre>
           </tbody>
         </table>
       </div>
-      <p>Catch <code>DecibriError</code> to handle any native failure generically, or a subclass for finer control. Argument validation (above) throws built-in <code>RangeError</code> or <code>TypeError</code>, not a <code>DecibriError</code>. If the bundled Silero or denoise model file cannot be located at construction, a plain <code>Error</code> is thrown.</p>
+      <p>Catch <code>DecibriError</code> to handle any native failure generically, or a subclass for finer control. Argument validation (above) throws built-in <code>RangeError</code> or <code>TypeError</code>, not a <code>DecibriError</code>. If the Silero model file (the bundled one, or the one <code>modelPath</code> names) or the bundled denoise model file cannot be found at construction, an <code>OrtError</code> is thrown, with the code <code>VAD_MODEL_LOAD_FAILED</code> for the Silero model and <code>MODEL_LOAD_FAILED</code> for the denoise model.</p>
 
       <h3>Runtime stream errors</h3>
       <p>Errors after capture has started, such as a mid-stream device disconnect (unplugging the microphone), are surfaced through the <code>'error'</code> event rather than thrown. When a device fails, <code>isOpen</code> becomes <code>false</code> and the <code>'error'</code> event fires, rather than capture freezing silently.</p>
+      <p>The checks that need the opened device arrive the same way. A <code>Microphone</code> reports <code>MICROPHONE_CHANNELS_UNSUPPORTED</code>, <code>CHANNEL_SELECTION_AMBIGUOUS</code> and <code>CHANNEL_MAP_OUT_OF_RANGE</code> on <code>'error'</code> when you begin consuming it (see <a href="#channels">Channels</a>). A <code>Speaker</code> opens its stream at the first write and reports <code>SPEAKER_CHANNELS_UNSUPPORTED</code> there, on <code>'error'</code>, or as the rejection of <code>writeAsync()</code>. Each is a <code>DecibriError</code> carrying that <code>code</code>.</p>
 
       <div class="related-links">
         <h2>Related</h2>
@@ -1506,7 +1834,7 @@ console.log(version());</code></pre>
           <li><a href="/docs/audio/ace">Audio Capture Engine</a>: the five conditioning options in full</li>
           <li><a href="/docs/integrations/vad">Voice activity detection</a>: the energy and Silero detectors</li>
           <li><a href="/docs/apis/python">Python API</a>: same library, sync and async surface</li>
-          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: the separate browser build, for capture, energy VAD, and playback</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
           <li><a href="https://github.com/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
           <li><a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">decibri on npm</a></li>
