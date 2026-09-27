@@ -130,7 +130,7 @@
         "name": "What Python versions are supported?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, and Windows x64."
+          "text": "Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, Windows x64, and Windows ARM64. On Windows ARM64 the minimum is Python 3.11, the first CPython release published for that platform."
         }
       },
       {
@@ -1946,12 +1946,17 @@
     <section id="platforms" class="fade-in">
       <div class="section-label">Platform Support</div>
       <h2>Pre-built binaries, zero setup</h2>
-      <p class="section-desc">Pre-compiled native binaries ship inside the package. No build tools, no compilation, no post-install downloads.</p>
+      <p class="section-desc">Pre-compiled native binaries install with the package: pip fetches the wheel built for your platform, and npm adds the optional platform package that matches it. No build tools, no compilation, no post-install downloads.</p>
       <div class="platform-grid">
         <div class="platform-card">
           <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.6L24 0v11.4H10.949M0 12.6h9.75v9.45L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg></div>
           <div class="platform-name">Windows 11</div>
           <div class="platform-arch">x64</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.45H0m10.949-9.6L24 0v11.4H10.949M0 12.6h9.75v9.45L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg></div>
+          <div class="platform-name">Windows 11</div>
+          <div class="platform-arch">arm64</div>
         </div>
         <div class="platform-card">
           <div class="platform-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
@@ -2051,7 +2056,7 @@
       <ul style="list-style: none; padding: 0; margin: 0;">
         <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Real-time microphone capture in Python, Node.js, or Rust applications</li>
         <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Streaming PCM audio to speech-to-text services, voice agents, or WebSocket pipelines</li>
-        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Local wake word detection with bundled Silero VAD</li>
+        <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Local voice activity detection with bundled Silero VAD</li>
         <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Recording audio to file for ASR batch jobs or CI smoke tests</li>
         <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300; border-bottom: 1px solid var(--border);"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Cross-platform deployment (Windows, macOS, Linux) without system audio dependencies</li>
         <li style="padding: 10px 0 10px 22px; position: relative; color: var(--text-secondary); font-size: 14.5px; line-height: 1.7; font-weight: 300;"><span style="position: absolute; left: 0; top: 14px; color: var(--accent); font-weight: 700; font-size: 13px;">✓</span>Server-side audio in voice agent backends, CLI tools, and edge devices</li>
@@ -2261,7 +2266,7 @@
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">What Python versions are supported?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>
-          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, and Windows x64.</p></div></div>
+          <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a">Decibri supports Python 3.10 and above on Windows, macOS, and Linux. Prebuilt wheels are published for Linux x64, Linux ARM64, macOS Apple Silicon, Windows x64, and Windows ARM64. On Windows ARM64 the minimum is Python 3.11, the first CPython release published for that platform.</p></div></div>
         </div>
         <div class="faq-item">
           <h3 class="faq-q"><button type="button" aria-expanded="false" onclick="toggleFaq(this)">Does decibri support asyncio?<svg class="faq-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button></h3>

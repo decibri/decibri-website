@@ -63,7 +63,7 @@
         <span class="cmd" id="install-cmd">pip install decibri</span>
         <svg class="copy-icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       </div>
-      <p>The install command above switches with the language tabs below. Pre-built binaries are included for Windows x64, macOS arm64, and Linux x64/arm64. No build tools or system audio libraries are needed. The Python wheel requires Python 3.10 or newer.</p>
+      <p>The install command above switches with the language tabs below. Pre-built binaries are included for Windows x64/arm64, macOS arm64, and Linux x64/arm64. No build tools are needed. The Python wheel requires Python 3.10 or newer (3.11 or newer on Windows arm64, the first CPython release published for that platform).</p>
 
       <h2>Quick start</h2>
       <p>Capture microphone audio and log the size of each chunk:</p>
@@ -315,7 +315,7 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
       </div>
 
       <h2>Platform support</h2>
-      <p>Pre-built binaries ship inside the npm package. No build tools, no compilation, no post-install downloads.</p>
+      <p>Pre-built binaries install with the package: pip fetches the wheel built for your platform, and npm adds the optional platform package that matches it. No build tools, no compilation, no post-install downloads.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -329,6 +329,11 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
             <tr>
               <td>Windows 11</td>
               <td>x64</td>
+              <td>WASAPI</td>
+            </tr>
+            <tr>
+              <td>Windows 11</td>
+              <td>arm64</td>
               <td>WASAPI</td>
             </tr>
             <tr>
@@ -349,7 +354,7 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
           </tbody>
         </table>
       </div>
-      <p>If no pre-built binary is available for your platform, installation will fail. There is no source build fallback.</p>
+      <p>Pre-built binaries are published for these five platforms only. On any other platform the npm package has no native addon to load, and pip falls back to building the PyPI source distribution, which needs a Rust toolchain and does not bundle ONNX Runtime.</p>
 
       <div class="related-links">
         <h2>Related</h2>
@@ -358,7 +363,7 @@ mic.pipe(speaker); // hear yourself in real time</code></pre>
           <li><a href="/docs/apis/node">Node.js API</a>: full constructor options, methods, events, and audio format details</li>
           <li><a href="/docs/integrations">Integrations</a>: STT, VAD, and KWS providers that consume decibri audio</li>
           <li><a href="/docs/integrations/stt">Speech-to-text overview</a>: compare all STT providers</li>
-          <li><a href="/docs/apis/browser">Browser API</a>: same library in the browser via AudioWorklet</li>
+          <li><a href="/docs/apis/browser">Browser API</a>: the separate browser build, for capture, energy VAD, and playback via AudioWorklet</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
           <li><a href="https://github.com/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
           <li><a href="https://pypi.org/project/decibri/" target="_blank" rel="noopener noreferrer">decibri on PyPI</a></li>
