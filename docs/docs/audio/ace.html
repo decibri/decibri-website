@@ -119,7 +119,7 @@ mic.on('data', (chunk) => {
       <p>Leave an option unset to keep that stage off. With every stage off, capture is unchanged.</p>
 
       <h2 id="pipeline">The pipeline</h2>
-      <p>Decibri opens the microphone and produces a raw block of samples. Before that block reaches you, it passes through normalization (downmix to mono and resample to your target rate), then the ACE conditioning chain. The chunk you receive is the conditioned output.</p>
+      <p>Decibri opens the microphone at the device's own channel count and sample rate, and produces a raw block of samples. Before that block reaches you, it passes through normalization, then the ACE conditioning chain. Normalization derives the channels you asked for and resamples them to your target rate. By default that is one channel, Decibri's own average of every device channel; <code>channels</code> and <code>channel_map</code> (<code>channelMap</code> in Node.js) choose other channels, as the <a href="/docs/apis/python#channels">Python</a> and <a href="/docs/apis/node#channels">Node.js</a> references describe. When <a href="/docs/audio/aec">echo cancellation</a> is on, it is the last step of normalization. The chunk you receive is the conditioned output.</p>
       <p>The conditioning stages always run in this fixed order, regardless of the order you pass the options:</p>
       <p style="text-align: center;"><code>DC removal &rarr; denoise &rarr; high-pass &rarr; AGC &rarr; limiter</code></p>
       <p>This order is deliberate. DC removal clears any constant offset first. Denoise runs early, on a near-full-band signal, so the model has the most to work with. The high-pass then trims low-frequency rumble below the voice band. AGC sets a consistent working level. The limiter sits last as a ceiling that catches any transient the AGC would let through.</p>
@@ -127,6 +127,14 @@ mic.on('data', (chunk) => {
       <div class="callout">
         <strong>VAD reads the pre-enhancement signal.</strong> Voice activity detection takes its reading after normalization but before the conditioning chain. Turning on enhancement does not change what counts as speech; it only changes the audio you receive. See <a href="/docs/integrations/vad">Voice activity detection</a>.
       </div>
+
+      <h3 id="multichannel">More than one channel</h3>
+      <p>When a chunk carries more than one channel, the chain runs on every delivered channel, and the stages divide into two kinds.</p>
+      <ul>
+        <li><strong>DC removal, denoise and the high-pass run on each channel separately.</strong> Each channel keeps its own filter state, and for denoise its own model state, so one channel's audio never affects how another channel is processed.</li>
+        <li><strong>AGC and the limiter are linked across the channels.</strong> One detector measures across all the channels, and one gain is applied to all of them, which keeps the balance between the channels. A loud passage on one channel lowers every channel by the same amount, instead of each channel's level being controlled on its own. The limiter's hard clamp, its final step, still acts on each sample by itself.</li>
+      </ul>
+      <p>At one channel there is nothing to link, and every stage works exactly as described below.</p>
 
       <h2 id="stages">The stages</h2>
       <p>Each stage is an independent option on the <code>Microphone</code> constructor. The names below are the Python form; the Node.js form is listed with each stage and in the <a href="#options">options reference</a>.</p>
@@ -174,7 +182,7 @@ mic.on('data', (chunk) => {
           <pre class="language-javascript"><code class="language-javascript">const mic = new Microphone({ denoise: 'fastenhancer-t' });</code></pre>
         </div>
       </div>
-      <p>Denoise is designed for 16 kHz audio, which is the default sample rate. It is the only stage that adds latency: the conditioned output is delivered in steps of 256 samples, about 16 ms at 16 kHz. The other stages are sample-for-sample and add none.</p>
+      <p>Denoise is designed for 16 kHz audio, which is the default sample rate. It is the only stage that adds latency: the conditioned output is delivered in steps of 256 samples on each channel, about 16 ms at 16 kHz. The other stages are sample-for-sample and add none.</p>
 
       <h3 id="highpass">High-pass</h3>
       <p>A second-order Butterworth high-pass filter that removes low-frequency rumble below the voice band, the kind of energy that comes from handling noise, air conditioning, or desk vibration. The cutoff is a fixed choice of <code>80</code> or <code>100</code> Hz, not a free frequency: pass one of those two integers.</p>
@@ -300,7 +308,7 @@ mic.on('data', (chunk) => {
           </tbody>
         </table>
       </div>
-      <p>An out-of-range value is rejected when the <code>Microphone</code> is constructed. Python raises <code>ValueError</code>; Node.js raises <code>TypeError</code> for an unknown denoise model and <code>RangeError</code> for an out-of-range high-pass, AGC, or limiter. <code>dc_removal</code> is a boolean and has no invalid value.</p>
+      <p>An out-of-range value is rejected when the <code>Microphone</code> is constructed, and the error class depends on the stage as well as the binding. In Python, an unknown denoise model or a high-pass other than 80 or 100 raises <code>ValueError</code>, an out-of-range AGC target raises <code>AgcTargetOutOfRange</code>, and an out-of-range limiter ceiling raises <code>LimiterCeilingOutOfRange</code>. Those two are <code>DecibriError</code> subclasses and do not derive from <code>ValueError</code>, so <code>except ValueError</code> does not catch them. Node.js throws <code>TypeError</code> for an unknown denoise model and <code>RangeError</code> for an out-of-range high-pass, AGC, or limiter. <code>dc_removal</code> is a boolean and has no invalid value.</p>
 
       <div class="callout">
         <strong>Not available in the browser.</strong> ACE is a native stage of the engine, so the conditioning options are available in the Node.js, Python, and Rust builds but not in the browser build. Audio from the browser <code>Microphone</code> therefore carries no ACE conditioning. See the <a href="/docs/apis/browser">Browser API</a>.
