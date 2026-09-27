@@ -303,7 +303,7 @@ mic.on('data', (chunk) => {
       <p>An out-of-range value is rejected when the <code>Microphone</code> is constructed. Python raises <code>ValueError</code>; Node.js raises <code>TypeError</code> for an unknown denoise model and <code>RangeError</code> for an out-of-range high-pass, AGC, or limiter. <code>dc_removal</code> is a boolean and has no invalid value.</p>
 
       <div class="callout">
-        <strong>Not available in the browser.</strong> ACE is a native stage of the engine, so the conditioning options are available in the Node.js, Python, and Rust builds but not in the browser build. Passing an ACE option to a browser <code>Microphone</code> has no effect. See the <a href="/docs/apis/browser">Browser API</a>.
+        <strong>Not available in the browser.</strong> ACE is a native stage of the engine, so the conditioning options are available in the Node.js, Python, and Rust builds but not in the browser build. Audio from the browser <code>Microphone</code> therefore carries no ACE conditioning. See the <a href="/docs/apis/browser">Browser API</a>.
       </div>
 
       <h2 id="per-language">Per-language detail</h2>

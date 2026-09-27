@@ -99,7 +99,7 @@
       </div>
 
       <h1>Welcome to the Decibri documentation</h1>
-      <p class="lead">This documentation is here to help you get up and running with decibri and integrate it into your voice and audio applications. Decibri is a cross-platform audio capture and output library available as a Python package, a Node.js package, a Rust library, a browser-side AudioWorklet, and a standalone CLI. The Rust core is built on cpal with pre-built binaries. One audio engine, five ways to use it.</p>
+      <p class="lead">This documentation is here to help you get up and running with Decibri and integrate it into your voice and audio applications. Decibri is a cross-platform audio capture and output library available as a Python package, a Node.js package, a Rust library, a browser-side AudioWorklet, and a standalone CLI. The Rust core is built on cpal with pre-built binaries. Every surface except the browser runs on that core; the browser build is a separate JavaScript implementation that carries capture, energy-based voice activity detection, and playback.</p>
 
       <h2>Getting started</h2>
       <div class="cards-grid">
@@ -194,7 +194,7 @@
       </div>
 
       <h2>APIs</h2>
-      <p>Decibri surfaces as four runtime bindings with the same API and chunk semantics. Python, Node.js, and the CLI share the same Rust audio backend; the browser shares the API through a JavaScript implementation.</p>
+      <p>Decibri has four interface surfaces. Python, Node.js, and the CLI share the same Rust audio backend; the browser build is a separate JavaScript implementation that carries capture, energy-based voice activity detection, and playback.</p>
       <div class="cards-grid cards-grid--api">
         <a href="/docs/apis/python" class="doc-card">
           <h3>Python API</h3>
@@ -206,7 +206,7 @@
         </a>
         <a href="/docs/apis/browser" class="doc-card">
           <h3>Browser API</h3>
-          <p>AudioWorklet implementation via conditional exports. Same npm package, same API shape, async permission flow.</p>
+          <p>AudioWorklet implementation via conditional exports. A separate build in the same npm package, carrying capture, energy VAD, and playback, with an async permission flow.</p>
         </a>
         <a href="/docs/apis/cli" class="doc-card">
           <h3>CLI API</h3>
