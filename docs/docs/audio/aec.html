@@ -90,7 +90,7 @@
       </ul>
 
       <h2 id="chain">Where it sits in the chain</h2>
-      <p>Capture is normalised to mono at the sample rate you asked for, and cancellation runs on that, ahead of every ACE conditioning stage. The speech detector reads the signal the moment cancellation has finished with it.</p>
+      <p>Capture is first converted to the channels and the sample rate you asked for, and cancellation runs on that, ahead of every ACE conditioning stage. It runs on every delivered channel: one canceller per channel, each fed the same reference you push and each finding its own channel's echo delay. The speech detector reads the signal the moment cancellation has finished with it.</p>
       <p style="text-align: center;"><code>capture &rarr; echo cancellation &rarr; ACE conditioning</code></p>
 
       <p>That ordering has two consequences.</p>
@@ -181,7 +181,7 @@ main();</code></pre>
       <p>The reference is the audio that went out to the speaker: the same samples you handed to the output device, at the moment you handed them over.</p>
       <p>It is not the source material as it stood before you processed it. It is not the file as it sat on disk. It is not what the microphone picked up. It is the output itself, as sent.</p>
       <p>So if you change the audio on its way to the speaker, by adjusting the volume, resampling it, or mixing in a notification chime, hand over what came out of that step rather than what went into it. The canceller is searching your capture for this exact signal, and the closer it matches what actually left the speaker, the more it can remove.</p>
-      <p>The reference is always mono, and always in the same sample format as the microphone, <code>int16</code> or <code>float32</code> as your <code>dtype</code> says.</p>
+      <p>The reference is always in the same sample format as the microphone, <code>int16</code> or <code>float32</code> as your <code>dtype</code> says. It is mono unless you say otherwise: a reference with more than one channel is accepted once you declare its channel count, and Decibri averages each frame to one mono sample before the canceller reads it. See <a href="#reference-channels">the channel count</a> below.</p>
 
       <h3 id="reference-silence">Silence counts</h3>
       <p>The reference is a continuous stream. Every moment of capture has a matching moment of playback, and while nothing is being played, that playback is silence.</p>
@@ -310,7 +310,7 @@ main();</code></pre>
       <p>One thing this pattern does not cover: if the player converts the audio again before it reaches the speaker, push what you gave the player and accept that the reference is one step removed from what was actually played. It usually still works.</p>
 
       <h3 id="reference-running">Push only while capture is running</h3>
-      <p>A push before capture is running is discarded silently. It is not counted as a drop, and no error is raised.</p>
+      <p>A push made while capture is not running, before it starts or after it stops, is discarded, and no error is raised. The two bindings count it differently. In Python it is not counted anywhere. In Node it is added to <code>referenceDropped</code>, which you can read once capture runs. With the <code>aec</code> option unset, a push does nothing in either binding and is not counted.</p>
       <p>The reliable check is the metrics accessor: it returns <code>null</code> until capture is running, and an object once it is. In Python, the context manager and <code>start()</code> both return with capture running, so a push straight afterwards is accepted. In Node the stream starts when you begin consuming it, so push from inside your <code>data</code> handler or your playback loop, not immediately after the constructor returns.</p>
 
       <h2 id="configuration">Configuration</h2>
@@ -340,6 +340,7 @@ b = Microphone(
         tail_ms=200,
         suppression="conservative",
         reference_sample_rate=16000,
+        reference_channels=1,
     ),
 )</code></pre>
         </div>
@@ -357,6 +358,7 @@ const b = new Microphone({
     tailMs: 200,
     suppression: 'conservative',
     referenceSampleRate: 16000,
+    referenceChannels: 1,
   },
 });</code></pre>
         </div>
@@ -378,10 +380,15 @@ const b = new Microphone({
       <p>The rate of the audio you push, in Hz. Accepted range 1000 to 384000. Unset means the reference is already at the capture rate.</p>
       <p>Set it whenever your playback rate differs from your capture rate. See <a href="#reference-rate">the rate section</a> above; this is the option that exists for it.</p>
 
+      <h3 id="reference-channels">referenceChannels / reference_channels</h3>
+      <p>The channel count of the audio you push, interleaved frame by frame. At least 1, with no upper limit, and default 1, which means the reference is mono.</p>
+      <p>Set it when the audio you play has more than one channel and you push it as it plays. Decibri averages each frame to one mono sample before the canceller reads it, because the canceller reads one mono reference. That is also a limit: with playback through more than one loudspeaker whose echo paths differ, some echo remains that adaptation does not remove.</p>
+      <p>The declared count must match what you push. A mismatch raises nothing, exactly as an undeclared rate raises nothing: the frames are misread, nothing is cancelled, and <code>delaySamples</code> stays <code>null</code>.</p>
+
       <h3 id="capture-constraints">Constraints on the capture</h3>
       <p>Echo cancellation requires <code>sampleRate</code> between 8000 and 48000, narrower than the range <code>sampleRate</code> otherwise accepts. A rate that is fine for a plain capture is rejected once echo cancellation is on.</p>
-      <p>Capture is mono, as it is for every decibri capture.</p>
-      <p>Echo cancellation is available on native capture only. The browser build does not take this option, because browser capture carries the platform's own <code>echoCancellation</code> constraint, which is on by default.</p>
+      <p>Echo cancellation runs one canceller per delivered channel, so its processing cost grows with <code>channels</code>.</p>
+      <p>Echo cancellation is available on native capture only. The browser build does not carry it; browser capture has the browser's own <code>echoCancellation</code> constraint instead, which is on by default.</p>
 
       <h2 id="diagnostics">Diagnostics</h2>
       <p><code>aecMetrics()</code> in Node, <code>aec_metrics()</code> in Python. Both return <code>null</code> / <code>None</code> when the <code>aec</code> option is unset or capture is not running, and an object otherwise.</p>
@@ -436,7 +443,7 @@ const b = new Microphone({
               <td><code>referenceDropped</code></td>
               <td><code>reference_dropped</code></td>
               <td>number</td>
-              <td>Far-end samples discarded because a push exceeded the queue, at the reference rate.</td>
+              <td>Far-end samples discarded, at the reference rate: a push that exceeded the queue, and in Node also a push made while capture was not running.</td>
             </tr>
             <tr>
               <td><code>referenceSilence</code></td>
@@ -444,24 +451,31 @@ const b = new Microphone({
               <td>number</td>
               <td>Far-end samples supplied as silence because none were pushed, at the capture rate.</td>
             </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td><code>channels</code></td>
+              <td>array (Node), tuple (Python)</td>
+              <td>One <code>AecChannelMetrics</code> per delivered channel, in delivered order: that channel's canceller report, with the six fields from <code>delaySamples</code> to <code>referenceReanchors</code>.</td>
+            </tr>
           </tbody>
         </table>
       </div>
+      <p>Each delivered channel has its own canceller. The first six fields report the canceller on the first delivered channel, and <code>channels</code> reports every one of them. <code>referenceDropped</code> and <code>referenceSilence</code> describe the one reference queue that all of them share. On a one-channel capture, <code>channels</code> holds a single entry that agrees with the top-level fields.</p>
 
       <h3 id="diagnostics-procedure">Working out what is wrong</h3>
       <p>Read the metrics while far-end audio is actually playing, and give it a few seconds. Then work down this list. The first match is your answer.</p>
       <ul>
-        <li><strong>The accessor returned null.</strong> Echo cancellation is off, or capture is not running. Check that you passed <code>aec</code>, and that capture has started. Any pushes you made in this state were discarded.</li>
+        <li><strong>The accessor returned null.</strong> Echo cancellation is off, or capture is not running. Check that you passed <code>aec</code>, and that capture has started. Any pushes you made in this state were discarded: Node counts the ones made with <code>aec</code> set in <code>referenceDropped</code> once capture runs, and Python does not count them.</li>
         <li><strong><code>delaySamples</code> is a number.</strong> The canceller has found your echo and is working. If echo is still audible, that is <a href="#limits">the limits section</a>, not a fault. Nothing below applies.</li>
         <li><strong><code>delaySamples</code> is null and <code>referenceSilence</code> is climbing at the same rate as <code>acquisitionParked</code>.</strong> No reference is reaching the canceller. Every sample it processed was silence it filled in for you. Either you are not calling the push method, or you are calling it before capture is running, or you are calling it on a different microphone instance than the one capturing.</li>
-        <li><strong><code>delaySamples</code> is null and <code>referenceDropped</code> is climbing.</strong> You are pushing faster than capture consumes, or in blocks longer than the queue. Push smaller blocks, in step with playback, rather than handing over long buffers.</li>
-        <li><strong><code>delaySamples</code> is null, <code>referenceSilence</code> is not climbing, and nothing is being dropped.</strong> The reference is arriving and is being consumed, but it does not line up with the echo. In order of likelihood: the rate is wrong and undeclared; the audio you are pushing is not the audio that played; or the far end is material the canceller cannot lock onto, which is covered in <a href="#limits">the limits</a>.</li>
+        <li><strong><code>delaySamples</code> is null and <code>referenceDropped</code> is climbing.</strong> You are pushing faster than capture consumes, or in blocks longer than the queue. Push smaller blocks, in step with playback, rather than handing over long buffers. In Node the count also includes pushes made while capture was not running, so push only once capture runs.</li>
+        <li><strong><code>delaySamples</code> is null, <code>referenceSilence</code> is not climbing, and nothing is being dropped.</strong> The reference is arriving and is being consumed, but it does not line up with the echo. In order of likelihood: the rate is wrong and undeclared; the audio you are pushing is not the audio that played; or the far end is material the canceller cannot lock onto, which is covered in <a href="#limits">the limits</a>. A declared <a href="#reference-channels">channel count</a> that does not match what you push looks the same.</li>
         <li><strong><code>referenceStarved</code> is climbing.</strong> You have run further ahead of your own capture than the canceller's history reaches. Push in step with playback.</li>
         <li><strong><code>referenceReanchors</code> is climbing steadily.</strong> Capture is being interrupted and the alignment keeps being rebuilt. Look at overruns and at whatever is stalling your capture loop, not at the canceller.</li>
       </ul>
 
       <div class="callout">
-        <strong>A note on <code>erleDb</code>.</strong> It rises while echo is being removed, sits near zero before the filter settles, and dips while adaptation is held during double talk. It moves around continuously in normal operation. Use it to see change over time, not as a pass mark; there is no threshold that means "working".
+        <strong>A note on <code>erleDb</code>.</strong> It rises while echo is being removed, sits near zero before the filter settles, and dips while adaptation is held during double talk. It moves around continuously in normal operation. Use it to see change over time, not as a pass mark; there is no threshold that means "working". Above one channel it is not a ranking across channels either: it rises with echo distance, because a weaker echo is easier to reduce in ratio terms, so a far microphone can report a higher figure than a near one while removing less echo in absolute terms. Compare a channel with its own history, not with its neighbours.
       </div>
 
       <div class="code-tabs code-tabs-flat" data-tab-group="code">
@@ -503,7 +517,7 @@ const b = new Microphone({
     return 'no reference is reaching the canceller';
   }
   if (m.referenceDropped &gt; 0) {
-    return 'pushes are being discarded: push smaller blocks, in step with playback';
+    return 'pushes are being discarded: push smaller blocks, in step with playback, while capture runs';
   }
   return 'reference is arriving but nothing has aligned: check the rate';
 }</code></pre>
@@ -544,7 +558,7 @@ const b = new Microphone({
       <p><strong>Fix:</strong> leave the option off. Detect the output route if your application supports both, and only enable it for the loudspeaker case.</p>
 
       <h3 id="mistake-early-push">Pushing before capture is running</h3>
-      <p><strong>Symptom:</strong> pushes vanish. <code>referenceDropped</code> stays at zero, because a discarded push is not a dropped sample.</p>
+      <p><strong>Symptom:</strong> pushes vanish. In Python, <code>reference_dropped</code> stays at zero, because a push made while capture is not running is not counted. In Node, the discarded samples are added to <code>referenceDropped</code>, so the count is already above zero when capture starts.</p>
       <p><strong>Fix:</strong> check that the metrics accessor returns an object before you rely on pushes. In Node, push from inside the playback loop or the <code>data</code> handler.</p>
 
       <h3 id="mistake-one-push">Handing over a whole utterance in one push</h3>
@@ -552,7 +566,7 @@ const b = new Microphone({
       <p><strong>Fix:</strong> the queue spans two seconds at the reference rate. Push in blocks, in step with playback.</p>
 
       <h3 id="mistake-format">Pushing a buffer in the wrong sample format</h3>
-      <p><strong>Symptom:</strong> in Python, a <code>TypeError</code> naming the mismatch. In Node, no error at all: the bytes are taken as they are and reinterpreted in the microphone's <code>dtype</code>, so a <code>Float32Array</code> pushed into an <code>int16</code> capture is read as noise and nothing aligns.</p>
+      <p><strong>Symptom:</strong> it depends on what you push. An array that carries its own sample type is checked, and one of the other <code>dtype</code> raises <code>TypeError</code> naming the mismatch: an ndarray in Python, or a typed array in Node, such as a <code>Float32Array</code> pushed into an <code>int16</code> capture. Raw bytes carry no sample type and cannot be checked: Python <code>bytes</code>, and a Node <code>Buffer</code>, <code>Uint8Array</code> or <code>DataView</code>, are read in the microphone's <code>dtype</code> as they stand, so bytes in the other format are read as noise, nothing aligns, and no error is raised.</p>
       <p><strong>Fix:</strong> push in the same <code>dtype</code> the microphone was constructed with.</p>
 
       <h3 id="mistake-metrics-after-stop">Expecting <code>stop()</code> to preserve the metrics</h3>
@@ -562,10 +576,10 @@ const b = new Microphone({
       <h2 id="per-language">Per-language detail</h2>
       <p>The exhaustive signatures, the config and metrics types, the async surface, and the error tables live on the binding reference pages:</p>
       <ul>
-        <li><a href="/docs/apis/python#aec">Python API</a>: the <code>aec</code> option, the <code>Aec</code> and <code>AecMetrics</code> dataclasses, <code>push_aec_reference()</code>, <code>aec_metrics()</code>, the <code>AsyncMicrophone</code> surface, and the exception rows.</li>
-        <li><a href="/docs/apis/node#aec">Node.js API</a>: the <code>aec</code> option, the <code>AecOptions</code> and <code>AecMetrics</code> interfaces, <code>pushAecReference()</code>, <code>aecMetrics()</code>, and the error classes with their <code>code</code> values.</li>
+        <li><a href="/docs/apis/python#aec">Python API</a>: the <code>aec</code> option, the <code>Aec</code>, <code>AecMetrics</code> and <code>AecChannelMetrics</code> dataclasses, <code>push_aec_reference()</code>, <code>aec_metrics()</code>, the <code>AsyncMicrophone</code> surface, and the exception rows.</li>
+        <li><a href="/docs/apis/node#aec">Node.js API</a>: the <code>aec</code> option, the <code>AecOptions</code>, <code>AecMetrics</code> and <code>AecChannelMetrics</code> interfaces, <code>pushAecReference()</code>, <code>aecMetrics()</code>, and the error classes with their <code>code</code> values.</li>
       </ul>
-      <p>The same capability is available in the Rust API, where the option and the reference push sit on the capture builder. See the crate documentation for the Rust signatures.</p>
+      <p>The same capability is available in the Rust API. Echo cancellation is the <code>aec</code> field of <code>MicrophoneConfig</code>, with its settings in the <code>aec_tail_ms</code>, <code>aec_suppression</code>, <code>aec_reference_sample_rate</code> and <code>aec_reference_channels</code> fields, and the reference push and the metrics are the <code>push_aec_reference</code>, <code>aec_metrics</code> and <code>aec_metrics_per_channel</code> methods of the <code>MicrophoneStream</code> that <code>Microphone::start()</code> returns. See the crate documentation for the Rust signatures.</p>
 
       <div class="related-links">
         <h2>Related</h2>

@@ -85,7 +85,7 @@
       <p><strong>One surface across the bindings.</strong> The same conditioning options, with the same names and ranges, are available from Python, Node.js, and Rust. The browser build is the exception: ACE is native, so it is not available there.</p>
 
       <h2>How it fits</h2>
-      <p>ACE sits between capture and your code. Decibri opens the microphone, normalizes the signal to mono at your target sample rate, then runs the conditioning chain before handing you each chunk. Voice activity detection reads the signal before the chain, so turning on enhancement does not change what counts as speech; only the audio you receive is conditioned. From there the conditioned audio flows out to whatever consumes it: a speech-to-text provider, a recording, or your own pipeline. See <a href="/docs/integrations">Integrations</a> for connecting that audio to external models.</p>
+      <p>ACE sits between capture and your code. Decibri opens the microphone, normalizes the signal to the channels and sample rate you asked for (by default one channel, Decibri's own average of every device channel), then runs the conditioning chain before handing you each chunk. Voice activity detection reads the signal before the chain, so turning on enhancement does not change what counts as speech; only the audio you receive is conditioned. From there the conditioned audio flows out to whatever consumes it: a speech-to-text provider, a recording, or your own pipeline. See <a href="/docs/integrations">Integrations</a> for connecting that audio to external models.</p>
 
       <div class="related-links">
         <h2>Related</h2>
