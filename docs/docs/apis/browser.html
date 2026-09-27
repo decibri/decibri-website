@@ -57,7 +57,28 @@
       </div>
 
       <h1>Browser API</h1>
-      <p class="lead">Decibri includes browser support via conditional exports. When imported in a browser bundle (webpack, vite, etc.), it uses getUserMedia and AudioWorklet to capture raw PCM audio chunks in real-time. Same API as the Node.js version, same npm package.</p>
+      <p class="lead">Decibri includes a browser build, selected through conditional exports. When the <code>decibri</code> npm package is imported in a browser bundle (webpack, vite, and similar), it resolves to a separate JavaScript implementation that uses getUserMedia and AudioWorklet to capture raw PCM audio chunks in real time and to play PCM audio. The browser build carries capture with channel selection, resampling, energy-based voice activity detection, and playback: a subset of the native engine, listed in full under <a href="#browser-build">What the browser build carries</a>.</p>
+
+      <h2 id="browser-build">What the browser build carries</h2>
+      <p>The browser build exports <code>Microphone</code> and <code>Speaker</code>, plus the <code>Emitter</code> base class that <code>Microphone</code> extends. Between them they carry:</p>
+      <ul>
+        <li><code>Microphone</code> capture through getUserMedia and an AudioWorklet, with channel selection (<code>channels</code>, <code>channelMap</code>, and the <code>vad</code> config object's <code>source</code>; see <a href="#channels">Channels</a>), resampling to <code>sampleRate</code>, and <code>'int16'</code> or <code>'float32'</code> samples</li>
+        <li>Energy-based voice activity detection (<code>vad: 'energy'</code> or a <code>VadOptions</code> object), with the <code>'speech'</code> and <code>'silence'</code> events and <code>vadScore</code></li>
+        <li><code>Speaker</code> playback through an output AudioWorklet, on 1 to 32 output channels</li>
+      </ul>
+      <p>The rest of the native engine is not in the browser build:</p>
+      <ul>
+        <li>The conditioning chain: <code>dcRemoval</code>, <code>denoise</code>, <code>highpass</code>, <code>agc</code>, and <code>limiter</code></li>
+        <li>Silero voice activity detection (<code>vad: 'silero'</code>) and <code>modelPath</code></li>
+        <li>Decibri's echo cancellation: the <code>aec</code> option, <code>pushAecReference()</code>, and <code>aecMetrics()</code></li>
+        <li><code>File</code> and <code>AudioWriter</code>, and with them audio file reading, whole-recording analysis, and saving</li>
+        <li><code>Microphone.open()</code> and <code>Speaker.open()</code></li>
+        <li>The capture and playback counters, <code>overrunCount</code> and <code>underrunCount</code></li>
+        <li>The Node.js stream interfaces: <code>Readable</code> and <code>Writable</code>, <code>pipe()</code>, and the <code>'backpressure'</code> event</li>
+        <li><code>DecibriError</code> and its subclasses, and the <code>code</code> property they carry</li>
+        <li>The module-level <code>inputDevices()</code>, <code>outputDevices()</code>, and <code>version()</code> functions</li>
+      </ul>
+      <p>Audio from the browser <code>Microphone</code> therefore carries no Decibri conditioning or echo cancellation. Any processing applied to it is the browser's own capture processing, such as the echo cancellation and noise suppression that the <code>echoCancellation</code> and <code>noiseSuppression</code> options switch on and off. To condition audio, cancel echo, run Silero, or work with audio files, use the native Node.js entry of the same package (see the <a href="/docs/apis/node">Node.js API</a>) or the <a href="/docs/apis/python">Python API</a>.</p>
 
       <h2>Quickstart</h2>
       <div class="table-wrap">
@@ -197,7 +218,8 @@ await mic.start();</code></pre>
         </div>
       </div>
 
-      <p>The browser build runs energy-mode VAD only. Pass <code>vad: 'energy'</code> for defaults, or a <code>VadOptions</code> object to tune detection: <code>{ model: 'energy', threshold?, holdoffMs? }</code>. <code>model</code> is <code>'energy'</code>, the only browser detector. <code>threshold</code> is a number in <code>[0, 1]</code> (default <code>0.01</code>; a value outside the range throws <code>TypeError</code>). <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>; a negative value throws <code>TypeError</code>).</p>
+      <p>The browser build runs energy-mode VAD only. Pass <code>vad: 'energy'</code> for defaults, or a <code>VadOptions</code> object to tune detection: <code>{ model: 'energy', threshold?, holdoffMs?, source? }</code>. <code>model</code> is <code>'energy'</code>, the only browser detector. <code>threshold</code> is a number in <code>[0, 1]</code> (default <code>0.01</code>). <code>holdoffMs</code> is the milliseconds of sub-threshold audio before <code>'silence'</code> is emitted (default <code>300</code>). <code>source</code> names the delivered channel the detector reads (see <a href="#channels">Channels</a>). A <code>threshold</code> or <code>holdoffMs</code> that is not a number, or a <code>source</code> that is not an integer, throws <code>TypeError</code>; a <code>threshold</code> outside <code>[0, 1]</code>, a negative <code>holdoffMs</code>, or a <code>source</code> outside 0 to 65535 or not below <code>channels</code> throws <code>RangeError</code>. The messages are listed under <a href="#mic-validation">Constructor validation</a> and, for <code>source</code>, under <a href="#channels">Channels</a>.</p>
+      <p>The detector reads one mono signal. Above one delivered channel that signal is the frame average of every delivered channel, unless <code>source</code> names one delivered channel for the detector to read instead. <code>vadScore</code> and the <code>'speech'</code> and <code>'silence'</code> events describe that signal; the audio the <code>'data'</code> event carries is not changed by it.</p>
 
       <h3>WebSocket streaming</h3>
       <div class="code-tabs" data-tab-group="code">
@@ -259,7 +281,7 @@ document.getElementById('stop').onclick = () => mic.stop();</code></pre>
       </div>
 
       <h3>CSP-restricted environments</h3>
-      <p>By default, decibri loads its AudioWorklet processor via an inline Blob URL. If your Content Security Policy blocks <code>blob:</code> URLs:</p>
+      <p>By default, Decibri loads its AudioWorklet processor via an inline Blob URL. If your Content Security Policy blocks <code>blob:</code> URLs:</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-8-browser" aria-controls="code-panel-8-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
@@ -302,13 +324,19 @@ const mic = new Microphone(options?);</code></pre>
               <td><code>sampleRate</code></td>
               <td><code>number</code></td>
               <td><code>16000</code></td>
-              <td>Target sample rate in Hz (1,000 to 384,000)</td>
+              <td>Target sample rate in Hz (1,000 to 384,000). Capture runs at the audio context's rate, which the browser chooses, and the capture worklet converts each delivered channel to this rate by linear interpolation</td>
             </tr>
             <tr>
               <td><code>channels</code></td>
               <td><code>number</code></td>
               <td><code>1</code></td>
-              <td>Number of channels (1 to 32; browsers reliably support 1)</td>
+              <td>Number of channels each <code>'data'</code> chunk delivers, interleaved frame by frame. At least 1, with no fixed maximum; without a <code>channelMap</code>, the channel count the browser grants is the ceiling. <code>1</code> is the average of every granted channel, where earlier releases delivered the first granted channel alone; a one-channel grant is unchanged. Below <code>1</code> throws <code>RangeError</code>. See <a href="#channels">Channels</a> for what a browser typically grants and the counts that work without a <code>channelMap</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code></td>
+              <td><code>number[]</code></td>
+              <td>(none)</td>
+              <td>0-based <strong>granted</strong> channel indices, one per delivered channel: delivered channel <code>j</code> carries granted channel <code>channelMap[j]</code>. The length must equal <code>channels</code>. Entries may repeat and their order is significant. Omit it to take the derivation <code>channels</code> describes. See <a href="#channels">Channels</a></td>
             </tr>
             <tr>
               <td><code>framesPerBuffer</code></td>
@@ -332,19 +360,19 @@ const mic = new Microphone(options?);</code></pre>
               <td><code>vad</code></td>
               <td><code>false | 'energy' | VadOptions</code></td>
               <td><code>false</code></td>
-              <td>Voice activity detection. <code>false</code> disables it; <code>'energy'</code> enables it with default tuning; pass a <code>VadOptions</code> object (<code>{ model: 'energy', threshold?, holdoffMs? }</code>) to tune the threshold and holdoff</td>
+              <td>Voice activity detection. <code>false</code> disables it; <code>'energy'</code> enables it with default tuning; pass a <code>VadOptions</code> object (<code>{ model: 'energy', threshold?, holdoffMs?, source? }</code>) to tune the threshold, the holdoff, and the delivered channel the detector reads</td>
             </tr>
             <tr>
               <td><code>echoCancellation</code></td>
               <td><code>boolean</code></td>
               <td><code>true</code></td>
-              <td>Browser echo cancellation. Set <code>false</code> for music/tuner apps</td>
+              <td>The browser's own echo cancellation, not Decibri's. Set <code>false</code> for music/tuner apps, and for a multichannel capture (see <a href="#channels">Channels</a>)</td>
             </tr>
             <tr>
               <td><code>noiseSuppression</code></td>
               <td><code>boolean</code></td>
               <td><code>true</code></td>
-              <td>Browser noise suppression. Set <code>false</code> for raw signal</td>
+              <td>The browser's own noise suppression, not Decibri's. Set <code>false</code> for raw signal, and for a multichannel capture (see <a href="#channels">Channels</a>)</td>
             </tr>
             <tr>
               <td><code>workletUrl</code></td>
@@ -356,12 +384,193 @@ const mic = new Microphone(options?);</code></pre>
         </table>
       </div>
 
-      <p>The constructor validates synchronously and throws <code>TypeError</code> for invalid options: a <code>sampleRate</code>, <code>channels</code>, or <code>framesPerBuffer</code> outside its range, a <code>dtype</code> other than <code>'int16'</code> or <code>'float32'</code>, or an invalid <code>vad</code> value. For backward compatibility, the removed <code>vad: true</code> shorthand and the flat <code>vadThreshold</code> and <code>vadHoldoff</code> options also throw <code>TypeError</code> with a migration message; pass tuning on the <code>vad</code> config object instead.</p>
+      <h4 id="mic-validation">Constructor validation</h4>
+      <p>The constructor validates synchronously, before any permission is requested, and throws a built-in <code>RangeError</code> or <code>TypeError</code> for an invalid option. The classes are not uniform: an out-of-range <code>sampleRate</code> is a <code>RangeError</code>, and an out-of-range <code>framesPerBuffer</code> is a <code>TypeError</code>. The removed <code>vad: true</code> shorthand and the flat <code>vadThreshold</code> and <code>vadHoldoff</code> options throw <code>TypeError</code> with a migration message; pass tuning on the <code>vad</code> config object instead. The rows for <code>channels</code>, <code>channelMap</code>, and <code>vad.source</code> are in the <a href="#channels">Channels</a> table.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>sampleRate</code> outside 1,000 to 384,000</td>
+              <td><code>RangeError</code></td>
+              <td><code>sample rate must be between 1000 and 384000</code></td>
+            </tr>
+            <tr>
+              <td><code>framesPerBuffer</code> outside 64 to 65,536</td>
+              <td><code>TypeError</code></td>
+              <td><code>frames per buffer must be between 64 and 65536, got &lt;n&gt;</code></td>
+            </tr>
+            <tr>
+              <td><code>dtype</code> not <code>'int16'</code> or <code>'float32'</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>dtype must be 'int16' or 'float32'</code></td>
+            </tr>
+            <tr>
+              <td><code>vad</code> not <code>false</code>, <code>'energy'</code>, or a config object</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid vad value: &lt;value&gt;. Expected false, 'energy', or a config object { model, threshold, holdoffMs, source }.</code></td>
+            </tr>
+            <tr>
+              <td>A <code>vad</code> config object whose <code>model</code> is not <code>'energy'</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid vad model: &lt;value&gt;. Expected 'energy'.</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.threshold</code> is not a number</td>
+              <td><code>TypeError</code></td>
+              <td><code>vad threshold must be a number</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.threshold</code> outside <code>[0, 1]</code></td>
+              <td><code>RangeError</code></td>
+              <td><code>vad threshold must be between 0 and 1</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.holdoffMs</code> is not a number</td>
+              <td><code>TypeError</code></td>
+              <td><code>vad holdoffMs must be a number</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.holdoffMs</code> negative</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad holdoffMs must be non-negative</code></td>
+            </tr>
+            <tr>
+              <td><code>vad: true</code></td>
+              <td><code>TypeError</code></td>
+              <td><code>vad: true is no longer supported. Specify the mode explicitly: vad: 'energy'.</code></td>
+            </tr>
+            <tr>
+              <td><code>vadThreshold</code> or <code>vadHoldoff</code> passed</td>
+              <td><code>TypeError</code></td>
+              <td><code>vadThreshold and vadHoldoff are no longer supported. Pass them on the vad config object: vad: { model: 'energy', threshold: 0.01, holdoffMs: 300 }.</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="channels">Channels</h3>
+      <p><code>channels</code> is a delivered count: the number of channels in every <code>'data'</code> chunk, interleaved frame by frame, so a chunk holds <code>framesPerBuffer * channels</code> samples. It works the way <code>sampleRate</code> does. The browser, not Decibri, decides how many channels the capture carries. <code>start()</code> asks getUserMedia for 32 channels as an ideal value rather than a requirement, so the browser grants the count it can serve instead of refusing, and Decibri derives the delivered channels from the channels of the granted track.</p>
+      <p>What the browser grants is the ceiling. A browser typically grants one processed channel while <code>echoCancellation</code> or <code>noiseSuppression</code> is on, and both are on by default, so a multichannel capture generally needs both set to <code>false</code>.</p>
+      <p>Without a <code>channelMap</code>, two counts can be derived:</p>
+      <ul>
+        <li><code>channels: 1</code>, the default, delivers the average of every granted channel. The average is each frame's arithmetic mean, accumulated in single precision in the same way the native engine computes its own average, so the two agree sample for sample on the same input. A one-channel grant is passed on without averaging.</li>
+        <li>A count equal to the granted count delivers every granted channel, in granted order.</li>
+      </ul>
+      <p>Any other count above 1 without a map is refused when capture starts, because the granted count is only known once the browser has answered. A count above the granted count is refused because Decibri cannot deliver a channel the browser did not grant. A count above 1 but below the granted count is refused because it does not say which of the granted channels it means. A <code>channelMap</code> lifts both refusals, because it names every delivered channel.</p>
+      <p><code>channelMap</code> names <strong>granted</strong> channels. It is an array of 0-based indices into the channels of the granted track, with one entry per delivered channel, so its length must equal <code>channels</code>: delivered channel <code>j</code> carries granted channel <code>channelMap[j]</code>. Entries may repeat and their order is significant, so a map can select, reorder and duplicate granted channels, and it can deliver more channels than the browser granted. <code>channelMap: [1]</code> with <code>channels: 1</code> delivers the second granted channel alone, and <code>channelMap: [1, 0]</code> with <code>channels: 2</code> swaps a stereo pair. An entry at or above the granted count is refused when capture starts.</p>
+      <p><code>vad.source</code> names a <strong>delivered</strong> channel. It is a position in the <code>'data'</code> chunk, counted after <code>channelMap</code> has been applied, and never an index into the granted channels. Omitted, the detector reads the frame average of every delivered channel; set, it reads that one delivered channel. It must be below <code>channels</code>, and it changes only what the detector reads, not the audio the <code>'data'</code> event carries.</p>
+      <div class="callout">
+        <strong>Note:</strong> The two indices count different things. <code>channelMap</code> counts the granted channels; <code>vad.source</code> counts the channels of the chunk you receive. With <code>channelMap: [2, 0]</code>, delivered channel 0 is granted channel 2, so <code>source: 0</code> runs the detector on granted channel 2, and <code>source: 2</code> throws a <code>RangeError</code>, because only two channels are delivered.
+      </div>
+      <div class="code-tabs" data-tab-group="code">
+        <div class="code-tab-bar" role="tablist" aria-label="Language">
+          <button class="code-tab-btn" id="code-tab-15-browser" aria-controls="code-panel-15-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
+        </div>
+        <div class="code-tab-panel" id="code-panel-15-browser" aria-labelledby="code-tab-15-browser" data-lang="browser" role="tabpanel">
+          <pre class="language-javascript"><code class="language-javascript">import { Microphone } from 'decibri';
+
+// Needs a grant of at least three channels, which generally means
+// turning the browser's own processing off.
+// Deliver granted channels 2 and 0, in that order. source: 0 names
+// delivered channel 0, which carries granted channel 2.
+const mic = new Microphone({
+  channels: 2,
+  channelMap: [2, 0],
+  vad: { model: 'energy', source: 0 },
+  echoCancellation: false,
+  noiseSuppression: false,
+});
+
+mic.on('error', (err) => console.error(err.message));
+mic.on('data', (chunk) => {
+  // Int16Array, interleaved: granted channel 2, then granted channel 0
+});
+
+await mic.start();</code></pre>
+        </div>
+      </div>
+      <p>The constructor checks everything that does not need the grant. <code>start()</code> checks the rest against the channel count the browser reports for the granted track, before any audio is delivered, and rejects with a plain <code>Error</code> that the <code>'error'</code> event also carries. Where the browser does not report the granted count, <code>start()</code> resolves, and the same <code>Error</code> arrives on <code>'error'</code> once the audio graph reports the true count; capture then stops, emitting <code>'end'</code> and <code>'close'</code>. Attach an <code>'error'</code> listener before calling <code>start()</code>. At <code>channels: 1</code> with no map there is nothing to check, because the average serves any grant.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Condition</th>
+              <th>Class</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>channels</code> below 1 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channels must be at least 1</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> is not an array (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>Invalid channelMap value: &lt;value&gt;. Expected an array of 0-based device channel indices, such as [0].</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry that is not an integer (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>channelMap entries must be integers</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry outside 0 to 65535 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap entries must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code> length differs from <code>channels</code> (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>channelMap must have exactly one entry per channel</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> is not an integer (constructor)</td>
+              <td><code>TypeError</code></td>
+              <td><code>vad source must be an integer</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> outside 0 to 65535 (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>vad source must be between 0 and 65535</code></td>
+            </tr>
+            <tr>
+              <td><code>vad.source</code> not below <code>channels</code> (constructor)</td>
+              <td><code>RangeError</code></td>
+              <td><code>the detector source names delivered channel &lt;i&gt;; the delivered channel count is &lt;n&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above the granted count (<code>start()</code> or <code>'error'</code>)</td>
+              <td><code>Error</code></td>
+              <td><code>the input device does not support &lt;requested&gt; delivered channels; it reports &lt;granted&gt;</code></td>
+            </tr>
+            <tr>
+              <td>No <code>channelMap</code>, and <code>channels</code> above 1 but below the granted count (<code>start()</code> or <code>'error'</code>)</td>
+              <td><code>Error</code></td>
+              <td><code>a channel map is required to deliver &lt;requested&gt; of the device's &lt;granted&gt; input channels</code></td>
+            </tr>
+            <tr>
+              <td>A <code>channelMap</code> entry at or above the granted count (<code>start()</code> or <code>'error'</code>)</td>
+              <td><code>Error</code></td>
+              <td><code>the channel map names device channel &lt;index&gt;; the device reports &lt;granted&gt; input channels</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The constructor rows use the same classes and messages as the Node.js <code>Microphone</code>. The three grant refusals are plain <code>Error</code> objects with no <code>code</code>, since the browser build has no <code>DecibriError</code>; their messages are the native ones, so they say "device" where this page says "granted". A <code>'data'</code> handler that reads each chunk as a run of mono samples needs <code>channels: 1</code>; any higher count that the grant serves delivers interleaved frames.</p>
 
       <h3>Methods</h3>
 
       <h4><code>mic.start()</code></h4>
-      <p>Returns <code>Promise&lt;void&gt;</code>. Requests microphone permission and begins capture. Must be called from a user gesture in Safari. No-op if already started, and a call made while a start is still in progress returns that same pending promise rather than starting a second pipeline. Rejects with a clear error on permission denial.</p>
+      <p>Returns <code>Promise&lt;void&gt;</code>. Requests microphone permission and begins capture. Must be called from a user gesture in Safari. No-op if already started, and a call made while a start is still in progress returns that same pending promise rather than starting a second pipeline. Rejects with a clear error on permission denial. When <code>channels</code> is above 1 or a <code>channelMap</code> is set, this is also where they are checked against the channel count the browser grants; see <a href="#channels">Channels</a>.</p>
 
       <h4><code>mic.stop()</code></h4>
       <p>Stops capture and releases all resources (tracks, context, nodes). Safe to call anytime, including before <code>start()</code> or multiple times. When it stops an active capture it emits <code>'end'</code> then <code>'close'</code>; calling it before <code>start()</code> or after it has already stopped is a no-op and emits nothing.</p>
@@ -372,7 +581,7 @@ const mic = new Microphone(options?);</code></pre>
       <p><code>boolean</code> (read-only). Returns <code>true</code> while actively capturing audio.</p>
 
       <h4><code>mic.vadScore</code></h4>
-      <p><code>number</code> (read-only). Most recent VAD score: the normalized RMS energy of the last chunk, in <code>[0, 1]</code>. The browser runs energy VAD only, so this is always the energy score (there is no Silero in the browser build). <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events.</p>
+      <p><code>number</code> (read-only). Most recent VAD score: the normalized RMS energy of the last chunk, in <code>[0, 1]</code>. Above one delivered channel it is the RMS of each frame's average across the delivered channels, or of the one channel <code>vad.source</code> names. The browser runs energy VAD only, so this is always the energy score (there is no Silero in the browser build). <code>0</code> when VAD is disabled or before the first chunk is processed. This is the raw per-chunk view; the debounced speaking state is surfaced through the <code>'speech'</code> and <code>'silence'</code> events.</p>
 
       <h3>Static methods</h3>
 
@@ -393,7 +602,7 @@ console.log(devices);
       </div>
 
       <h4><code>Microphone.version()</code></h4>
-      <p>Returns version information for decibri.</p>
+      <p>Returns version information. The browser build has no native core, so <code>decibri</code> reports the installed package version.</p>
       <div class="code-tabs" data-tab-group="code">
         <div class="code-tab-bar" role="tablist" aria-label="Language">
           <button class="code-tab-btn" id="code-tab-11-browser" aria-controls="code-panel-11-browser" role="tab" data-lang="browser" aria-selected="true">Browser</button>
@@ -424,7 +633,7 @@ console.log(devices);
             <tr>
               <td><code>'error'</code></td>
               <td><code>Error</code></td>
-              <td>Emitted with the same <code>Error</code> that rejects <code>start()</code>: <code>Microphone permission denied</code>, <code>No microphone found</code>, or <code>Failed to load audio worklet: ...</code>.</td>
+              <td>Emitted with the same <code>Error</code> that rejects <code>start()</code>, such as <code>Microphone permission denied</code>, <code>No microphone found</code>, <code>Microphone access failed: ...</code>, <code>Failed to load audio worklet: ...</code>, or a channel refusal (see <a href="#channels">Channels</a>). Where the browser does not report the granted channel count, a channel refusal is emitted here after <code>start()</code> has resolved, and capture then stops.</td>
             </tr>
             <tr>
               <td><code>'end'</code></td>
@@ -475,6 +684,7 @@ console.log(devices);
   model: 'energy',
   threshold?: number,  // [0, 1], default 0.01
   holdoffMs?: number,  // default 300
+  source?: number,     // delivered channel; default the frame average
 }</code></pre>
         </div>
       </div>
@@ -507,7 +717,7 @@ console.log(devices);
               <td><code>'data'</code> payload</td>
               <td><code>Buffer</code></td>
               <td><code>Int16Array</code> / <code>Float32Array</code></td>
-              <td>Different types, same PCM data</td>
+              <td>Different types, same interleaved sample layout</td>
             </tr>
             <tr>
               <td><code>devices()</code></td>
@@ -531,13 +741,19 @@ console.log(devices);
               <td><code>echoCancellation</code></td>
               <td>N/A</td>
               <td><code>boolean</code> (default <code>true</code>)</td>
-              <td>Browser-only option</td>
+              <td>Browser-only option: the browser's own processing, not Decibri's <code>aec</code></td>
             </tr>
             <tr>
               <td><code>noiseSuppression</code></td>
               <td>N/A</td>
               <td><code>boolean</code> (default <code>true</code>)</td>
-              <td>Browser-only option</td>
+              <td>Browser-only option: the browser's own processing, not Decibri's <code>denoise</code></td>
+            </tr>
+            <tr>
+              <td>Conditioning chain, Silero, <code>aec</code>, <code>File</code>, <code>AudioWriter</code></td>
+              <td>Available</td>
+              <td>Not in the browser build</td>
+              <td>See <a href="#browser-build">What the browser build carries</a></td>
             </tr>
             <tr>
               <td><code>'backpressure'</code> event</td>
@@ -553,15 +769,33 @@ console.log(devices);
             </tr>
             <tr>
               <td><code>channels</code></td>
-              <td>Mono only (other values throw)</td>
-              <td><code>1</code> to <code>32</code></td>
-              <td>The browser accepts a channel count from 1 to 32; Node captures mono only</td>
+              <td>At least 1; without a <code>channelMap</code>, the device's own channel count is the ceiling</td>
+              <td>At least 1; without a <code>channelMap</code>, the granted channel count is the ceiling</td>
+              <td>Same rules. A browser typically grants one channel while its own processing is on</td>
+            </tr>
+            <tr>
+              <td><code>channelMap</code>, <code>vad.source</code></td>
+              <td>Map entries are device channel indices; <code>source</code> is a delivered position</td>
+              <td>Map entries are granted channel indices; <code>source</code> is a delivered position</td>
+              <td>Same values, same constructor classes and messages</td>
+            </tr>
+            <tr>
+              <td>Channel refusals when capture starts</td>
+              <td><code>DecibriError</code> with a <code>code</code>, on <code>'error'</code></td>
+              <td>Plain <code>Error</code>, rejecting <code>start()</code> or on <code>'error'</code></td>
+              <td>Same messages; no <code>code</code> in the browser</td>
             </tr>
             <tr>
               <td><code>sampleRate</code></td>
-              <td>Any (cpal resamples)</td>
-              <td>Any (AudioWorklet resamples)</td>
-              <td>Same behavior</td>
+              <td>1,000 to 384,000. The device opens at its native rate and Decibri's own polyphase resampler converts</td>
+              <td>1,000 to 384,000. Capture runs at the audio context's rate and the capture worklet converts by linear interpolation</td>
+              <td>Same target rate, different resamplers</td>
+            </tr>
+            <tr>
+              <td><code>framesPerBuffer</code> out of range</td>
+              <td><code>RangeError</code></td>
+              <td><code>TypeError</code></td>
+              <td>Different classes for the same condition</td>
             </tr>
             <tr>
               <td><code>dtype</code></td>
@@ -708,8 +942,13 @@ const speaker = new Speaker(options?);</code></pre>
             </tr>
             <tr>
               <td>Start</td>
-              <td>Opens on construct or first write; <code>Speaker.open()</code> factory</td>
+              <td>Constructing resolves the device, and the stream opens at the first write; <code>Speaker.open()</code> factory</td>
               <td><code>start()</code>, which must run in a user gesture</td>
+            </tr>
+            <tr>
+              <td><code>channels</code></td>
+              <td>At least 1; the output device decides. The samples you write are interleaved at <code>channels</code></td>
+              <td>1 to 32. The samples you write are one mono stream, played on every channel</td>
             </tr>
             <tr>
               <td>Output device</td>
@@ -741,11 +980,11 @@ const speaker = new Speaker(options?);</code></pre>
             <div class="related-links">
         <h2>Related</h2>
         <ul>
-          <li><a href="/docs/apis">APIs overview</a>: decibri&rsquo;s four interface surfaces (Python, Node.js, Browser, CLI)</li>
-          <li><a href="/docs/apis/python">Python API</a>: same library, sync and async surface</li>
-          <li><a href="/docs/apis/node">Node.js API</a>: same library, different runtime</li>
+          <li><a href="/docs/apis">APIs overview</a>: Decibri&rsquo;s four interface surfaces (Python, Node.js, Browser, CLI)</li>
+          <li><a href="/docs/apis/python">Python API</a>: the native engine in Python, sync and async surface</li>
+          <li><a href="/docs/apis/node">Node.js API</a>: the native entry of the same npm package, including what the browser build does not carry</li>
           <li><a href="/docs/apis/cli">CLI API</a>: standalone command-line tool</li>
-          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: STT providers that work in the browser</li>
+          <li><a href="/docs/integrations/stt">Speech-to-text integrations</a>: STT providers, and which of them work from the browser</li>
           <li><a href="https://github.com/decibri" target="_blank" rel="noopener noreferrer">decibri on GitHub</a></li>
           <li><a href="https://www.npmjs.com/package/decibri" target="_blank" rel="noopener noreferrer">decibri on npm</a></li>
         </ul>
