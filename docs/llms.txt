@@ -14,6 +14,8 @@ npm:
 - Name: decibri
 - Install: npm install decibri
 - Requires: Node.js 18 or above
+- Requires on Linux: the ALSA runtime library `libasound.so.2`, which the native addon links against and npm does not install (`libasound2` on Debian and Ubuntu, `libasound2t64` from Debian 13 and Ubuntu 24.04 onwards, `alsa-lib` on Fedora and Arch)
+- Requires on Windows: the Microsoft Visual C++ Redistributable matching the Node.js architecture (x64 or arm64), which the native addon links against and npm does not install
 
 Shared metadata:
 - License: Apache-2.0
@@ -23,7 +25,7 @@ Shared metadata:
 
 ## What it does
 
-Decibri is a Rust core library with native bindings to Python (via PyO3) and Node.js (via napi-rs v3), plus a separate JavaScript browser build that runs on getUserMedia and AudioWorklet. The native runtimes (Python, Node.js, Rust) share the same cpal backend for direct OS audio access (WASAPI on Windows, CoreAudio on macOS, ALSA on Linux) and the same engine: capture, channel selection, resampling, the conditioning chain, echo cancellation, voice activity detection, playback, and offline audio files. Pre-built wheels for Python and pre-built native addons for Node.js ship for Windows x64, Windows arm64, macOS arm64, Linux x64, and Linux arm64 and install automatically with no build tools, no PortAudio, no node-gyp, no ffmpeg, and no SoX required. Silero VAD v6.2 is bundled (~2.3 MB ONNX model, inference runs in Rust via ONNX Runtime).
+Decibri is a Rust core library with native bindings to Python (via PyO3) and Node.js (via napi-rs v3), plus a separate JavaScript browser build that runs on getUserMedia and AudioWorklet. The native runtimes (Python, Node.js, Rust) share the same audio host backend for direct OS audio access (WASAPI on Windows, CoreAudio on macOS, ALSA on Linux) and the same engine: capture, channel selection, resampling, the conditioning chain, echo cancellation, voice activity detection, playback, and offline audio files. Pre-built wheels for Python and pre-built native addons for Node.js ship for Windows x64, Windows arm64, macOS arm64, Linux x64, and Linux arm64 and install automatically with no build tools required. Silero VAD v6.2 is bundled (~2.3 MB ONNX model, inference runs in Rust via ONNX Runtime).
 
 The browser build is selected through conditional exports: a bundler that resolves `decibri` for the browser gets the JavaScript implementation instead of the native addon. It carries a subset of the native surface: `Microphone` capture with the same channel options (`channels`, `channelMap`, and the `vad` config object's `source`), resampling to `sampleRate`, energy-based voice activity detection only (`vad: 'energy'` or `{ model: 'energy', ... }`), and `Speaker` playback (1 to 32 channels). The conditioning chain (`dcRemoval`, `denoise`, `highpass`, `agc`, `limiter`), Silero VAD, Decibri's echo cancellation (`aec`, `pushAecReference`, `aecMetrics`), `File`, and `AudioWriter` are not available in the browser build, and neither are `Microphone.open`, `Speaker.open`, the Node.js stream interfaces, the capture and playback counters, or the `DecibriError` classes.
 
@@ -153,7 +155,7 @@ Offline audio files (the `File` class, Python and Node.js; not in the browser bu
 
 Module-level helpers:
 - Device enumeration: `decibri.input_devices()` and `decibri.output_devices()` (Python) return `list[MicrophoneInfo]` and `list[SpeakerInfo]`. Node exposes the same data via `Microphone.devices()` and `Speaker.devices()`, plus the module-level `inputDevices()` and `outputDevices()` functions.
-- Version info: `decibri.version()` (Python) and `Microphone.version()`, `Speaker.version()`, or the module-level `version()` (Node) return a `VersionInfo` with three fields: the Decibri Rust core version (`decibri`), the audio backend version (`audio_backend` / `audioBackend`, the cpal version), and the binding package version (`binding`).
+- Version info: `decibri.version()` (Python) and `Microphone.version()`, `Speaker.version()`, or the module-level `version()` (Node) return a `VersionInfo` with three fields: the Decibri Rust core version (`decibri`), the audio backend version (`audio_backend` / `audioBackend`, the audio host version), and the binding package version (`binding`).
 - One-shot recording to disk (Python only; distinct from the `File` class above, which reads and conditions existing recordings): `decibri.record_to_file(path, duration_seconds, sample_rate=16000, channels=1, device=None)` and the async variant `decibri.async_record_to_file(...)` record a 16-bit PCM WAV file. `channels=1` writes the average of every device channel, and a count equal to the device's own writes every device channel interleaved; the helpers take no `channel_map`, so a strict subset of the device's channels needs `Microphone` with a `channel_map`. In Node.js, pipe the `Microphone` Readable into `fs.createWriteStream()` for raw PCM output, or into an `AudioWriter` with the same `sampleRate`, `channels`, and `dtype` for a WAV, AIFF, or FLAC file, written when the stream ends.
 
 Async (Python only):
@@ -246,7 +248,7 @@ import { Microphone, MicrophoneInfo, MicrophoneOptions } from 'decibri';
 
 ## What it does
 
-decibri-cli is a single self-contained binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same cpal-based backend as the decibri Python and Node.js packages. One binary per platform, no runtime dependencies to install on Windows and macOS (Linux builds link the ALSA library that ships with the OS), approximately 850 KB per release.
+decibri-cli is a single self-contained binary that captures audio to WAV files, plays WAV files, and enumerates audio devices on the system. It is built on the decibri Rust crate and uses the same audio host backend as the decibri Python and Node.js packages. One binary per platform, no runtime dependencies to install on Windows and macOS (Linux builds link the ALSA library that ships with the OS), approximately 850 KB per release.
 
 The Homebrew formula covers macOS and Linux on both Intel and arm64. It downloads the pre-built release archive and installs the `decibri` binary, so nothing is compiled. On Linux it needs the ALSA runtime library `libasound.so.2`, which Homebrew does not provide: install it with the distribution's package manager (`sudo apt install libasound2` on Debian/Ubuntu, `sudo dnf install alsa-lib` on Fedora, `sudo pacman -S alsa-lib` on Arch).
 

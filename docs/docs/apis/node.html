@@ -59,6 +59,10 @@
       <h1>Node.js API</h1>
       <p class="lead">Complete reference for the decibri Node.js API. For installation and basic usage, see <a href="/docs/getting-started">Getting started</a>.</p>
 
+      <div class="callout">
+        <strong>System requirements on Linux and Windows.</strong> On these platforms the native addon needs a system library that npm does not install, and the addon does not load without it. On Linux, that is the ALSA runtime library <code>libasound.so.2</code>: install <code>libasound2</code> on Debian and Ubuntu (<code>libasound2t64</code> from Debian 13 and Ubuntu 24.04 onwards), or <code>alsa-lib</code> on Fedora and Arch. On Windows, it is the <a href="https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist" target="_blank" rel="noopener noreferrer">Microsoft Visual C++ Redistributable</a> matching your Node.js architecture (x64 or ARM64). On macOS the addon needs nothing beyond the operating system.
+      </div>
+
       <h2>Constructor</h2>
       <h3><code>new Microphone(options?)</code></h3>
       <p>Creates a Node.js Readable stream that captures raw PCM audio from the system microphone.</p>
