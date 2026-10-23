@@ -85,6 +85,8 @@
   --accent-glow-strong: rgba(94, 163, 248, 0.25);
   --red: #ff6b6b;
   --red-dim: rgba(255, 107, 107, 0.12);
+  --logo-text: #ffffff;
+  --logo-accent: #5ea3f8;
   --font-display: 'Outfit Inline', 'Outfit', 'Outfit Fallback', sans-serif;
   --font-mono: 'JetBrains Mono Inline', 'JetBrains Mono', 'JetBrains Mono Fallback', monospace;
   --sidebar-width: 260px;
@@ -105,6 +107,8 @@
   --accent-glow-strong: rgba(29, 91, 191, 0.18);
   --red: #d94444;
   --red-dim: rgba(217, 68, 68, 0.08);
+  --logo-text: #0d1b2e;
+  --logo-accent: #5ea3f8;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -150,31 +154,14 @@ body {
 }
 
 .sidebar-logo {
-  font-family: var(--font-mono);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+  display: block;
   text-decoration: none;
-  letter-spacing: -0.5px;
 }
 
-.sidebar-logo span { color: var(--accent); }
-
-.sidebar-logo::before {
-  content: '';
-  display: inline-block;
-  width: 24px;
+.sidebar-logo svg {
+  display: block;
+  width: auto;
   height: 24px;
-  margin-right: 3px;
-  vertical-align: -7px;
-  flex-shrink: 0;
-  background-color: var(--accent);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
 }
 
 .sidebar-actions {
@@ -340,32 +327,25 @@ body {
 }
 
 .nav-logo {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
+  display: block;
   text-decoration: none;
-  letter-spacing: -0.5px;
 }
 
-.nav-logo span { color: var(--accent); }
-
-.nav-logo::before {
-  content: '';
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin-right: 3px;
-  vertical-align: -7px;
-  flex-shrink: 0;
-  background-color: var(--accent);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Cg transform='translate(64,64)' stroke='%23fff' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='-46.7' y1='-8' x2='-46.7' y2='8'/%3E%3Cline x1='-33.3' y1='-21.3' x2='-33.3' y2='21.3'/%3E%3Cline x1='-20' y1='-48' x2='-20' y2='48'/%3E%3Cline x1='-6.7' y1='-32' x2='-6.7' y2='32'/%3E%3Cline x1='6.7' y1='-56' x2='6.7' y2='56'/%3E%3Cline x1='20' y1='-18.7' x2='20' y2='18.7'/%3E%3Cline x1='33.3' y1='-37.3' x2='33.3' y2='37.3'/%3E%3Cline x1='46.7' y1='-8' x2='46.7' y2='8'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+.nav-logo svg {
+  display: block;
+  width: auto;
+  height: 30px;
 }
+
+@media (max-width: 640px) {
+  .nav-logo svg { height: 24px; }
+}
+
+.logo-text { fill: var(--logo-text); }
+.logo-accent { fill: var(--logo-accent); }
+
+/* Docs only: the top nav logo is 24px at every width it shows, in place of the shared 30px. */
+.docs-nav .nav-logo svg { height: 24px; }
 
 .mobile-nav {
   display: none;
