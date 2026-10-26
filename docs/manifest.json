@@ -1,7 +1,7 @@
 {
-  "name": "decibri",
-  "short_name": "decibri",
-  "description": "Cross-platform audio capture and output for Node.js",
+  "name": "Decibri",
+  "short_name": "Decibri",
+  "description": "Decibri is the unified audio layer for AI agents and Voice AI applications. Real-time microphone capture, speaker output and voice activity detection for Python, Node.js and Rust.",
   "start_url": "/",
   "display": "browser",
   "background_color": "#0a0a0f",

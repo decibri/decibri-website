@@ -7,7 +7,8 @@
   <meta name="theme-color" content="#f8f8fb" media="(prefers-color-scheme: light)">
   <script>
     (function() {
-      var t = localStorage.getItem('decibri-theme');
+      var t;
+      try { t = localStorage.getItem('decibri-theme'); } catch (e) {}
       if (t) document.documentElement.setAttribute('data-theme', t);
       else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
     })();
@@ -575,7 +576,7 @@
       var current = html.getAttribute('data-theme');
       var next = current === 'light' ? 'dark' : 'light';
       html.setAttribute('data-theme', next);
-      localStorage.setItem('decibri-theme', next);
+      try { localStorage.setItem('decibri-theme', next); } catch (e) {}
     }
 
     function toggleMobileMenu() {
